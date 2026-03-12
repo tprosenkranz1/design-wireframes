@@ -1,0 +1,425 @@
+import { useState } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from "recharts";
+
+const navy = "#1a2e4a";
+const accent = "#3b82f6";
+const emerald = "#10b981";
+const amber = "#f59e0b";
+const rose = "#ef4444";
+const slate = "#64748b";
+const purple = "#8b5cf6";
+const cyan = "#06b6d4";
+
+const palette = [accent, emerald, amber, purple, cyan, rose, navy, "#ec4899"];
+
+const channelS1 = [
+  { channel: "Offline / Intent", s1: 76 },
+  { channel: "GC-Led", s1: 41 },
+  { channel: "Off-Platform", s1: 27 },
+  { channel: "Referral", s1: 25 },
+  { channel: "On-Platform", s1: 22 },
+  { channel: "Partnership", s1: 18 },
+  { channel: "Pipeline", s1: 2 },
+];
+
+const entryPoints = [
+  { name: "Ctx. Triggers", views: 540, interactions: 8, ctr: 1.5, canS1: true },
+  { name: "EPP Banners", views: 490, interactions: 11, ctr: 2.2, canS1: false },
+  { name: "EPP Home Page", views: 480, interactions: 38, ctr: 7.9, canS1: true },
+  { name: "Registration", views: 320, interactions: 16, ctr: 5.0, canS1: false },
+  { name: "Reg. Emails", views: 180, interactions: 12, ctr: 6.7, canS1: true },
+  { name: "Post-Contract", views: 110, interactions: 6, ctr: 5.5, canS1: false },
+  { name: "Rewards", views: 75, interactions: 2, ctr: 2.7, canS1: true },
+  { name: "Pre-Approval", views: 28, interactions: 13, ctr: 46.4, canS1: true },
+  { name: "ROI Calculator", views: 8, interactions: 3, ctr: 37.5, canS1: false },
+];
+
+// Only entry points that can produce S1s
+const s1Attr = [
+  { name: "EPP Home", direct: 3, viaEnroll: 3, total: 6 },
+  { name: "Pre-Approval", direct: 1, viaEnroll: 2, total: 3 },
+  { name: "Registration", direct: 0, viaEnroll: 2, total: 2 },
+  { name: "Reg. Emails", direct: 1, viaEnroll: 1, total: 2 },
+  { name: "Ctx. Triggers", direct: 1, viaEnroll: 0, total: 1 },
+  { name: "ROI Calc", direct: 0, viaEnroll: 1, total: 1 },
+  { name: "Rewards", direct: 1, viaEnroll: 0, total: 1 },
+];
+const totalS1 = s1Attr.reduce((s, d) => s + d.total, 0);
+
+const viewTrends = [
+  { m: "Oct", "EPP Home": 380, "Triggers": 320, "Registration": 280, "Pre-Approval": 20, "Banners": 0 },
+  { m: "Nov", "EPP Home": 420, "Triggers": 380, "Registration": 300, "Pre-Approval": 24, "Banners": 0 },
+  { m: "Dec", "EPP Home": 350, "Triggers": 290, "Registration": 250, "Pre-Approval": 18, "Banners": 0 },
+  { m: "Jan", "EPP Home": 480, "Triggers": 540, "Registration": 320, "Pre-Approval": 28, "Banners": 490 },
+  { m: "Feb", "EPP Home": 460, "Triggers": 570, "Registration": 310, "Pre-Approval": 25, "Banners": 520 },
+  { m: "Mar", "EPP Home": 510, "Triggers": 620, "Registration": 340, "Pre-Approval": 32, "Banners": 540 },
+];
+
+const s1Trends = [
+  { m: "Oct", "EPP Home": 5, "Pre-Approval": 1, "Registration": 1, "Reg. Emails": 1, "Triggers": 0, "ROI Calc": 0, "Rewards": 0 },
+  { m: "Nov", "EPP Home": 7, "Pre-Approval": 2, "Registration": 2, "Reg. Emails": 1, "Triggers": 0, "ROI Calc": 1, "Rewards": 0 },
+  { m: "Dec", "EPP Home": 5, "Pre-Approval": 1, "Registration": 1, "Reg. Emails": 1, "Triggers": 0, "ROI Calc": 0, "Rewards": 0 },
+  { m: "Jan", "EPP Home": 7, "Pre-Approval": 2, "Registration": 2, "Reg. Emails": 2, "Triggers": 0, "ROI Calc": 1, "Rewards": 1 },
+  { m: "Feb", "EPP Home": 6, "Pre-Approval": 3, "Registration": 2, "Reg. Emails": 2, "Triggers": 1, "ROI Calc": 1, "Rewards": 1 },
+  { m: "Mar", "EPP Home": 9, "Pre-Approval": 3, "Registration": 3, "Reg. Emails": 2, "Triggers": 1, "ROI Calc": 1, "Rewards": 1 },
+];
+
+const popData = [
+  { name: "Organic", value: 380, color: emerald },
+  { name: "Sales-Directed", value: 120, color: amber },
+  { name: "GC-Led", value: 60, color: slate },
+];
+
+const assistData = [
+  { source: "EPP Home (S1)", preAppr: 40, roi: 15, banners: 25, triggers: 10, reg: 5, emails: 8, postContract: 5 },
+  { source: "App Flow (S1)", preAppr: 20, roi: 30, banners: 35, triggers: 15, reg: 0, emails: 5, postContract: 12 },
+  { source: "Direct Book (S1)", preAppr: 30, roi: 5, banners: 20, triggers: 20, reg: 10, emails: 15, postContract: 3 },
+  { source: "Enroll>SDR (S1)", preAppr: 25, roi: 10, banners: 15, triggers: 8, reg: 12, emails: 20, postContract: 8 },
+];
+
+const Tip = ({ active, payload, label }) => {
+  if (!active || !payload) return null;
+  return (
+    <div style={{ background: navy, color: "#fff", padding: "10px 14px", borderRadius: 6, fontSize: 12, boxShadow: "0 4px 12px rgba(0,0,0,.3)" }}>
+      <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
+      {payload.map((p, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+          <span style={{ width: 8, height: 8, borderRadius: 2, background: p.color, display: "inline-block" }} />
+          <span style={{ opacity: .7 }}>{p.name}:</span>
+          <span style={{ fontWeight: 600 }}>{typeof p.value === "number" ? p.value.toLocaleString() : p.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const Card = ({ children, title, sub, span = 1 }) => (
+  <div style={{ gridColumn: `span ${span}`, background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0", padding: "20px 24px" }}>
+    {title && <div style={{ fontSize: 14, fontWeight: 700, color: navy, marginBottom: 2 }}>{title}</div>}
+    {sub && <div style={{ fontSize: 11, color: slate, marginBottom: 14 }}>{sub}</div>}
+    {children}
+  </div>
+);
+
+const Stat = ({ label, value, sub, color = navy }) => (
+  <div style={{ textAlign: "center", padding: "10px 6px" }}>
+    <div style={{ fontSize: 26, fontWeight: 800, color, letterSpacing: "-1px" }}>{value}</div>
+    <div style={{ fontSize: 11, fontWeight: 600, color: navy, marginTop: 2 }}>{label}</div>
+    {sub && <div style={{ fontSize: 10, color: slate, marginTop: 2 }}>{sub}</div>}
+  </div>
+);
+
+const tabs = ["Overview", "Entry Points", "S1 Attribution", "Trends", "Assist Matrix"];
+
+export default function App() {
+  const [tab, setTab] = useState("Overview");
+
+  return (
+    <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", background: "#f1f5f9", minHeight: "100vh" }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+      <div style={{ background: `linear-gradient(135deg, ${navy} 0%, #2d4a6f 100%)`, padding: "18px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ color: "#fff", fontSize: 18, fontWeight: 800, letterSpacing: "-0.5px" }}>EPP Performance Dashboard</div>
+          <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>Early Pay Program | Q1 FY26 | Synthetic Data</div>
+        </div>
+        <div style={{ display: "flex", gap: 2, background: "rgba(255,255,255,.08)", borderRadius: 8, padding: 3 }}>
+          {tabs.map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{
+              padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer",
+              fontSize: 11, fontWeight: 600, fontFamily: "inherit",
+              background: tab === t ? accent : "transparent",
+              color: tab === t ? "#fff" : "#94a3b8",
+              transition: "all .15s"
+            }}>{t}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "20px 28px", maxWidth: 1100, margin: "0 auto" }}>
+
+        {tab === "Overview" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+            <Card><Stat label="Total Enrollments" value="18.8K" sub="Q1 2026" /></Card>
+            <Card><Stat label="Total S1s" value="211" sub="Q1 2026" color={accent} /></Card>
+            <Card><Stat label="On-Platform S1s" value="22" sub="10.4% of total" color={emerald} /></Card>
+            <Card><Stat label="S6 (Funded)" value="37" sub="Q1 2026" color={amber} /></Card>
+
+            <Card title="S1 Distribution by Channel" sub="All channels, Q1 2026" span={2}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={channelS1} layout="vertical" margin={{ left: 10, right: 20 }}>
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
+                  <YAxis dataKey="channel" type="category" tick={{ fontSize: 10 }} width={95} />
+                  <Tooltip content={<Tip />} />
+                  <Bar dataKey="s1" fill={accent} radius={[0, 4, 4, 0]} name="S1s" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            <Card title="On-Platform Population Split" sub="Who's interacting with product surfaces? (Feb)" span={2}>
+              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                <ResponsiveContainer width="45%" height={200}>
+                  <PieChart>
+                    <Pie data={popData} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={78} paddingAngle={3}>
+                      {popData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                    </Pie>
+                    <Tooltip content={<Tip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ flex: 1 }}>
+                  {popData.map((d, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 2, background: d.color }} />
+                      <div>
+                        <span style={{ fontSize: 12, fontWeight: 600 }}>{d.name}</span>
+                        <span style={{ fontSize: 11, color: slate, marginLeft: 6 }}>{d.value} cos ({(d.value/560*100).toFixed(0)}%)</span>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 10, padding: "7px 10px", background: "#fef3c7", borderRadius: 6, fontSize: 10, color: "#92400e" }}>
+                    32% of on-platform activity is non-organic. Filtering prevents inflated product metrics.
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {tab === "Entry Points" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
+            <Card title="Traffic Volume by Entry Point" sub="Unique company views, Feb 2026" span={2}>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={entryPoints} margin={{ left: 10, right: 20, bottom: 35 }}>
+                  <XAxis dataKey="name" tick={{ fontSize: 9 }} angle={-25} textAnchor="end" interval={0} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<Tip />} />
+                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                  <Bar dataKey="views" fill={accent} radius={[3, 3, 0, 0]} name="Views" />
+                  <Bar dataKey="interactions" fill={emerald} radius={[3, 3, 0, 0]} name="Interactions" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            <Card title="CTR by Entry Point" sub="Interactions / Views, sorted by CTR">
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={[...entryPoints].sort((a, b) => b.ctr - a.ctr)} layout="vertical" margin={{ left: 5, right: 25 }}>
+                  <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={v => v + "%"} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={90} />
+                  <Tooltip content={<Tip />} formatter={v => v + "%"} />
+                  <Bar dataKey="ctr" fill={amber} radius={[0, 4, 4, 0]} name="CTR %" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            <Card title="Entry Point Classification" sub="How each surface can contribute to S1s">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 4 }}>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: emerald, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>S1 Direct + Enrollment</div>
+                  {["EPP Home Page", "Pre-Approval", "Ctx. Triggers", "Reg. Emails", "Rewards"].map((e, i) => (
+                    <div key={i} style={{ padding: "5px 10px", background: "#f0fdf4", borderRadius: 6, marginBottom: 4, fontSize: 11, fontWeight: 500, color: navy, borderLeft: `3px solid ${emerald}` }}>
+                      {e}
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: amber, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Enrollment Only (No Direct S1)</div>
+                  {["Registration", "ROI Calculator"].map((e, i) => (
+                    <div key={i} style={{ padding: "5px 10px", background: "#fffbeb", borderRadius: 6, marginBottom: 4, fontSize: 11, fontWeight: 500, color: navy, borderLeft: `3px solid ${amber}` }}>
+                      {e}
+                    </div>
+                  ))}
+                  <div style={{ fontSize: 9, color: slate, marginTop: 4, lineHeight: 1.3 }}>These create enrollments that sales works to S1. They get S1 via Enrollment credit but never S1 Direct.</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: slate, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Pure Assist (Feeds Others)</div>
+                  {["EPP Banners", "Post-Contract"].map((e, i) => (
+                    <div key={i} style={{ padding: "5px 10px", background: "#f8fafc", borderRadius: 6, marginBottom: 4, fontSize: 11, fontWeight: 500, color: slate, borderLeft: `3px solid #cbd5e1` }}>
+                      {e}
+                    </div>
+                  ))}
+                  <div style={{ fontSize: 9, color: slate, marginTop: 4, lineHeight: 1.3 }}>No enrollment or S1 path. Value measured only through assist matrix.</div>
+                </div>
+              </div>
+            </Card>
+
+            <Card title="Key Takeaways" span={2}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                {[
+                  { t: "Highest Volume", v: "Ctx. Triggers (540)", d: "Strong impressions but only 1.5% CTR. Validates Q1 plan to convert to inline actions.", c: accent },
+                  { t: "Highest CTR", v: "Pre-Approval (46%)", d: "Tiny volume but users who get there are extremely high intent. Strong assist surface.", c: emerald },
+                  { t: "Core Converter", v: "EPP Home (7.9% CTR)", d: "Largest S1 generator. 480 views with both self-serve and sales-assisted paths.", c: amber },
+                ].map((ins, i) => (
+                  <div key={i} style={{ padding: "12px 14px", borderRadius: 8, border: `2px solid ${ins.c}18`, background: `${ins.c}06` }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: ins.c, textTransform: "uppercase", letterSpacing: "0.5px" }}>{ins.t}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: navy, marginTop: 4 }}>{ins.v}</div>
+                    <div style={{ fontSize: 10, color: slate, marginTop: 4, lineHeight: 1.4 }}>{ins.d}</div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {tab === "S1 Attribution" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
+            <Card title="S1 Last-Touch Attribution" sub="Which entry point gets credit? Feb 2026. Only S1-capable surfaces shown." span={2}>
+              <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+                <ResponsiveContainer width="38%" height={240}>
+                  <PieChart>
+                    <Pie data={s1Attr} dataKey="total" cx="50%" cy="50%" innerRadius={45} outerRadius={85} paddingAngle={2}>
+                      {s1Attr.map((_, i) => <Cell key={i} fill={palette[i]} />)}
+                    </Pie>
+                    <Tooltip content={<Tip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ flex: 1 }}>
+                  {s1Attr.map((d, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: 2, background: palette[i] }} />
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600 }}>{d.name}</span>
+                        <span style={{ fontSize: 10, color: slate, marginLeft: 6 }}>
+                          {d.direct > 0 ? `${d.direct} direct` : ""}{d.direct > 0 && d.viaEnroll > 0 ? " + " : ""}{d.viaEnroll > 0 ? `${d.viaEnroll} via enroll` : ""}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: navy }}>{(d.total / totalS1 * 100).toFixed(0)}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+
+            <Card title="Self-Serve vs. Sales-Assisted" sub="Stacked by entry point">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={s1Attr.filter(d => d.total > 0)} layout="vertical" margin={{ left: 5, right: 15 }}>
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={85} />
+                  <Tooltip content={<Tip />} />
+                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                  <Bar dataKey="direct" stackId="a" fill={emerald} name="Self-Serve (S1 Direct)" />
+                  <Bar dataKey="viaEnroll" stackId="a" fill={amber} name="Sales-Assisted (via Enrollment)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            <Card title="View-to-S1 Efficiency" sub="Which surfaces convert views to S1s most efficiently?">
+              <div style={{ marginTop: 6 }}>
+                {[
+                  { name: "Pre-Approval", views: 28, s1: 3, rate: 10.7 },
+                  { name: "EPP Home Page", views: 480, s1: 6, rate: 1.3 },
+                  { name: "Reg. Emails", views: 180, s1: 2, rate: 1.1 },
+                  { name: "Registration", views: 320, s1: 2, rate: 0.6 },
+                  { name: "Ctx. Triggers", views: 540, s1: 1, rate: 0.2 },
+                  { name: "ROI Calculator", views: 8, s1: 1, rate: 12.5 },
+                  { name: "Rewards", views: 75, s1: 1, rate: 1.3 },
+                ].sort((a, b) => b.rate - a.rate).map((d, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 2 }}>
+                      <span style={{ fontWeight: 600 }}>{d.name}</span>
+                      <span style={{ color: slate }}>{d.rate}% ({d.s1}/{d.views})</span>
+                    </div>
+                    <div style={{ height: 6, background: "#e2e8f0", borderRadius: 3, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${Math.min(d.rate * 7, 100)}%`, background: accent, borderRadius: 3 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {tab === "Trends" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
+            <Card title="Entry Point Views Over Time" sub="Monthly unique company views. Banners launched Jan." span={1}>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={viewTrends} margin={{ left: 10, right: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="m" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<Tip />} />
+                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                  <Line type="monotone" dataKey="EPP Home" stroke={accent} strokeWidth={2.5} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Triggers" stroke={rose} strokeWidth={2.5} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Registration" stroke={emerald} strokeWidth={2.5} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Banners" stroke={amber} strokeWidth={2.5} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="Pre-Approval" stroke={purple} strokeWidth={2.5} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+
+            <Card title="S1 Attribution Over Time" sub="Monthly last-touch S1s by entry point. EPP Home dominates but others growing." span={1}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={s1Trends} margin={{ left: 10, right: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="m" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<Tip />} />
+                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                  <Bar dataKey="EPP Home" stackId="a" fill={accent} name="EPP Home" />
+                  <Bar dataKey="Pre-Approval" stackId="a" fill={purple} name="Pre-Approval" />
+                  <Bar dataKey="Registration" stackId="a" fill={emerald} name="Registration" />
+                  <Bar dataKey="Reg. Emails" stackId="a" fill={cyan} name="Reg. Emails" />
+                  <Bar dataKey="Triggers" stackId="a" fill={rose} name="Triggers" />
+                  <Bar dataKey="ROI Calc" stackId="a" fill={amber} name="ROI Calc" />
+                  <Bar dataKey="Rewards" stackId="a" fill={slate} name="Rewards" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
+        )}
+
+        {tab === "Assist Matrix" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
+            <Card title="Pre-Funnel Assist Heatmap" sub="% of S1s from [row] that had prior 30-day interaction with [column]. These are assist-only + feeder surfaces.">
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: "9px 10px", textAlign: "left", background: navy, color: "#fff", borderRadius: "6px 0 0 0", fontSize: 11 }}>Last-Touch Source</th>
+                      {["Pre-Appr.", "ROI Calc", "Banners", "Triggers", "Reg.", "Emails", "Post-Contract"].map((h, i) => (
+                        <th key={i} style={{ padding: "9px 6px", textAlign: "center", background: navy, color: "#fff", fontSize: 10, borderRadius: i === 6 ? "0 6px 0 0" : 0 }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assistData.map((row, ri) => (
+                      <tr key={ri}>
+                        <td style={{ padding: "9px 10px", fontWeight: 600, borderBottom: "1px solid #e2e8f0", background: ri % 2 ? "#f8fafc" : "#fff" }}>{row.source}</td>
+                        {[row.preAppr, row.roi, row.banners, row.triggers, row.reg, row.emails, row.postContract].map((v, ci) => {
+                          const bg = `rgba(59, 130, 246, ${Math.min(v / 60, 1) * 0.35})`;
+                          return (
+                            <td key={ci} style={{
+                              padding: "9px 6px", textAlign: "center", borderBottom: "1px solid #e2e8f0",
+                              background: bg, fontWeight: v >= 25 ? 700 : 400, color: v >= 25 ? navy : "#475569", fontSize: 11
+                            }}>{v}%</td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+                {[
+                  { flow: "Pre-Approval > EPP Home (S1)", pct: "40%", note: "Pre-Approval primes intent. 4 in 10 EPP Home S1s had prior Pre-Approval activity." },
+                  { flow: "Banners > App Flow (S1)", pct: "35%", note: "Over a third of Application Flow S1s saw a banner first. Banners working as awareness drivers." },
+                  { flow: "ROI Calc > App Flow (S1)", pct: "30%", note: "Users who see their personalized ROI convert to Application at higher rates." },
+                  { flow: "Triggers > Direct Booking (S1)", pct: "20%", note: "1 in 5 direct bookings had prior trigger exposure. Validates inline action investment." },
+                ].map((a, i) => (
+                  <div key={i} style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fafafa" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: navy }}>{a.flow}</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: accent }}>{a.pct}</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: slate, lineHeight: 1.4 }}>{a.note}</div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
