@@ -3,219 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Constrafor - Wireframes v3</title>
+<title>Constrafor Wireframes v5</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f6f8; color: #1b2a4a; font-size: 14px; line-height: 1.5; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',-apple-system,sans-serif;background:#f5f6f8;color:#1b2a4a;font-size:14px;line-height:1.5;}
 
-  /* ---- Screen switcher ---- */
-  .tabs-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: #0d1520; display: flex; align-items: center; padding: 0 20px; height: 40px; gap: 4px; }
-  .tabs-bar .tabs-label { color: rgba(255,255,255,0.35); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-right: 10px; }
-  .tab-btn { padding: 5px 12px; color: rgba(255,255,255,0.45); cursor: pointer; font-size: 12px; font-weight: 500; border-radius: 5px; border: none; background: none; transition: all 0.12s; }
-  .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.07); }
-  .tab-btn.active { color: #fff; background: rgba(255,255,255,0.12); }
-  .screen { display: none; padding-top: 40px; }
-  .screen.active { display: flex; }
+  /* Tabs */
+  .tabs{position:fixed;top:0;left:0;right:0;z-index:200;background:#0d1520;display:flex;align-items:center;padding:0 20px;height:40px;gap:4px;}
+  .tabs .tl{color:rgba(255,255,255,.35);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-right:10px;}
+  .tb{padding:5px 12px;color:rgba(255,255,255,.45);cursor:pointer;font-size:12px;font-weight:500;border-radius:5px;border:none;background:none;}
+  .tb:hover{color:#fff;background:rgba(255,255,255,.07);}
+  .tb.on{color:#fff;background:rgba(255,255,255,.12);}
+  .scr{display:none;padding-top:40px;}.scr.on{display:flex;}
 
-  /* ---- Side Nav (matches Constrafor) ---- */
-  .nav { width: 68px; min-height: calc(100vh - 40px); background: #fff; border-right: 1px solid #e6e8ed; display: flex; flex-direction: column; align-items: center; padding: 14px 0; position: fixed; left: 0; top: 40px; bottom: 0; z-index: 50; }
-  .nav-logo { width: 34px; height: 34px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; }
-  .nav-logo svg { width: 34px; height: 34px; }
-  .nav-link { display: flex; flex-direction: column; align-items: center; padding: 9px 4px; cursor: pointer; border-radius: 7px; margin: 1px 5px; width: 58px; color: #8c95a6; text-decoration: none; position: relative; transition: all 0.1s; }
-  .nav-link:hover { background: #f2f3f6; color: #1b2a4a; }
-  .nav-link.on { background: #edf1fb; color: #1b5fb5; }
-  .nav-link svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 3px; }
-  .nav-link span { font-size: 9.5px; font-weight: 500; }
-  .nav-link .badge { position: absolute; top: 3px; right: 5px; background: #d94c4c; color: #fff; font-size: 8px; font-weight: 700; min-width: 14px; height: 14px; border-radius: 7px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+  /* Nav */
+  .nv{width:68px;min-height:calc(100vh - 40px);background:#fff;border-right:1px solid #e6e8ed;display:flex;flex-direction:column;align-items:center;padding:14px 0;position:fixed;left:0;top:40px;bottom:0;z-index:50;}
+  .nv-logo{width:34px;height:34px;margin-bottom:24px;}
+  .nv-logo svg{width:34px;height:34px;}
+  .nl{display:flex;flex-direction:column;align-items:center;padding:9px 4px;cursor:pointer;border-radius:7px;margin:1px 5px;width:58px;color:#8c95a6;text-decoration:none;position:relative;}
+  .nl:hover{background:#f2f3f6;color:#1b2a4a;}
+  .nl.ac{background:#edf1fb;color:#1b5fb5;}
+  .nl svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:3px;}
+  .nl span{font-size:9.5px;font-weight:500;}
+  .nl .bd{position:absolute;top:3px;right:5px;background:#d94c4c;color:#fff;font-size:8px;font-weight:700;min-width:14px;height:14px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
 
-  /* ---- Main area ---- */
-  .main { margin-left: 68px; flex: 1; padding: 24px 32px; max-width: 1100px; }
+  /* Main */
+  .mn{margin-left:68px;flex:1;padding:24px 32px;max-width:1100px;}
 
-  /* ---- Core components ---- */
-  .card { background: #fff; border-radius: 10px; border: 1px solid #e6e8ed; margin-bottom: 12px; }
-  .card-body { padding: 16px 18px; }
-  .card-header-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f0f1f4; }
-  .card-header-row h3 { font-size: 14px; font-weight: 600; }
-  .card-header-row a { font-size: 12px; color: #1b5fb5; text-decoration: none; font-weight: 500; cursor: pointer; }
+  /* Card */
+  .cd{background:#fff;border-radius:10px;border:1px solid #e6e8ed;margin-bottom:12px;}
+  .cd-body{padding:16px 18px;}
+  .cd-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #f0f1f4;}
+  .cd-hd h3{font-size:13px;font-weight:600;}
+  .cd-hd a{font-size:12px;color:#1b5fb5;text-decoration:none;font-weight:500;cursor:pointer;}
 
-  .section-title { font-size: 13px; font-weight: 600; color: #1b2a4a; margin-bottom: 10px; }
-  .page-title { font-size: 20px; font-weight: 600; color: #1b2a4a; }
-  .page-sub { font-size: 13px; color: #8c95a6; margin-top: 2px; }
+  .st{font-size:13px;font-weight:600;color:#1b2a4a;margin-bottom:10px;}
+  .pt{font-size:20px;font-weight:600;}
+  .ps{font-size:13px;color:#8c95a6;margin-top:2px;}
 
-  /* ---- Simple list rows ---- */
-  .list-row { display: flex; align-items: center; padding: 10px 18px; gap: 12px; border-bottom: 1px solid #f5f6f8; cursor: pointer; transition: background 0.08s; }
-  .list-row:last-child { border-bottom: none; }
-  .list-row:hover { background: #fafbfd; }
-  .list-row .row-text { flex: 1; }
-  .list-row .row-title { font-size: 13px; font-weight: 500; color: #1b2a4a; }
-  .list-row .row-sub { font-size: 11px; color: #8c95a6; margin-top: 1px; }
-  .list-row .row-meta { font-size: 11px; color: #8c95a6; text-align: right; white-space: nowrap; }
-  .list-row .row-meta strong { color: #1b2a4a; font-weight: 600; }
+  /* ---- Actions section: grey shell + white item cards ---- */
+  .ac-sect{background:#f2f3f6;border-radius:10px;border:1px solid #e0e2e8;padding:10px;margin-bottom:10px;}
+  .ac-jh{font-size:13px;font-weight:600;color:#1b2a4a;padding:4px 4px 8px;margin-bottom:4px;}
+  .ac-jh span{font-weight:400;color:#8c95a6;font-size:12px;}
+  /* Grid layout: dot | label | tag | due — columns lock regardless of text length */
+  .ac-item{background:#fff;border-radius:8px;border:1px solid #eaecf0;padding:11px 14px;margin-bottom:6px;display:grid;grid-template-columns:10px 1fr 90px 96px;gap:10px;align-items:center;cursor:pointer;transition:box-shadow .1s;}
+  .ac-item:last-child{margin-bottom:0;}
+  .ac-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .ac-dot{width:8px;height:8px;border-radius:50%;margin-top:1px;}
+  .ac-dot.red{background:#d94c4c;}.ac-dot.yw{background:#e8a020;}.ac-dot.bl{background:#4a90d9;}
+  .ac-label{font-size:13px;font-weight:500;color:#1b2a4a;}
+  .ac-tag{font-size:11px;font-weight:500;color:#5a6578;background:#f0f2f5;padding:2px 8px;border-radius:4px;text-align:center;}
+  .ac-due{font-size:11px;font-weight:600;text-align:right;}
+  .ac-due.red{color:#c94040;}.ac-due.yw{color:#b88020;}.ac-due.dn{color:#8c95a6;}
 
-  /* ---- Sparkle indicator for agent items ---- */
-  .sparkle-sm { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .sparkle-sm svg { width: 14px; height: 14px; fill: none; stroke: #c8a840; stroke-width: 1.5; }
+  /* ---- Recent updates: uniform rows, agent rows get warm tint ---- */
+  .lr{display:flex;align-items:center;padding:11px 18px;gap:12px;border-bottom:1px solid #f5f6f8;cursor:pointer;transition:background .08s;}
+  .lr:last-child{border-bottom:none;}
+  .lr:hover{background:#fafbfd;}
+  .lr.ag{background:#fffdf5;}
+  .lr.ag:hover{background:#fffbf0;}
+  .lr .rt{flex:1;min-width:0;}
+  .lr .rn{font-size:13px;font-weight:500;color:#1b2a4a;display:flex;align-items:center;gap:5px;}
+  .lr .rs{font-size:11px;color:#8c95a6;margin-top:1px;}
+  .lr .rm{font-size:11px;color:#8c95a6;text-align:right;white-space:nowrap;flex-shrink:0;}
+  /* Inline sparkle icon used inside .rn text */
+  .sp-i{width:13px;height:13px;fill:none;stroke:#c8a840;stroke-width:1.6;flex-shrink:0;}
 
-  /* ---- Due/deadline text ---- */
-  .due-urgent { color: #c94040; font-weight: 600; }
-  .due-soon { color: #b88020; font-weight: 500; }
-  .due-normal { color: #8c95a6; }
+  /* Status badge */
+  .sb{display:inline-block;padding:3px 10px;border-radius:14px;font-size:11px;font-weight:600;}
+  .sb.gr{background:#e6f3e6;color:#2a7a3a;}
+  .sb.yw{background:#fef3e0;color:#b87a00;}
 
-  /* ---- Status badge ---- */
-  .status { display: inline-block; padding: 3px 10px; border-radius: 14px; font-size: 11px; font-weight: 600; }
-  .status.active { background: #e6f3e6; color: #2a7a3a; }
-  .status.review { background: #fef3e0; color: #b87a00; }
+  /* Table */
+  .jtbl{width:100%;border-collapse:collapse;}
+  .jtbl th{text-align:left;font-size:11px;font-weight:600;color:#1b5fb5;padding:10px 16px;border-bottom:2px solid #e6e8ed;}
+  .jtbl td{padding:13px 16px;border-bottom:1px solid #f2f3f6;font-size:13px;color:#3a4560;}
+  .jtbl tr{cursor:pointer;}.jtbl tr:hover td{background:#fafbff;}
+  .jtbl .jn{font-weight:600;color:#1b2a4a;}
 
-  /* ---- Jobs table ---- */
-  .jobs-tbl { width: 100%; border-collapse: collapse; }
-  .jobs-tbl th { text-align: left; font-size: 11px; font-weight: 600; color: #1b5fb5; padding: 10px 16px; border-bottom: 2px solid #e6e8ed; }
-  .jobs-tbl td { padding: 13px 16px; border-bottom: 1px solid #f2f3f6; font-size: 13px; color: #3a4560; }
-  .jobs-tbl tr { cursor: pointer; }
-  .jobs-tbl tr:hover td { background: #fafbff; }
-  .jobs-tbl .job-name { font-weight: 600; color: #1b2a4a; }
+  /* Filters */
+  .fl{display:flex;gap:8px;margin-bottom:12px;align-items:center;}
+  .fb{padding:5px 11px;border:1px solid #dde0e6;border-radius:6px;font-size:12px;background:#fff;cursor:pointer;color:#5a6578;font-weight:500;display:flex;align-items:center;gap:4px;}
+  .fb svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;}
+  .sb-in{padding:5px 10px 5px 28px;border:1px solid #dde0e6;border-radius:6px;font-size:12px;width:180px;outline:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c95a6' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 8px center no-repeat;}
+  .sb-in:focus{border-color:#1b5fb5;}
 
-  /* ---- Filter bar ---- */
-  .filters { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-  .filter-btn { padding: 5px 11px; border: 1px solid #dde0e6; border-radius: 6px; font-size: 12px; background: #fff; cursor: pointer; color: #5a6578; font-weight: 500; display: flex; align-items: center; gap: 4px; }
-  .filter-btn svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; }
-  .search-box { padding: 5px 10px 5px 28px; border: 1px solid #dde0e6; border-radius: 6px; font-size: 12px; width: 180px; outline: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c95a6' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 8px center no-repeat; }
-  .search-box:focus { border-color: #1b5fb5; }
+  /* Detail header */
+  .dh{background:#fff;border-radius:10px;border:1px solid #e6e8ed;padding:20px 22px;margin-bottom:16px;}
+  .dh-back{font-size:12px;color:#1b5fb5;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:500;margin-bottom:10px;}
+  .dh-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+  .dh-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+  .dh-name{font-size:22px;font-weight:700;}
+  .dh-gc{font-size:13px;color:#8c95a6;margin-top:2px;}
+  .dh-meta{display:flex;gap:32px;flex-wrap:wrap;}
+  .mi .ml{font-size:10px;color:#8c95a6;text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:2px;}
+  .mi .mv{font-size:14px;font-weight:500;}
 
-  /* ---- Job detail header ---- */
-  .detail-header { background: #fff; border-radius: 10px; border: 1px solid #e6e8ed; padding: 20px 22px; margin-bottom: 16px; }
-  .detail-back { font-size: 12px; color: #1b5fb5; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; font-weight: 500; margin-bottom: 10px; }
-  .detail-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
-  .detail-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
-  .detail-name { font-size: 22px; font-weight: 700; color: #1b2a4a; }
-  .detail-gc { font-size: 13px; color: #8c95a6; margin-top: 2px; }
-  .detail-meta { display: flex; gap: 32px; flex-wrap: wrap; }
-  .meta-item .m-label { font-size: 10px; color: #8c95a6; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; margin-bottom: 2px; }
-  .meta-item .m-value { font-size: 14px; font-weight: 500; color: #1b2a4a; }
+  /* Grid */
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 
-  /* ---- 2-col layout ---- */
-  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* Docs */
+  .dr{display:flex;align-items:center;padding:9px 18px;gap:10px;border-bottom:1px solid #f5f6f8;}
+  .dr:last-child{border-bottom:none;}
+  .di{width:28px;height:28px;background:#f2f3f6;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .di svg{width:13px;height:13px;stroke:#5a6578;fill:none;stroke-width:2;}
+  .df{flex:1;}.df a{color:#1b5fb5;text-decoration:none;font-size:13px;font-weight:500;}.df .ds2{font-size:11px;color:#8c95a6;}
 
-  /* ---- Document rows ---- */
-  .doc-row { display: flex; align-items: center; padding: 9px 18px; gap: 10px; border-bottom: 1px solid #f5f6f8; }
-  .doc-row:last-child { border-bottom: none; }
-  .doc-icon { width: 28px; height: 28px; background: #f2f3f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .doc-icon svg { width: 13px; height: 13px; stroke: #5a6578; fill: none; stroke-width: 2; }
-  .doc-info { flex: 1; }
-  .doc-info a { color: #1b5fb5; text-decoration: none; font-size: 13px; font-weight: 500; }
-  .doc-info .doc-sub { font-size: 11px; color: #8c95a6; }
-  .doc-source { font-size: 11px; color: #8c95a6; }
+  /* Stat rows */
+  .sr{display:flex;align-items:center;padding:8px 18px;gap:10px;}
+  .sc{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sc.ok{background:#e6f3e6;}.sc.ok svg{stroke:#2a7a3a;}
+  .sc.wa{background:#fef3e0;}.sc.wa svg{stroke:#b87a00;}
+  .sc svg{width:10px;height:10px;fill:none;stroke-width:2.5;}
+  .sl{flex:1;font-size:13px;}.sv{font-size:12px;color:#8c95a6;}
 
-  /* ---- Status rows (compliance, EP) ---- */
-  .stat-row { display: flex; align-items: center; padding: 8px 18px; gap: 10px; }
-  .stat-check { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .stat-check.ok { background: #e6f3e6; }
-  .stat-check.ok svg { stroke: #2a7a3a; }
-  .stat-check.warn { background: #fef3e0; }
-  .stat-check.warn svg { stroke: #b87a00; }
-  .stat-check svg { width: 10px; height: 10px; fill: none; stroke-width: 2.5; }
-  .stat-label { flex: 1; font-size: 13px; color: #1b2a4a; }
-  .stat-val { font-size: 12px; color: #8c95a6; }
+  /* Contacts */
+  .cr{display:flex;align-items:center;padding:9px 18px;gap:10px;border-bottom:1px solid #f5f6f8;}.cr:last-child{border-bottom:none;}
+  .ca{width:28px;height:28px;border-radius:50%;background:#edf1fb;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#1b5fb5;flex-shrink:0;}
+  .ci{flex:1;}.ci .cn{font-size:13px;font-weight:500;}.ci .ce{font-size:11px;color:#8c95a6;}
+  .crl{font-size:11px;color:#8c95a6;}
 
-  /* ---- Cru metrics ---- */
-  .cru-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
-  .cru-label { font-size: 12px; color: #5a6578; }
-  .cru-val { font-size: 15px; font-weight: 700; }
-  .cru-val.green { color: #2a7a3a; }
-  .cru-val.yellow { color: #b87a00; }
-  .cru-bar { height: 3px; background: #eef0f3; border-radius: 2px; margin: 4px 0 12px; overflow: hidden; }
-  .cru-fill { height: 100%; border-radius: 2px; }
-  .cru-fill.g { background: #3a9a50; }
-  .cru-fill.y { background: #d4a020; }
+  /* Agent insight */
+  .ai{background:#1b2a4a;border-radius:8px;padding:14px 16px;color:#fff;margin:0 18px 16px;}
+  .ai-h{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+  .ai-h svg{width:14px;height:14px;fill:none;stroke:#e8c840;stroke-width:1.5;}
+  .ai-h span{font-size:11px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;}
+  .ai p{font-size:12px;line-height:1.55;opacity:.9;}
 
-  /* ---- Contact rows ---- */
-  .contact-row { display: flex; align-items: center; padding: 9px 18px; gap: 10px; border-bottom: 1px solid #f5f6f8; }
-  .contact-row:last-child { border-bottom: none; }
-  .contact-av { width: 28px; height: 28px; border-radius: 50%; background: #edf1fb; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #1b5fb5; flex-shrink: 0; }
-  .contact-info { flex: 1; }
-  .contact-info .cn { font-size: 13px; font-weight: 500; }
-  .contact-info .ce { font-size: 11px; color: #8c95a6; }
-  .contact-role { font-size: 11px; color: #8c95a6; }
+  /* Help banner */
+  .hb{background:#fafbff;border:1px solid #e2e8f4;border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:16px;margin-bottom:12px;}
+  .hb-i{width:38px;height:38px;background:#edf1fb;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .hb-i svg{width:18px;height:18px;stroke:#1b5fb5;fill:none;stroke-width:1.8;}
+  .hb-t{flex:1;}.hb-t .ht{font-size:13px;font-weight:600;margin-bottom:2px;}.hb-t .hd{font-size:12px;color:#5a6578;line-height:1.5;}
+  .hb-b{padding:7px 14px;background:#1b5fb5;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
 
-  /* ---- Agent insight (subtle dark card) ---- */
-  .agent-insight { background: #1b2a4a; border-radius: 8px; padding: 14px 16px; color: #fff; margin: 12px 18px 16px; }
-  .agent-insight .ai-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-  .agent-insight .ai-head svg { width: 14px; height: 14px; fill: none; stroke: #e8c840; stroke-width: 1.5; }
-  .agent-insight .ai-head span { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
-  .agent-insight p { font-size: 12px; line-height: 1.55; opacity: 0.9; }
+  /* Onboarding */
+  .wb{background:linear-gradient(135deg,#1b2a4a 0%,#1b5fb5 100%);border-radius:10px;padding:22px 24px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:18px;}
+  .wb .wt{flex:1;}.wb h2{font-size:17px;font-weight:600;margin-bottom:4px;}.wb p{font-size:13px;opacity:.85;line-height:1.5;}
+  .wb .wbtn{padding:8px 16px;background:#fff;color:#1b5fb5;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
 
-  /* ---- Help banner (cross-sell) ---- */
-  .help-row { background: #fafbff; border: 1px solid #e2e8f4; border-radius: 10px; padding: 16px 18px; display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-  .help-icon { width: 38px; height: 38px; background: #edf1fb; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .help-icon svg { width: 18px; height: 18px; stroke: #1b5fb5; fill: none; stroke-width: 1.8; }
-  .help-text { flex: 1; }
-  .help-text .ht-title { font-size: 13px; font-weight: 600; color: #1b2a4a; margin-bottom: 2px; }
-  .help-text .ht-desc { font-size: 12px; color: #5a6578; line-height: 1.5; }
-  .help-btn { padding: 7px 14px; background: #1b5fb5; color: #fff; border: none; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  /* Checklist */
+  .ck{display:flex;align-items:center;padding:11px 18px;gap:10px;border-bottom:1px solid #f5f6f8;}.ck:last-child{border-bottom:none;}
+  .cc{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cc.dn2{background:#3a9a50;}.cc.dn2 svg{stroke:#fff;}.cc.nx{background:#1b5fb5;}.cc.nx svg{stroke:#fff;}.cc.td{background:#eef0f3;}
+  .cc svg{width:10px;height:10px;fill:none;stroke-width:3;}
+  .ct{flex:1;font-size:13px;}.ct.dt{color:#8c95a6;text-decoration:line-through;}
+  .cm{font-size:11px;color:#8c95a6;}
 
-  /* ---- Onboarding ---- */
-  .welcome-bar { background: linear-gradient(135deg, #1b2a4a 0%, #1b5fb5 100%); border-radius: 10px; padding: 22px 24px; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 18px; }
-  .welcome-bar .wb-text { flex: 1; }
-  .welcome-bar h2 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-  .welcome-bar p { font-size: 13px; opacity: 0.85; line-height: 1.5; }
-  .welcome-bar .wb-btn { padding: 8px 16px; background: #fff; color: #1b5fb5; border: none; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  /* Capability cards */
+  .cp-card{border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;border:1px solid #e6e8ed;background:#fff;}
+  .cp-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.07);}
+  .cp-img{height:150px;position:relative;overflow:hidden;}
+  .cp-img.g1{background:linear-gradient(135deg,#dff0e8 0%,#e8ecf8 50%,#f0e8f4 100%);}
+  .cp-img.g2x{background:linear-gradient(135deg,#e4ecf8 0%,#dce8f4 50%,#e0f0f0 100%);}
+  .cp-img.g3x{background:linear-gradient(135deg,#f4ece0 0%,#f0e8e0 50%,#ece4f0 100%);}
+  /* Overlay card sits at bottom of gradient area with absolute positioning */
+  .cp-pv{position:absolute;bottom:12px;left:12px;right:12px;background:rgba(255,255,255,.88);border-radius:8px;padding:10px 12px;font-size:11px;color:#3a4560;backdrop-filter:blur(4px);}
+  .cp-pv .cpn{font-weight:600;font-size:12px;color:#1b2a4a;margin-bottom:2px;}
+  .cp-bd{background:#fff;padding:16px;border-top:1px solid #f0f1f4;}
+  .cp-bd .cpl{font-size:11px;font-weight:600;color:#1b5fb5;margin-bottom:4px;}
+  .cp-bd h3{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .cp-bd p{font-size:12px;color:#5a6578;line-height:1.5;}
 
-  /* ---- Checklist ---- */
-  .check-item { display: flex; align-items: center; padding: 10px 18px; gap: 10px; border-bottom: 1px solid #f5f6f8; }
-  .check-item:last-child { border-bottom: none; }
-  .check-circle { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .check-circle.done { background: #3a9a50; }
-  .check-circle.done svg { stroke: #fff; }
-  .check-circle.next { background: #1b5fb5; }
-  .check-circle.next svg { stroke: #fff; }
-  .check-circle.todo { background: #eef0f3; }
-  .check-circle svg { width: 10px; height: 10px; fill: none; stroke-width: 3; }
-  .check-text { flex: 1; font-size: 13px; color: #1b2a4a; }
-  .check-text.done-text { color: #8c95a6; text-decoration: line-through; }
-  .check-meta { font-size: 11px; color: #8c95a6; }
+  /* Connect card */
+  .cc-card{background:#fff;border:1px solid #e6e8ed;border-radius:10px;padding:20px 22px;margin-bottom:12px;}
+  .cc-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .cc-ic{width:40px;height:40px;border-radius:10px;background:#edf1fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cc-ic svg{width:20px;height:20px;stroke:#1b5fb5;fill:none;stroke-width:1.8;}
+  .cc-top h3{font-size:14px;font-weight:600;}
+  .cc-desc{font-size:13px;color:#5a6578;line-height:1.55;margin-bottom:12px;}
+  .cc-btn{padding:8px 18px;background:#1b5fb5;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;}
 
-  /* ---- Capability showcase cards (cru.ai inspired) ---- */
-  .cap-card { border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; border: 1px solid #e6e8ed; }
-  .cap-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
-  .cap-img { height: 160px; display: flex; align-items: flex-end; padding: 16px; position: relative; }
-  .cap-img.grad-1 { background: linear-gradient(135deg, #dff0e8 0%, #e8ecf8 50%, #f0e8f4 100%); }
-  .cap-img.grad-2 { background: linear-gradient(135deg, #e4ecf8 0%, #dce8f4 50%, #e0f0f0 100%); }
-  .cap-img.grad-3 { background: linear-gradient(135deg, #f4ece0 0%, #f0e8e0 50%, #ece4f0 100%); }
-  .cap-img .cap-preview { background: rgba(255,255,255,0.85); border-radius: 8px; padding: 10px 12px; font-size: 11px; color: #3a4560; width: 100%; backdrop-filter: blur(4px); }
-  .cap-img .cap-preview .cp-title { font-weight: 600; font-size: 12px; color: #1b2a4a; margin-bottom: 3px; }
-  .cap-body { background: #fff; padding: 16px; }
-  .cap-body .cap-label { font-size: 11px; font-weight: 600; color: #1b5fb5; margin-bottom: 4px; }
-  .cap-body h3 { font-size: 15px; font-weight: 700; color: #1b2a4a; margin-bottom: 4px; }
-  .cap-body p { font-size: 12px; color: #5a6578; line-height: 1.5; }
+  /* Small btn */
+  .btn-s{padding:6px 14px;font-size:12px;font-weight:600;border-radius:6px;border:1px solid #1b5fb5;color:#1b5fb5;background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+  .btn-s svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
 
-  /* ---- Integration connect card ---- */
-  .connect-card { background: #fff; border: 1px solid #e6e8ed; border-radius: 10px; padding: 20px 22px; margin-bottom: 12px; }
-  .connect-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .connect-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-  .connect-icon.email { background: #edf1fb; }
-  .connect-icon svg { width: 20px; height: 20px; stroke: #1b5fb5; fill: none; stroke-width: 1.8; }
-  .connect-top h3 { font-size: 14px; font-weight: 600; color: #1b2a4a; }
-  .connect-desc { font-size: 13px; color: #5a6578; line-height: 1.55; margin-bottom: 12px; }
-  .connect-btn { padding: 8px 18px; background: #1b5fb5; color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  /* Design note */
+  .nt{background:#fffce8;border:1px solid #ede8c0;border-radius:7px;padding:9px 12px;font-size:11px;color:#6a6030;margin-bottom:14px;line-height:1.5;}
 
-  /* ---- Small btn ---- */
-  .btn-sm { padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1px solid #1b5fb5; color: #1b5fb5; background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
-  .btn-sm svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+  /* Free badge */
+  .free{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:#e6f3e6;color:#2a7a3a;margin-left:6px;vertical-align:middle;letter-spacing:.3px;}
 
-  /* ---- Design note ---- */
-  .dnote { background: #fffce8; border: 1px solid #ede8c0; border-radius: 7px; padding: 9px 12px; font-size: 11px; color: #6a6030; margin-bottom: 14px; line-height: 1.5; }
+  /* Financial metric row */
+  .fm{display:flex;justify-content:space-between;align-items:baseline;padding:10px 18px;border-bottom:1px solid #f5f6f8;}
+  .fm:last-child{border-bottom:none;}
+  .fm .fl2{font-size:13px;color:#3a4560;}
+  .fm .fv{font-size:14px;font-weight:600;color:#1b2a4a;}
 
-  /* ---- Grid 3 ---- */
-  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-
-  /* ---- SVG symbols ---- */
-  svg.defs { display: none; }
+  svg.defs{display:none;}
 </style>
 </head>
 <body>
 
-<svg class="defs">
-<defs>
+<svg class="defs"><defs>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
   <symbol id="i-dollar" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></symbol>
   <symbol id="i-clip" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></symbol>
@@ -229,216 +211,321 @@
   <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></symbol>
-</defs>
-</svg>
+</defs></svg>
 
-<div class="tabs-bar">
-  <span class="tabs-label">Screens</span>
-  <button class="tab-btn active" onclick="go('home')">Home (1 job)</button>
-  <button class="tab-btn" onclick="go('onboard')">Onboarding</button>
-  <button class="tab-btn" onclick="go('detail')">Job Detail</button>
+<!-- Tabs -->
+<div class="tabs">
+  <span class="tl">Screens</span>
+  <button class="tb on" onclick="go('h1')">Home (1 job)</button>
+  <button class="tb" onclick="go('hm')">Home (multiple)</button>
+  <button class="tb" onclick="go('ob')">Onboarding</button>
+  <button class="tb" onclick="go('dt')">Job Detail</button>
 </div>
 
 
-<!-- ==================== SCREEN 1: HOME - 1 JOB BASELINE ==================== -->
-<div id="s-home" class="screen active">
-  <div class="nav">
-    <div class="nav-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
-    <a class="nav-link on"><svg><use href="#i-home"/></svg><span>Home</span><div class="badge">1</div></a>
-    <a class="nav-link"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
-    <a class="nav-link"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
-    <a class="nav-link"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
-    <a class="nav-link" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
+<!-- ==================== SCREEN 1: HOME 1 JOB ==================== -->
+<div id="s-h1" class="scr on">
+  <div class="nv">
+    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
+    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span><div class="bd">1</div></a>
+    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
+    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
+    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
+    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
   </div>
-  <div class="main">
-    <div class="page-title">Good morning, Jane</div>
-    <div class="page-sub" style="margin-bottom:18px;">Thursday, March 12</div>
+  <div class="mn">
+    <div class="pt">Good morning, Jane</div>
+    <div class="ps" style="margin-bottom:18px;">Thursday, March 12</div>
+    <div class="nt">Baseline: 1 job, 1 module (Compliance only). This is the vast majority of users at the start. Page feels full and useful even with minimal data.</div>
 
-    <div class="dnote">Baseline state: 1 job, 1 module (Compliance). This is the most common scenario. The page feels full and useful even with minimal data. No "modules" column, no internal jargon.</div>
-
-    <!-- Actions required -->
-    <div class="section-title">Actions required</div>
-    <div class="card">
-      <div class="list-row" style="padding: 8px 18px 6px; border-bottom: 1px solid #eef0f3;">
-        <div class="row-text"><span style="font-size:13px;font-weight:600;">Riverstone Apartments</span> <span style="font-size:12px;color:#8c95a6;">&middot; Apex Builders Inc.</span></div>
-      </div>
-      <div class="list-row">
-        <div class="row-text"><span class="row-title">Upload COI for Apex Builders</span></div>
-        <span class="row-meta"><span class="due-urgent">Due today</span></span>
+    <!-- Actions -->
+    <div class="st">Actions required</div>
+    <div class="ac-sect">
+      <div class="ac-jh">Riverstone Apartments <span>&middot; Apex Builders Inc.</span></div>
+      <div class="ac-item">
+        <div class="ac-dot red"></div>
+        <div class="ac-label">Upload COI for Apex Builders</div>
+        <div class="ac-tag">Compliance</div>
+        <div class="ac-due red">Due today</div>
       </div>
     </div>
 
-    <!-- Unified feed: activity + agent items together -->
-    <div class="section-title" style="margin-top:16px;">Recent updates</div>
-    <div class="card">
-      <div class="list-row">
-        <div class="sparkle-sm"><svg><use href="#i-spark"/></svg></div>
-        <div class="row-text">
-          <span class="row-title">We sent a COI reminder to your insurance broker for Riverstone Apartments</span>
-          <span class="row-sub">Expect a response within 48 hours</span>
+    <!-- Recent updates -->
+    <div class="st" style="margin-top:16px;">Recent updates</div>
+    <div class="cd">
+      <div class="lr ag">
+        <div class="rt">
+          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>We sent a COI reminder to your insurance broker for Riverstone Apartments</div>
+          <div class="rs">Expect a response within 48 hours</div>
         </div>
-        <span class="row-meta">2 hours ago</span>
+        <div class="rm">2 hours ago</div>
       </div>
-      <div class="list-row">
-        <div class="row-text">
-          <span class="row-title">Apex Builders invited you to upload a COI</span>
-          <span class="row-sub">Riverstone Apartments</span>
-        </div>
-        <span class="row-meta">1 day ago</span>
+      <div class="lr">
+        <div class="rt"><div class="rn">Apex Builders invited you to upload a COI</div><div class="rs">Riverstone Apartments</div></div>
+        <div class="rm">1 day ago</div>
       </div>
-      <div class="list-row">
-        <div class="row-text">
-          <span class="row-title">Account created successfully</span>
-          <span class="row-sub">Welcome to Constrafor</span>
-        </div>
-        <span class="row-meta">2 days ago</span>
+      <div class="lr">
+        <div class="rt"><div class="rn">Account created successfully</div><div class="rs">Welcome to Constrafor</div></div>
+        <div class="rm">2 days ago</div>
       </div>
     </div>
 
-    <!-- My Jobs (1 row) -->
+    <!-- My Jobs -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:10px;">
-      <div class="section-title" style="margin-bottom:0;">My Jobs</div>
-      <button class="btn-sm"><svg><use href="#i-plus"/></svg> Add Job</button>
+      <div class="st" style="margin-bottom:0;">My Jobs</div>
+      <button class="btn-s"><svg><use href="#i-plus"/></svg> Add Job</button>
     </div>
-    <div class="card" style="padding:0;overflow:hidden;">
-      <table class="jobs-tbl">
+    <div class="cd" style="padding:0;overflow:hidden;">
+      <table class="jtbl">
         <thead><tr><th>Job</th><th>General Contractor</th><th>Location</th><th>Status</th></tr></thead>
         <tbody>
-          <tr onclick="go('detail')">
-            <td class="job-name">Riverstone Apartments</td>
-            <td>Apex Builders Inc.</td>
-            <td>Austin, TX</td>
-            <td><span class="status active">Active</span></td>
-          </tr>
+          <tr onclick="go('dt')"><td class="jn">Riverstone Apartments</td><td>Apex Builders Inc.</td><td>Austin, TX</td><td><span class="sb gr">Active</span></td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Contextual capability upsell -->
-    <div class="help-row" style="margin-top:16px;">
-      <div class="help-icon"><svg><use href="#i-dollar"/></svg></div>
-      <div class="help-text">
-        <div class="ht-title">Get paid faster on Riverstone Apartments</div>
-        <div class="ht-desc">Early Pay shortens your payment cycle from weeks to days. Submit invoices and get funded quickly.</div>
+    <!-- Upsell -->
+    <div class="hb" style="margin-top:16px;">
+      <div class="hb-i"><svg><use href="#i-dollar"/></svg></div>
+      <div class="hb-t">
+        <div class="ht">Get paid faster on Riverstone Apartments</div>
+        <div class="hd">Early Pay shortens your payment cycle from weeks to days. Submit invoices and get funded quickly.</div>
       </div>
-      <button class="help-btn">Learn more</button>
+      <button class="hb-b">Learn more</button>
     </div>
   </div>
 </div>
 
 
-<!-- ==================== SCREEN 2: ONBOARDING ==================== -->
-<div id="s-onboard" class="screen">
-  <div class="nav">
-    <div class="nav-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
-    <a class="nav-link on"><svg><use href="#i-home"/></svg><span>Home</span></a>
-    <a class="nav-link"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
-    <a class="nav-link"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
-    <a class="nav-link"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
-    <a class="nav-link" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
+<!-- ==================== SCREEN 2: HOME MULTIPLE JOBS ==================== -->
+<div id="s-hm" class="scr">
+  <div class="nv">
+    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
+    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span><div class="bd">5</div></a>
+    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
+    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
+    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
+    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
   </div>
-  <div class="main">
+  <div class="mn">
+    <div class="pt">Good morning, Jane</div>
+    <div class="ps" style="margin-bottom:18px;">Thursday, March 12</div>
+    <div class="nt">Growth state: 4 jobs, multiple modules active. Each job gets its own actions container. Feed agent items have a warm tint, no indent difference.</div>
 
-    <div class="dnote">GC-invite onboarding. The sub was invited by Apex Builders to upload a document. They have 1 job created by the GC. We lead with their immediate task, then educate on the broader platform and prompt email integration as a standard setup step.</div>
-
-    <!-- Welcome banner -->
-    <div class="welcome-bar">
-      <div class="wb-text">
-        <h2>Welcome to Constrafor, Jane</h2>
-        <p>Apex Builders invited you to upload documents for <strong>Riverstone Apartments</strong>. Let's get that taken care of, and then we'll show you what else Constrafor can do.</p>
+    <!-- Actions: one card per job -->
+    <div class="st">Actions required</div>
+    <div class="ac-sect">
+      <div class="ac-jh">Riverstone Apartments <span>&middot; Apex Builders Inc.</span></div>
+      <div class="ac-item">
+        <div class="ac-dot red"></div>
+        <div class="ac-label">Sign contract from Apex Builders</div>
+        <div class="ac-tag">Compliance</div>
+        <div class="ac-due red">Due today</div>
       </div>
-      <button class="wb-btn" onclick="go('detail')">Go to Riverstone Apartments</button>
+      <div class="ac-item">
+        <div class="ac-dot yw"></div>
+        <div class="ac-label">Re-upload COI</div>
+        <div class="ac-tag">Compliance</div>
+        <div class="ac-due yw">Due in 3 days</div>
+      </div>
+      <div class="ac-item">
+        <div class="ac-dot bl"></div>
+        <div class="ac-label">Submit invoice for March billing period</div>
+        <div class="ac-tag">Early Pay</div>
+        <div class="ac-due dn">Due in 5 days</div>
+      </div>
+    </div>
+    <div class="ac-sect">
+      <div class="ac-jh">Lakeside Office Park <span>&middot; CoreBuild Group</span></div>
+      <div class="ac-item">
+        <div class="ac-dot red"></div>
+        <div class="ac-label">Submit diversity timesheet</div>
+        <div class="ac-tag">Compliance</div>
+        <div class="ac-due red">Due tomorrow</div>
+      </div>
+      <div class="ac-item">
+        <div class="ac-dot yw"></div>
+        <div class="ac-label">Review and sign lien waiver</div>
+        <div class="ac-tag">Compliance</div>
+        <div class="ac-due yw">Due in 4 days</div>
+      </div>
     </div>
 
-    <!-- Immediate action -->
-    <div class="section-title">Your first task</div>
-    <div class="card">
-      <div class="list-row">
-        <div class="row-text">
-          <span class="row-title"><strong>Upload COI for Apex Builders</strong></span>
-          <span class="row-sub">Riverstone Apartments &middot; Requested by your GC</span>
+    <!-- Recent updates -->
+    <div class="st" style="margin-top:4px;">Recent updates</div>
+    <div class="cd">
+      <div class="lr ag">
+        <div class="rt">
+          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>We analyzed your cash position across 4 jobs. Riverstone Apartments is trending below forecast for Q2.</div>
+          <div class="rs">Review cash analysis</div>
         </div>
-        <span class="row-meta"><span class="due-urgent">Action needed</span></span>
+        <div class="rm">2 hours ago</div>
+      </div>
+      <div class="lr">
+        <div class="rt"><div class="rn">Invoice #1042 approved</div><div class="rs">Skyline Heights &middot; Early Pay</div></div>
+        <div class="rm">3 hours ago</div>
+      </div>
+      <div class="lr ag">
+        <div class="rt">
+          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>We sent a COI renewal reminder to your insurance broker for Lakeside Office Park</div>
+          <div class="rs">Expect a response within 48 hours</div>
+        </div>
+        <div class="rm">5 hours ago</div>
+      </div>
+      <div class="lr">
+        <div class="rt"><div class="rn">COI expiring in 12 days</div><div class="rs">Riverstone Apartments &middot; Compliance</div></div>
+        <div class="rm">5 hours ago</div>
+      </div>
+      <div class="lr ag">
+        <div class="rt">
+          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>2 materials flagged as overcharged on Meadowview School. We found $4,200 in potential savings.</div>
+          <div class="rs">Review flagged materials</div>
+        </div>
+        <div class="rm">1 day ago</div>
+      </div>
+      <div class="lr">
+        <div class="rt"><div class="rn">Cash flow forecast updated</div><div class="rs">Lakeside Office Park &middot; Cru</div></div>
+        <div class="rm">1 day ago</div>
       </div>
     </div>
 
-    <!-- Get set up -->
-    <div class="section-title" style="margin-top:18px;">Get set up</div>
-    <div class="card" style="padding:0;">
-      <div class="check-item" style="background:#fafdf8;">
-        <span class="check-circle done"><svg><use href="#i-check"/></svg></span>
-        <span class="check-text done-text">Create your account</span>
-        <span class="check-meta" style="color:#3a9a50;">Done</span>
+    <!-- My Jobs -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:10px;">
+      <div class="st" style="margin-bottom:0;">My Jobs</div>
+      <button class="btn-s"><svg><use href="#i-plus"/></svg> Add Job</button>
+    </div>
+    <div class="fl">
+      <input class="sb-in" placeholder="Search jobs..." />
+      <button class="fb">GC <svg><use href="#i-chev"/></svg></button>
+      <button class="fb">Location <svg><use href="#i-chev"/></svg></button>
+      <button class="fb">Status <svg><use href="#i-chev"/></svg></button>
+    </div>
+    <div class="cd" style="padding:0;overflow:hidden;">
+      <table class="jtbl">
+        <thead><tr><th>Job</th><th>General Contractor</th><th>Location</th><th>Start Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr onclick="go('dt')"><td class="jn">Riverstone Apartments</td><td>Apex Builders Inc.</td><td>Austin, TX</td><td>Jan 15, 2025</td><td><span class="sb gr">Active</span></td></tr>
+          <tr><td class="jn">Lakeside Office Park</td><td>CoreBuild Group</td><td>Denver, CO</td><td>Mar 1, 2025</td><td><span class="sb gr">Active</span></td></tr>
+          <tr><td class="jn">Meadowview School</td><td>UrbanWorks LLC</td><td>Seattle, WA</td><td>Feb 10, 2025</td><td><span class="sb yw">Under review</span></td></tr>
+          <tr><td class="jn">Crestwood Mall Expansion</td><td>Horizon Constructors</td><td>Phoenix, AZ</td><td>Apr 1, 2025</td><td><span class="sb yw">Under review</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Upsell -->
+    <div class="hb" style="margin-top:16px;">
+      <div class="hb-i"><svg><use href="#i-dollar"/></svg></div>
+      <div class="hb-t">
+        <div class="ht">3 jobs have outstanding invoices totaling $142,000</div>
+        <div class="hd">Early Pay could get you paid in days instead of weeks. Based on your current jobs, you could unlock up to $98,000 in early payments.</div>
       </div>
-      <div class="check-item" style="background:#f6f8ff;">
-        <span class="check-circle next"><svg style="width:6px;height:6px;"><circle cx="3" cy="3" r="2.5" fill="#fff"/></svg></span>
-        <span class="check-text"><strong>Connect your email</strong></span>
-        <span class="check-meta">Recommended</span>
+      <button class="hb-b">Learn more</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== SCREEN 3: ONBOARDING ==================== -->
+<div id="s-ob" class="scr">
+  <div class="nv">
+    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
+    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span></a>
+    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
+    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
+    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
+    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
+  </div>
+  <div class="mn">
+    <div class="nt">GC invited sub to respond to a COI request. Primary task: connect email so Constrafor handles it automatically. Manual upload is a secondary fallback.</div>
+
+    <!-- Welcome -->
+    <div class="wb">
+      <div class="wt">
+        <h2>Welcome to Constrafor, Jane</h2>
+        <p>Apex Builders needs a Certificate of Insurance for <strong>Riverstone Apartments</strong>. Connect your email and we'll handle it for you automatically.</p>
       </div>
-      <div class="check-item">
-        <span class="check-circle todo"></span>
-        <span class="check-text">Complete your company profile</span>
-        <span class="check-meta">5 min</span>
+      <button class="wbtn" onclick="go('dt')">Go to Riverstone Apartments</button>
+    </div>
+
+    <!-- Primary task: connect email -->
+    <div class="st">Let us handle your COI request</div>
+    <div class="cc-card">
+      <div class="cc-top">
+        <div class="cc-ic"><svg><use href="#i-mail"/></svg></div>
+        <h3>Connect your email <span class="free">FREE</span></h3>
       </div>
-      <div class="check-item">
-        <span class="check-circle todo"></span>
-        <span class="check-text">Upload documents for Riverstone Apartments</span>
-        <span class="check-meta">From GC</span>
+      <div class="cc-desc">When you connect your email, Constrafor will automatically respond to Apex Builders' COI request on your behalf. We'll pull the right documents, verify requirements, and send the response. No manual uploading needed.</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="cc-btn">Connect email</button>
+        <span style="font-size:12px;color:#8c95a6;">or <a href="#" style="color:#1b5fb5;text-decoration:none;font-weight:500;">upload documents manually</a></span>
       </div>
     </div>
 
-    <!-- Email integration prompt -->
-    <div class="connect-card">
-      <div class="connect-top">
-        <div class="connect-icon email"><svg><use href="#i-mail"/></svg></div>
-        <h3>Connect your email</h3>
+    <!-- Setup checklist -->
+    <div class="st" style="margin-top:18px;">Get set up</div>
+    <div class="cd" style="padding:0;">
+      <div class="ck" style="background:#fafdf8;">
+        <span class="cc dn2"><svg><use href="#i-check"/></svg></span>
+        <span class="ct dt">Create your account</span>
+        <span class="cm" style="color:#3a9a50;">Done</span>
       </div>
-      <div class="connect-desc">When you connect your email, Constrafor automatically organizes your project documents, tracks deadlines from your GC, and handles routine requests on your behalf. Most teams connect during setup so nothing slips through the cracks.</div>
-      <button class="connect-btn">Connect email</button>
+      <div class="ck" style="background:#f6f8ff;">
+        <span class="cc nx"><svg style="width:6px;height:6px;"><circle cx="3" cy="3" r="2.5" fill="#fff"/></svg></span>
+        <span class="ct"><strong>Connect your email</strong> &mdash; We'll handle the COI request automatically</span>
+        <span class="cm">Recommended</span>
+      </div>
+      <div class="ck">
+        <span class="cc td"></span>
+        <span class="ct">Complete your company profile</span>
+        <span class="cm">5 min</span>
+      </div>
+      <div class="ck">
+        <span class="cc td"></span>
+        <span class="ct">Set your notification preferences</span>
+        <span class="cm">1 min</span>
+      </div>
     </div>
 
     <!-- Capability showcase -->
-    <div class="section-title" style="margin-top: 22px;">There's a lot more Constrafor can do for you</div>
-    <p style="font-size:13px;color:#5a6578;margin-bottom:14px;">You're here for compliance, but Constrafor also helps you get paid faster and gives you full visibility into your financials. You can extend these to Riverstone Apartments or add new jobs.</p>
+    <div class="st" style="margin-top:24px;">There's a lot more Constrafor can do for you</div>
+    <p style="font-size:13px;color:#5a6578;margin-bottom:14px;line-height:1.55;">You're here for compliance, but Constrafor also helps you get paid faster and gives you full visibility into your financials.</p>
 
     <div class="g3">
-      <div class="cap-card">
-        <div class="cap-img grad-1">
-          <div class="cap-preview">
-            <div class="cp-title">Cash flow forecast</div>
+      <div class="cp-card">
+        <div class="cp-img g1">
+          <div class="cp-pv">
+            <div class="cpn">Cash flow forecast</div>
             <div>See exactly where your money is and where it's going, for every job.</div>
           </div>
         </div>
-        <div class="cap-body">
-          <div class="cap-label">Cru</div>
+        <div class="cp-bd">
+          <div class="cpl">Cru <span class="free">FREE</span></div>
           <h3>Know your numbers in real time</h3>
           <p>Automated job costing, cash flow forecasting, and bill processing. Your AI financial co-pilot.</p>
         </div>
       </div>
-
-      <div class="cap-card">
-        <div class="cap-img grad-2">
-          <div class="cap-preview">
-            <div class="cp-title">Early Pay request</div>
+      <div class="cp-card">
+        <div class="cp-img g2x">
+          <div class="cp-pv">
+            <div class="cpn">Early Pay request</div>
             <div>Submit an invoice and get funded in days, not weeks.</div>
           </div>
         </div>
-        <div class="cap-body">
-          <div class="cap-label">Early Pay</div>
+        <div class="cp-bd">
+          <div class="cpl">Early Pay</div>
           <h3>Get paid faster</h3>
           <p>Shorten your payment cycle and free up working capital. Submit invoices and get funded quickly.</p>
         </div>
       </div>
-
-      <div class="cap-card">
-        <div class="cap-img grad-3">
-          <div class="cap-preview">
-            <div class="cp-title">Compliance dashboard</div>
+      <div class="cp-card">
+        <div class="cp-img g3x">
+          <div class="cp-pv">
+            <div class="cpn">Compliance dashboard</div>
             <div>Contracts, COIs, lien waivers, and timesheets in one place.</div>
           </div>
         </div>
-        <div class="cap-body">
-          <div class="cap-label">Compliance</div>
+        <div class="cp-bd">
+          <div class="cpl">Compliance</div>
           <h3>Stay on top of everything</h3>
           <p>Manage contracts, insurance, invoices, and lien waivers. We track deadlines and send reminders automatically.</p>
         </div>
@@ -446,230 +533,174 @@
     </div>
 
     <!-- Add more jobs -->
-    <div class="help-row" style="margin-top: 16px;">
-      <div class="help-icon"><svg><use href="#i-plus"/></svg></div>
-      <div class="help-text">
-        <div class="ht-title">Have other jobs you're working on?</div>
-        <div class="ht-desc">Add your other jobs to track compliance, get early payments, and manage your financials all in one place.</div>
+    <div class="hb" style="margin-top:16px;">
+      <div class="hb-i"><svg><use href="#i-plus"/></svg></div>
+      <div class="hb-t">
+        <div class="ht">Have other jobs you're working on?</div>
+        <div class="hd">Add your other jobs to track compliance, get early payments, and manage your financials all in one place.</div>
       </div>
-      <button class="help-btn">Add a job</button>
+      <button class="hb-b">Add a job</button>
     </div>
   </div>
 </div>
 
 
-<!-- ==================== SCREEN 3: JOB DETAIL ==================== -->
-<div id="s-detail" class="screen">
-  <div class="nav">
-    <div class="nav-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
-    <a class="nav-link on"><svg><use href="#i-home"/></svg><span>Home</span></a>
-    <a class="nav-link"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
-    <a class="nav-link"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
-    <a class="nav-link"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
-    <a class="nav-link" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
+<!-- ==================== SCREEN 4: JOB DETAIL ==================== -->
+<div id="s-dt" class="scr">
+  <div class="nv">
+    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
+    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span></a>
+    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
+    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
+    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
+    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
   </div>
-  <div class="main">
-
-    <div class="dnote">Job detail with all 3 capabilities active (growth state). Sections that aren't relevant hide automatically. For a 1-module user, only the Compliance section would show.</div>
+  <div class="mn">
+    <div class="nt">Job detail with all 3 capabilities active. Grey/white action cards, uniform recent update rows, properly spaced grid columns.</div>
 
     <!-- Header -->
-    <div class="detail-header">
-      <a class="detail-back" onclick="go('home')"><svg><use href="#i-left"/></svg> My Jobs</a>
-      <div class="detail-top">
-        <div>
-          <div class="detail-name">Riverstone Apartments</div>
-          <div class="detail-gc">Apex Builders Inc.</div>
-        </div>
-        <span class="status active">Active</span>
+    <div class="dh">
+      <a class="dh-back" onclick="go('h1')"><svg><use href="#i-left"/></svg> My Jobs</a>
+      <div class="dh-top">
+        <div><div class="dh-name">Riverstone Apartments</div><div class="dh-gc">Apex Builders Inc.</div></div>
+        <span class="sb gr">Active</span>
       </div>
-      <div class="detail-meta">
-        <div class="meta-item"><div class="m-label">Location</div><div class="m-value">Austin, TX</div></div>
-        <div class="meta-item"><div class="m-label">Start Date</div><div class="m-value">Jan 15, 2025</div></div>
-        <div class="meta-item"><div class="m-label">Contract Value</div><div class="m-value">$2,450,000</div></div>
-        <div class="meta-item"><div class="m-label">Owner</div><div class="m-value">Google</div></div>
+      <div class="dh-meta">
+        <div class="mi"><div class="ml">Location</div><div class="mv">Austin, TX</div></div>
+        <div class="mi"><div class="ml">Start Date</div><div class="mv">Jan 15, 2025</div></div>
+        <div class="mi"><div class="ml">Contract Value</div><div class="mv">$2,450,000</div></div>
+        <div class="mi"><div class="ml">Owner</div><div class="mv">Google</div></div>
       </div>
     </div>
 
     <!-- Actions -->
-    <div class="section-title">Actions required</div>
-    <div class="card">
-      <div class="list-row">
-        <div class="row-text"><span class="row-title">Sign contract from Apex Builders</span><span class="row-sub">Compliance</span></div>
-        <span class="row-meta"><span class="due-urgent">Due today</span></span>
+    <div class="st">Actions required</div>
+    <div class="ac-sect">
+      <div class="ac-item">
+        <div class="ac-dot red"></div>
+        <div class="ac-label">Sign contract from Apex Builders</div>
+        <div class="ac-tag">Compliance</div>
+        <div class="ac-due red">Due today</div>
       </div>
-      <div class="list-row">
-        <div class="row-text"><span class="row-title">Re-upload COI</span><span class="row-sub">Compliance</span></div>
-        <span class="row-meta"><span class="due-soon">Due in 3 days</span></span>
+      <div class="ac-item">
+        <div class="ac-dot yw"></div>
+        <div class="ac-label">Re-upload COI</div>
+        <div class="ac-tag">Compliance</div>
+        <div class="ac-due yw">Due in 3 days</div>
       </div>
-      <div class="list-row">
-        <div class="row-text"><span class="row-title">Submit invoice for March billing period</span><span class="row-sub">Early Pay</span></div>
-        <span class="row-meta"><span class="due-normal">Due in 5 days</span></span>
-      </div>
-    </div>
-
-    <!-- Updates (merged feed) -->
-    <div class="section-title" style="margin-top:14px;">Recent updates</div>
-    <div class="card">
-      <div class="list-row">
-        <div class="sparkle-sm"><svg><use href="#i-spark"/></svg></div>
-        <div class="row-text">
-          <span class="row-title">Cash flow is forecasted to dip in the next 2 months</span>
-          <span class="row-sub">Consider submitting your March invoice early to maintain a healthy position</span>
-        </div>
-        <span class="row-meta">Today</span>
-      </div>
-      <div class="list-row">
-        <div class="row-text">
-          <span class="row-title">Contract signed with Apex Builders</span>
-          <span class="row-sub">Compliance</span>
-        </div>
-        <span class="row-meta">3 days ago</span>
-      </div>
-      <div class="list-row">
-        <div class="row-text">
-          <span class="row-title">Early Pay request #4021 submitted</span>
-          <span class="row-sub">Early Pay</span>
-        </div>
-        <span class="row-meta">5 days ago</span>
+      <div class="ac-item">
+        <div class="ac-dot bl"></div>
+        <div class="ac-label">Submit invoice for March billing period</div>
+        <div class="ac-tag">Early Pay</div>
+        <div class="ac-due dn">Due in 5 days</div>
       </div>
     </div>
 
-    <div class="g2" style="margin-top: 14px;">
-      <!-- Documents -->
+    <!-- Recent updates -->
+    <div class="st" style="margin-top:4px;">Recent updates</div>
+    <div class="cd" style="margin-bottom:16px;">
+      <div class="lr ag">
+        <div class="rt">
+          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>Cash flow is forecasted to dip in the next 2 months</div>
+          <div class="rs">Consider submitting your March invoice early</div>
+        </div>
+        <div class="rm">Today</div>
+      </div>
+      <div class="lr">
+        <div class="rt"><div class="rn">Contract signed with Apex Builders</div><div class="rs">Compliance</div></div>
+        <div class="rm">3 days ago</div>
+      </div>
+      <div class="lr">
+        <div class="rt"><div class="rn">Early Pay request #4021 submitted</div><div class="rs">Early Pay</div></div>
+        <div class="rm">5 days ago</div>
+      </div>
+    </div>
+
+    <!-- Two column: Documents + Financial overview -->
+    <div class="g2">
       <div>
-        <div class="section-title">Documents</div>
-        <div class="card" style="padding:0;">
-          <div class="card-header-row"><h3>All documents</h3><a href="#">Filter</a></div>
-          <div class="doc-row">
-            <div class="doc-icon"><svg><use href="#i-file"/></svg></div>
-            <div class="doc-info"><a href="#">master_service_agreement.pdf</a><div class="doc-sub">Contract &middot; From GC</div></div>
-          </div>
-          <div class="doc-row">
-            <div class="doc-icon"><svg><use href="#i-file"/></svg></div>
-            <div class="doc-info"><a href="#">invoice_march_2025.pdf</a><div class="doc-sub">Invoice &middot; Uploaded by you</div></div>
-          </div>
-          <div class="doc-row">
-            <div class="doc-icon"><svg><use href="#i-file"/></svg></div>
-            <div class="doc-info"><a href="#">coi_general_liability.pdf</a><div class="doc-sub">COI &middot; Uploaded by you</div></div>
-          </div>
-          <div class="doc-row">
-            <div class="doc-icon"><svg><use href="#i-file"/></svg></div>
-            <div class="doc-info"><a href="#">early_pay_contract.pdf</a><div class="doc-sub">Early Pay contract &middot; Signed</div></div>
-          </div>
+        <div class="st">Documents</div>
+        <div class="cd" style="padding:0;">
+          <div class="cd-hd"><h3>All documents</h3><a href="#">Filter</a></div>
+          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">master_service_agreement.pdf</a><div class="ds2">Contract &middot; From GC</div></div></div>
+          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">invoice_march_2025.pdf</a><div class="ds2">Invoice &middot; Uploaded by you</div></div></div>
+          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">coi_general_liability.pdf</a><div class="ds2">COI &middot; Uploaded by you</div></div></div>
+          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">early_pay_contract.pdf</a><div class="ds2">Early Pay contract &middot; Signed</div></div></div>
         </div>
       </div>
 
-      <!-- Financial overview -->
       <div>
-        <div class="section-title">Financial overview</div>
-        <div class="card" style="padding:0;">
-          <div class="card-header-row"><h3>Job financial health</h3><a href="#">Open in Cru</a></div>
-          <div class="card-body">
-            <div class="cru-row"><span class="cru-label">Working Capital</span><span class="cru-val green">$184,000</span></div>
-            <div class="cru-bar"><div class="cru-fill g" style="width:72%;"></div></div>
-            <div class="cru-row"><span class="cru-label">Job Cost to Date</span><span class="cru-val">$1,820,000</span></div>
-            <div class="cru-bar"><div class="cru-fill g" style="width:74%;"></div></div>
-            <div class="cru-row"><span class="cru-label">Cash Flow Forecast</span><span class="cru-val yellow">Trending Low</span></div>
-            <div class="cru-bar"><div class="cru-fill y" style="width:45%;"></div></div>
-          </div>
-          <div class="agent-insight">
-            <div class="ai-head"><svg><use href="#i-spark"/></svg><span>Constrafor</span></div>
+        <div class="st">Financial overview</div>
+        <div class="cd" style="padding:0;">
+          <div class="cd-hd"><h3>Job financial health</h3><a href="#">Open in Cru</a></div>
+          <div class="fm"><span class="fl2">Job to Date Billed</span><span class="fv">$1,820,000</span></div>
+          <div class="fm"><span class="fl2">Job to Date Billed %</span><span class="fv">74.3%</span></div>
+          <div class="fm"><span class="fl2">Retainage Held</span><span class="fv">$122,500</span></div>
+          <div class="fm"><span class="fl2">Job Cost to Date</span><span class="fv">$1,694,000</span></div>
+          <div class="ai">
+            <div class="ai-h"><svg><use href="#i-spark"/></svg><span>Constrafor</span></div>
             <p>Cash flow is forecasted to dip in the next 2 months. Submitting your March invoice through Early Pay could improve your position by ~$38,000 within 5 business days.</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="g2">
-      <!-- Compliance -->
+    <!-- Two column: Compliance + Early Pay — aligned side by side, equal footing -->
+    <div class="g2" style="margin-top:16px;">
       <div>
-        <div class="section-title">Compliance</div>
-        <div class="card" style="padding:0;">
-          <div class="card-header-row"><h3>Overview</h3><a href="#">View in Compliance</a></div>
-          <div class="stat-row">
-            <span class="stat-check ok"><svg><use href="#i-check"/></svg></span>
-            <span class="stat-label">Contracts</span><span class="stat-val">5 signed</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-check warn"><svg><use href="#i-alert"/></svg></span>
-            <span class="stat-label">COI Policies</span><span class="stat-val">1 expiring soon</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-check ok"><svg><use href="#i-check"/></svg></span>
-            <span class="stat-label">Invoices</span><span class="stat-val">12 submitted</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-check ok"><svg><use href="#i-check"/></svg></span>
-            <span class="stat-label">Lien Waivers</span><span class="stat-val">24 signed</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-check ok"><svg><use href="#i-check"/></svg></span>
-            <span class="stat-label">Diversity Timesheets</span><span class="stat-val">Up to date</span>
-          </div>
+        <div class="st">Compliance</div>
+        <div class="cd" style="padding:0;">
+          <div class="cd-hd"><h3>Overview</h3><a href="#">View in Compliance</a></div>
+          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Contracts</span><span class="sv">5 signed</span></div>
+          <div class="sr"><span class="sc wa"><svg><use href="#i-alert"/></svg></span><span class="sl">COI Policies</span><span class="sv">1 expiring soon</span></div>
+          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Invoices</span><span class="sv">12 submitted</span></div>
+          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Lien Waivers</span><span class="sv">24 signed</span></div>
+          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Diversity Timesheets</span><span class="sv">Up to date</span></div>
         </div>
       </div>
 
-      <!-- Early Pay + Contacts -->
       <div>
-        <div class="section-title">Early Pay</div>
-        <div class="card" style="padding:0;">
-          <div class="card-header-row"><h3>Overview</h3><a href="#">View in Funding</a></div>
-          <div class="stat-row">
-            <span class="stat-check ok"><svg><use href="#i-check"/></svg></span>
-            <span class="stat-label">Contract</span><span class="stat-val">Signed</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-check ok"><svg><use href="#i-check"/></svg></span>
-            <span class="stat-label">Active Requests</span><span class="stat-val">2 pending</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-check ok"><svg><use href="#i-check"/></svg></span>
-            <span class="stat-label">Total Funded</span><span class="stat-val">$86,400</span>
-          </div>
-        </div>
-
-        <div class="section-title" style="margin-top:12px;">Contacts</div>
-        <div class="card" style="padding:0;">
-          <div class="contact-row">
-            <div class="contact-av">JS</div>
-            <div class="contact-info"><div class="cn">Jane Smith</div><div class="ce">janesmith@email.com</div></div>
-            <div class="contact-role">Invoice Approver</div>
-          </div>
-          <div class="contact-row">
-            <div class="contact-av">KG</div>
-            <div class="contact-info"><div class="cn">Kareena Gomez</div><div class="ce">kareenagomez@email.com</div></div>
-            <div class="contact-role">Invoice Approver</div>
-          </div>
-          <div class="contact-row">
-            <div class="contact-av">MP</div>
-            <div class="contact-info"><div class="cn">Mike Peterson</div><div class="ce">mpeterson@apex.com</div></div>
-            <div class="contact-role">Project Manager (GC)</div>
-          </div>
+        <div class="st">Early Pay</div>
+        <div class="cd" style="padding:0;">
+          <div class="cd-hd"><h3>Overview</h3><a href="#">View in Funding</a></div>
+          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Contract</span><span class="sv">Signed</span></div>
+          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Active Requests</span><span class="sv">2 pending</span></div>
+          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Total Funded</span><span class="sv">$86,400</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Cross-sell -->
-    <div class="help-row" style="margin-top: 4px;">
-      <div class="help-icon"><svg><use href="#i-dollar"/></svg></div>
-      <div class="help-text">
-        <div class="ht-title">Your cash flow is trending low on this job</div>
-        <div class="ht-desc">Submitting your outstanding invoices through Early Pay could improve your working capital by ~$38,000 within 5 business days.</div>
+    <!-- Contacts: own full-width section below -->
+    <div style="margin-top:16px;">
+      <div class="st">Contacts</div>
+      <div class="cd" style="padding:0;">
+        <div class="cr"><div class="ca">JS</div><div class="ci"><div class="cn">Jane Smith</div><div class="ce">janesmith@email.com</div></div><div class="crl">Invoice Approver</div></div>
+        <div class="cr"><div class="ca">KG</div><div class="ci"><div class="cn">Kareena Gomez</div><div class="ce">kareenagomez@email.com</div></div><div class="crl">Invoice Approver</div></div>
+        <div class="cr"><div class="ca">MP</div><div class="ci"><div class="cn">Mike Peterson</div><div class="ce">mpeterson@apex.com</div></div><div class="crl">Project Manager (GC)</div></div>
       </div>
-      <button class="help-btn">Submit Early Pay request</button>
+    </div>
+
+    <!-- Cross-sell -->
+    <div class="hb" style="margin-top:16px;">
+      <div class="hb-i"><svg><use href="#i-dollar"/></svg></div>
+      <div class="hb-t">
+        <div class="ht">Your cash flow is trending low on this job</div>
+        <div class="hd">Submitting your outstanding invoices through Early Pay could improve your working capital by ~$38,000 within 5 business days.</div>
+      </div>
+      <button class="hb-b">Submit Early Pay request</button>
     </div>
   </div>
 </div>
 
 
 <script>
-function go(s) {
-  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('s-' + s).classList.add('active');
-  const map = { home: 0, onboard: 1, detail: 2 };
-  document.querySelectorAll('.tab-btn')[map[s]].classList.add('active');
-  window.scrollTo(0, 0);
+function go(s){
+  document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(e=>e.classList.remove('on'));
+  document.getElementById('s-'+s).classList.add('on');
+  const m={h1:0,hm:1,ob:2,dt:3};
+  document.querySelectorAll('.tb')[m[s]].classList.add('on');
+  window.scrollTo(0,0);
 }
 </script>
 </body>
