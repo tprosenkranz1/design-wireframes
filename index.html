@@ -3,705 +3,969 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Constrafor Wireframes v5</title>
+<title>Constrafor Wireframes</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'Inter',-apple-system,sans-serif;background:#f5f6f8;color:#1b2a4a;font-size:14px;line-height:1.5;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6f8; color: #1a1a2e; }
 
-  /* Tabs */
-  .tabs{position:fixed;top:0;left:0;right:0;z-index:200;background:#0d1520;display:flex;align-items:center;padding:0 20px;height:40px;gap:4px;}
-  .tabs .tl{color:rgba(255,255,255,.35);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-right:10px;}
-  .tb{padding:5px 12px;color:rgba(255,255,255,.45);cursor:pointer;font-size:12px;font-weight:500;border-radius:5px;border:none;background:none;}
-  .tb:hover{color:#fff;background:rgba(255,255,255,.07);}
-  .tb.on{color:#fff;background:rgba(255,255,255,.12);}
-  .scr{display:none;padding-top:40px;}.scr.on{display:flex;}
+  .screen-nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; padding: 0 16px; gap: 4px; }
+  .screen-nav span { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 1px; padding: 12px 8px; }
+  .screen-nav button { font-size: 13px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+  .screen-nav button:hover { color: #1a1a2e; }
+  .screen-nav button.active { color: #1a2b5c; border-bottom-color: #1a2b5c; font-weight: 600; }
 
-  /* Nav */
-  .nv{width:68px;min-height:calc(100vh - 40px);background:#fff;border-right:1px solid #e6e8ed;display:flex;flex-direction:column;align-items:center;padding:14px 0;position:fixed;left:0;top:40px;bottom:0;z-index:50;}
-  .nv-logo{width:34px;height:34px;margin-bottom:24px;}
-  .nv-logo svg{width:34px;height:34px;}
-  .nl{display:flex;flex-direction:column;align-items:center;padding:9px 4px;cursor:pointer;border-radius:7px;margin:1px 5px;width:58px;color:#8c95a6;text-decoration:none;position:relative;}
-  .nl:hover{background:#f2f3f6;color:#1b2a4a;}
-  .nl.ac{background:#edf1fb;color:#1b5fb5;}
-  .nl svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:3px;}
-  .nl span{font-size:9.5px;font-weight:500;}
-  .nl .bd{position:absolute;top:3px;right:5px;background:#d94c4c;color:#fff;font-size:8px;font-weight:700;min-width:14px;height:14px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+  .app { display: flex; min-height: 100vh; }
 
-  /* Main */
-  .mn{margin-left:68px;flex:1;padding:24px 32px;max-width:1100px;}
+  /* Sidebar */
+  .sidebar { width: 72px; background: #f8f9fb; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; align-items: center; padding-top: 16px; gap: 2px; flex-shrink: 0; }
+  .sidebar .logo { width: 40px; height: 40px; margin-bottom: 20px; }
+  .sidebar .logo svg { width: 40px; height: 40px; }
+  .sidebar a { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; width: 64px; min-height: 56px; color: #8892a4; font-size: 10px; text-decoration: none; position: relative; border-radius: 8px; transition: all 0.15s; margin: 1px 0; text-align: center; line-height: 1.2; }
+  .sidebar a:hover { color: #1a2b5c; background: #eef0f4; }
+  .sidebar a.active { color: #1a2b5c; background: #e8ecf4; font-weight: 600; }
+  .sidebar a .nav-icon { width: 22px; height: 22px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; }
+  .sidebar a .nav-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .sidebar a .nav-icon img { width: 20px; height: 20px; object-fit: contain; }
+  .sidebar .badge { position: absolute; top: 2px; right: 8px; background: #e53935; color: #fff; font-size: 9px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+  .sidebar .new-tag { position: absolute; top: 2px; right: 2px; background: #2563eb; color: #fff; font-size: 7px; font-weight: 700; padding: 1px 4px; border-radius: 3px; letter-spacing: 0.3px; }
+  .sidebar .spacer { flex: 1; }
 
-  /* Card */
-  .cd{background:#fff;border-radius:10px;border:1px solid #e6e8ed;margin-bottom:12px;}
-  .cd-body{padding:16px 18px;}
-  .cd-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #f0f1f4;}
-  .cd-hd h3{font-size:13px;font-weight:600;}
-  .cd-hd a{font-size:12px;color:#1b5fb5;text-decoration:none;font-weight:500;cursor:pointer;}
+  .main { flex: 1; padding: 28px 36px; max-width: 920px; }
 
-  .st{font-size:13px;font-weight:600;color:#1b2a4a;margin-bottom:10px;}
-  .pt{font-size:20px;font-weight:600;}
-  .ps{font-size:13px;color:#8c95a6;margin-top:2px;}
+  /* Cru logo references */
+  .cru-logo-wordmark { height: 32px; object-fit: contain; }
+  .cru-emblem { width: 20px; height: 20px; object-fit: contain; display: inline-block; vertical-align: middle; }
+  .cru-emblem-lg { width: 36px; height: 36px; object-fit: contain; flex-shrink: 0; }
 
-  /* ---- Actions section: grey shell + white item cards ---- */
-  .ac-sect{background:#f2f3f6;border-radius:10px;border:1px solid #e0e2e8;padding:10px;margin-bottom:10px;}
-  .ac-jh{font-size:13px;font-weight:600;color:#1b2a4a;padding:4px 4px 8px;margin-bottom:4px;}
-  .ac-jh span{font-weight:400;color:#8c95a6;font-size:12px;}
-  /* Grid layout: dot | label | tag | due — columns lock regardless of text length */
-  .ac-item{background:#fff;border-radius:8px;border:1px solid #eaecf0;padding:11px 14px;margin-bottom:6px;display:grid;grid-template-columns:10px 1fr 90px 96px;gap:10px;align-items:center;cursor:pointer;transition:box-shadow .1s;}
-  .ac-item:last-child{margin-bottom:0;}
-  .ac-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);}
-  .ac-dot{width:8px;height:8px;border-radius:50%;margin-top:1px;}
-  .ac-dot.red{background:#d94c4c;}.ac-dot.yw{background:#e8a020;}.ac-dot.bl{background:#4a90d9;}
-  .ac-label{font-size:13px;font-weight:500;color:#1b2a4a;}
-  .ac-tag{font-size:11px;font-weight:500;color:#5a6578;background:#f0f2f5;padding:2px 8px;border-radius:4px;text-align:center;}
-  .ac-due{font-size:11px;font-weight:600;text-align:right;}
-  .ac-due.red{color:#c94040;}.ac-due.yw{color:#b88020;}.ac-due.dn{color:#8c95a6;}
+  /* Sparkle icon for agent items */
+  .sparkle { display: inline-flex; align-items: center; margin-right: 4px; color: #daa520; font-size: 12px; opacity: 0.8; }
 
-  /* ---- Recent updates: uniform rows, agent rows get warm tint ---- */
-  .lr{display:flex;align-items:center;padding:11px 18px;gap:12px;border-bottom:1px solid #f5f6f8;cursor:pointer;transition:background .08s;}
-  .lr:last-child{border-bottom:none;}
-  .lr:hover{background:#fafbfd;}
-  .lr.ag{background:#fffdf5;}
-  .lr.ag:hover{background:#fffbf0;}
-  .lr .rt{flex:1;min-width:0;}
-  .lr .rn{font-size:13px;font-weight:500;color:#1b2a4a;display:flex;align-items:center;gap:5px;}
-  .lr .rs{font-size:11px;color:#8c95a6;margin-top:1px;}
-  .lr .rm{font-size:11px;color:#8c95a6;text-align:right;white-space:nowrap;flex-shrink:0;}
-  /* Inline sparkle icon used inside .rn text */
-  .sp-i{width:13px;height:13px;fill:none;stroke:#c8a840;stroke-width:1.6;flex-shrink:0;}
+  /* Welcome banner */
+  .welcome-banner { background: linear-gradient(135deg, #1a2b5c 0%, #2a4a8c 100%); color: #fff; border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; }
+  .welcome-banner h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  .welcome-banner p { font-size: 14px; opacity: 0.88; line-height: 1.5; }
 
-  /* Status badge */
-  .sb{display:inline-block;padding:3px 10px;border-radius:14px;font-size:11px;font-weight:600;}
-  .sb.gr{background:#e6f3e6;color:#2a7a3a;}
-  .sb.yw{background:#fef3e0;color:#b87a00;}
+  /* Agent status */
+  .agent-status { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; }
+  .agent-info { flex: 1; }
+  .agent-title { font-size: 12px; font-weight: 600; color: #8892a4; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; display: flex; align-items: center; gap: 4px; }
+  .agent-detail { font-size: 14px; color: #1a1a2e; line-height: 1.4; }
+  .pulse { display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
 
-  /* Table */
-  .jtbl{width:100%;border-collapse:collapse;}
-  .jtbl th{text-align:left;font-size:11px;font-weight:600;color:#1b5fb5;padding:10px 16px;border-bottom:2px solid #e6e8ed;}
-  .jtbl td{padding:13px 16px;border-bottom:1px solid #f2f3f6;font-size:13px;color:#3a4560;}
-  .jtbl tr{cursor:pointer;}.jtbl tr:hover td{background:#fafbff;}
-  .jtbl .jn{font-weight:600;color:#1b2a4a;}
+  /* Cards */
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .card-header h3 { font-size: 15px; font-weight: 600; }
+  .section-header { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 10px; }
 
-  /* Filters */
-  .fl{display:flex;gap:8px;margin-bottom:12px;align-items:center;}
-  .fb{padding:5px 11px;border:1px solid #dde0e6;border-radius:6px;font-size:12px;background:#fff;cursor:pointer;color:#5a6578;font-weight:500;display:flex;align-items:center;gap:4px;}
-  .fb svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;}
-  .sb-in{padding:5px 10px 5px 28px;border:1px solid #dde0e6;border-radius:6px;font-size:12px;width:180px;outline:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c95a6' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 8px center no-repeat;}
-  .sb-in:focus{border-color:#1b5fb5;}
+  /* Connect email card */
+  .connect-card { background: #fff; border: 2px solid #1a2b5c; border-radius: 10px; padding: 22px; margin-bottom: 16px; }
+  .connect-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .connect-header h3 { font-size: 16px; font-weight: 600; }
+  .connect-card p { font-size: 14px; color: #4b5563; line-height: 1.5; margin-bottom: 14px; }
+  .connect-tip { background: #eff6ff; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #1e40af; line-height: 1.4; }
+  .connect-tip strong { color: #1e3a8a; }
 
-  /* Detail header */
-  .dh{background:#fff;border-radius:10px;border:1px solid #e6e8ed;padding:20px 22px;margin-bottom:16px;}
-  .dh-back{font-size:12px;color:#1b5fb5;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:500;margin-bottom:10px;}
-  .dh-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
-  .dh-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
-  .dh-name{font-size:22px;font-weight:700;}
-  .dh-gc{font-size:13px;color:#8c95a6;margin-top:2px;}
-  .dh-meta{display:flex;gap:32px;flex-wrap:wrap;}
-  .mi .ml{font-size:10px;color:#8c95a6;text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:2px;}
-  .mi .mv{font-size:14px;font-weight:500;}
+  /* Buttons */
+  .btn { padding: 10px 20px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: #1a2b5c; color: #fff; }
+  .btn-primary:hover { background: #243a73; }
+  .btn-outline { background: transparent; color: #1a2b5c; border: 1.5px solid #1a2b5c; }
+  .btn-outline:hover { background: #f0f3fa; }
+  .btn-green { background: #166534; color: #fff; }
+  .btn-green:hover { background: #15803d; }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+  .link { color: #2563eb; text-decoration: underline; cursor: pointer; font-size: 13px; }
 
-  /* Grid */
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
-  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  /* Cross-sell grid */
+  .crosssell-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .crosssell-card { border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; background: #fff; transition: box-shadow 0.15s; cursor: pointer; }
+  .crosssell-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .crosssell-preview { height: 80px; display: flex; align-items: center; justify-content: center; }
+  .crosssell-preview.cru { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+  .crosssell-preview.pay { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+  .crosssell-preview.comply { background: linear-gradient(135deg, #fefce8, #fef9c3); }
+  .crosssell-preview svg { width: 32px; height: 32px; }
+  .crosssell-body { padding: 12px 14px; }
+  .crosssell-tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .crosssell-tag.cru { color: #1d4ed8; }
+  .crosssell-tag.pay { color: #166534; }
+  .crosssell-tag.comply { color: #a16207; }
+  .crosssell-body h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .crosssell-body p { font-size: 12px; color: #6b7280; line-height: 1.4; }
 
-  /* Docs */
-  .dr{display:flex;align-items:center;padding:9px 18px;gap:10px;border-bottom:1px solid #f5f6f8;}
-  .dr:last-child{border-bottom:none;}
-  .di{width:28px;height:28px;background:#f2f3f6;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .di svg{width:13px;height:13px;stroke:#5a6578;fill:none;stroke-width:2;}
-  .df{flex:1;}.df a{color:#1b5fb5;text-decoration:none;font-size:13px;font-weight:500;}.df .ds2{font-size:11px;color:#8c95a6;}
-
-  /* Stat rows */
-  .sr{display:flex;align-items:center;padding:8px 18px;gap:10px;}
-  .sc{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .sc.ok{background:#e6f3e6;}.sc.ok svg{stroke:#2a7a3a;}
-  .sc.wa{background:#fef3e0;}.sc.wa svg{stroke:#b87a00;}
-  .sc svg{width:10px;height:10px;fill:none;stroke-width:2.5;}
-  .sl{flex:1;font-size:13px;}.sv{font-size:12px;color:#8c95a6;}
-
-  /* Contacts */
-  .cr{display:flex;align-items:center;padding:9px 18px;gap:10px;border-bottom:1px solid #f5f6f8;}.cr:last-child{border-bottom:none;}
-  .ca{width:28px;height:28px;border-radius:50%;background:#edf1fb;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#1b5fb5;flex-shrink:0;}
-  .ci{flex:1;}.ci .cn{font-size:13px;font-weight:500;}.ci .ce{font-size:11px;color:#8c95a6;}
-  .crl{font-size:11px;color:#8c95a6;}
-
-  /* Agent insight */
-  .ai{background:#1b2a4a;border-radius:8px;padding:14px 16px;color:#fff;margin:0 18px 16px;}
-  .ai-h{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-  .ai-h svg{width:14px;height:14px;fill:none;stroke:#e8c840;stroke-width:1.5;}
-  .ai-h span{font-size:11px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;}
-  .ai p{font-size:12px;line-height:1.55;opacity:.9;}
-
-  /* Help banner */
-  .hb{background:#fafbff;border:1px solid #e2e8f4;border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:16px;margin-bottom:12px;}
-  .hb-i{width:38px;height:38px;background:#edf1fb;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .hb-i svg{width:18px;height:18px;stroke:#1b5fb5;fill:none;stroke-width:1.8;}
-  .hb-t{flex:1;}.hb-t .ht{font-size:13px;font-weight:600;margin-bottom:2px;}.hb-t .hd{font-size:12px;color:#5a6578;line-height:1.5;}
-  .hb-b{padding:7px 14px;background:#1b5fb5;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
-
-  /* Onboarding */
-  .wb{background:linear-gradient(135deg,#1b2a4a 0%,#1b5fb5 100%);border-radius:10px;padding:22px 24px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:18px;}
-  .wb .wt{flex:1;}.wb h2{font-size:17px;font-weight:600;margin-bottom:4px;}.wb p{font-size:13px;opacity:.85;line-height:1.5;}
-  .wb .wbtn{padding:8px 16px;background:#fff;color:#1b5fb5;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  /* Data meter */
+  .data-meter { margin-bottom: 4px; }
+  .meter-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .meter-top span { font-size: 13px; font-weight: 500; color: #4b5563; }
+  .meter-top .pct { font-size: 17px; font-weight: 700; color: #1a2b5c; }
+  .meter-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+  .meter-fill { height: 100%; border-radius: 3px; }
+  .meter-fill.low { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .meter-fill.high { background: linear-gradient(90deg, #22c55e, #4ade80); }
+  .meter-hint { font-size: 12px; color: #9ca3af; }
+  .meter-hint strong { color: #1a2b5c; }
 
   /* Checklist */
-  .ck{display:flex;align-items:center;padding:11px 18px;gap:10px;border-bottom:1px solid #f5f6f8;}.ck:last-child{border-bottom:none;}
-  .cc{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .cc.dn2{background:#3a9a50;}.cc.dn2 svg{stroke:#fff;}.cc.nx{background:#1b5fb5;}.cc.nx svg{stroke:#fff;}.cc.td{background:#eef0f3;}
-  .cc svg{width:10px;height:10px;fill:none;stroke-width:3;}
-  .ct{flex:1;font-size:13px;}.ct.dt{color:#8c95a6;text-decoration:line-through;}
-  .cm{font-size:11px;color:#8c95a6;}
+  .checklist-item { display: flex; align-items: center; padding: 11px 0; border-bottom: 1px solid #f3f4f6; gap: 12px; }
+  .checklist-item:last-child { border-bottom: none; }
+  .check-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; font-weight: 600; }
+  .check-done { background: #22c55e; color: #fff; }
+  .check-active { background: #2563eb; color: #fff; }
+  .check-pending { background: #e5e7eb; color: #9ca3af; }
+  .checklist-text { flex: 1; font-size: 13px; }
+  .checklist-text.done { color: #9ca3af; text-decoration: line-through; }
+  .checklist-meta { font-size: 12px; color: #9ca3af; }
 
-  /* Capability cards */
-  .cp-card{border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;border:1px solid #e6e8ed;background:#fff;}
-  .cp-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.07);}
-  .cp-img{height:150px;position:relative;overflow:hidden;}
-  .cp-img.g1{background:linear-gradient(135deg,#dff0e8 0%,#e8ecf8 50%,#f0e8f4 100%);}
-  .cp-img.g2x{background:linear-gradient(135deg,#e4ecf8 0%,#dce8f4 50%,#e0f0f0 100%);}
-  .cp-img.g3x{background:linear-gradient(135deg,#f4ece0 0%,#f0e8e0 50%,#ece4f0 100%);}
-  /* Overlay card sits at bottom of gradient area with absolute positioning */
-  .cp-pv{position:absolute;bottom:12px;left:12px;right:12px;background:rgba(255,255,255,.88);border-radius:8px;padding:10px 12px;font-size:11px;color:#3a4560;backdrop-filter:blur(4px);}
-  .cp-pv .cpn{font-weight:600;font-size:12px;color:#1b2a4a;margin-bottom:2px;}
-  .cp-bd{background:#fff;padding:16px;border-top:1px solid #f0f1f4;}
-  .cp-bd .cpl{font-size:11px;font-weight:600;color:#1b5fb5;margin-bottom:4px;}
-  .cp-bd h3{font-size:15px;font-weight:700;margin-bottom:4px;}
-  .cp-bd p{font-size:12px;color:#5a6578;line-height:1.5;}
+  /* Add job banner */
+  .add-job-banner { background: #f8f9fb; border: 1px dashed #d1d5db; border-radius: 10px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .add-job-banner .ajb-icon { width: 36px; height: 36px; background: #eff6ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 18px; flex-shrink: 0; }
+  .add-job-banner .ajb-text { flex: 1; }
+  .add-job-banner h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .add-job-banner p { font-size: 12px; color: #6b7280; }
 
-  /* Connect card */
-  .cc-card{background:#fff;border:1px solid #e6e8ed;border-radius:10px;padding:20px 22px;margin-bottom:12px;}
-  .cc-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
-  .cc-ic{width:40px;height:40px;border-radius:10px;background:#edf1fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .cc-ic svg{width:20px;height:20px;stroke:#1b5fb5;fill:none;stroke-width:1.8;}
-  .cc-top h3{font-size:14px;font-weight:600;}
-  .cc-desc{font-size:13px;color:#5a6578;line-height:1.55;margin-bottom:12px;}
-  .cc-btn{padding:8px 18px;background:#1b5fb5;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;}
+  /* Action items */
+  .action-item { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f3f4f6; gap: 10px; }
+  .action-item:last-child { border-bottom: none; }
+  .action-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .action-dot.red { background: #ef4444; }
+  .action-dot.orange { background: #f59e0b; }
+  .action-dot.blue { background: #3b82f6; }
+  .action-text { flex: 1; font-size: 13px; }
+  .action-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #f3f4f6; color: #6b7280; font-weight: 500; }
+  .action-due { font-size: 11px; color: #ef4444; font-weight: 500; margin-left: 4px; }
+  .action-due.soon { color: #f59e0b; }
+  .action-due.normal { color: #9ca3af; }
 
-  /* Small btn */
-  .btn-s{padding:6px 14px;font-size:12px;font-weight:600;border-radius:6px;border:1px solid #1b5fb5;color:#1b5fb5;background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
-  .btn-s svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+  /* Feed items */
+  .feed-item { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; display: flex; align-items: flex-start; gap: 10px; }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-item.agent { background: #fefdf5; }
+  .feed-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+  .feed-icon.cru-fi { background: #eff6ff; }
+  .feed-icon.comply-fi { background: #f3f4f6; }
+  .feed-icon.pay-fi { background: #f0fdf4; }
+  .feed-icon.ok-fi { background: #f0fdf4; }
+  .feed-content { flex: 1; }
+  .feed-title { font-size: 13px; font-weight: 500; line-height: 1.3; }
+  .feed-sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .feed-time { font-size: 11px; color: #c4c4c4; white-space: nowrap; flex-shrink: 0; }
 
-  /* Design note */
-  .nt{background:#fffce8;border:1px solid #ede8c0;border-radius:7px;padding:9px 12px;font-size:11px;color:#6a6030;margin-bottom:14px;line-height:1.5;}
+  /* Unified Cru insights feed */
+  .insights-feed { background: #fff; border: 1.5px solid #bfdbfe; border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+  .insights-feed-header { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 8px; background: #f8faff; }
+  .insights-feed-header img { width: 18px; height: 18px; }
+  .insights-feed-header span { font-size: 12px; font-weight: 600; color: #1a2b5c; text-transform: uppercase; letter-spacing: 0.5px; }
+  .insight-row { padding: 14px 20px; border-bottom: 1px solid #f3f4f6; display: flex; align-items: flex-start; gap: 12px; }
+  .insight-row:last-child { border-bottom: none; }
+  .insight-row:hover { background: #fafbff; }
+  .insight-type { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .insight-type.savings { background: #dcfce7; color: #166534; }
+  .insight-type.forecast { background: #dbeafe; color: #1d4ed8; }
+  .insight-type.materials { background: #fef3c7; color: #92400e; }
+  .insight-type.collections { background: #fce7f3; color: #9d174d; }
+  .insight-type.job-cost { background: #e0e7ff; color: #4338ca; }
+  .insight-body { flex: 1; }
+  .insight-body p { font-size: 13px; line-height: 1.5; color: #1e293b; }
+  .insight-body strong { color: #1a1a2e; }
+  .insight-body .insight-val { font-size: 18px; font-weight: 700; color: #166534; display: block; margin-bottom: 2px; }
+  .insight-body a { color: #2563eb; font-size: 12px; font-weight: 500; cursor: pointer; text-decoration: none; }
 
-  /* Free badge */
-  .free{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:#e6f3e6;color:#2a7a3a;margin-left:6px;vertical-align:middle;letter-spacing:.3px;}
+  /* Pinned insight (Job Detail) */
+  .pinned-insight { background: linear-gradient(135deg, #1a2b5c, #2a4a8c); color: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+  .pinned-insight .pi-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .pinned-insight .pi-label span { font-size: 11px; font-weight: 600; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pinned-insight p { font-size: 15px; line-height: 1.6; color: #e0e8f0; }
+  .pinned-insight strong { color: #fff; }
+  .pinned-insight .pi-actions { display: flex; gap: 10px; margin-top: 14px; }
+  .pinned-insight .btn-pi { padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+  .pinned-insight .btn-pi.primary { background: #22c55e; color: #fff; }
+  .pinned-insight .btn-pi.secondary { background: rgba(255,255,255,0.15); color: #fff; }
 
-  /* Financial metric row */
-  .fm{display:flex;justify-content:space-between;align-items:baseline;padding:10px 18px;border-bottom:1px solid #f5f6f8;}
-  .fm:last-child{border-bottom:none;}
-  .fm .fl2{font-size:13px;color:#3a4560;}
-  .fm .fv{font-size:14px;font-weight:600;color:#1b2a4a;}
+  /* Job header */
+  .job-header { margin-bottom: 16px; }
+  .back-link { font-size: 13px; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+  .job-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+  .job-sub { font-size: 14px; color: #6b7280; }
+  .job-meta { display: flex; gap: 28px; margin-top: 10px; }
+  .meta-label { font-size: 10px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+  .meta-value { font-size: 13px; font-weight: 500; margin-top: 1px; }
 
-  svg.defs{display:none;}
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .fin-card { background: #fff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 18px; cursor: pointer; transition: box-shadow 0.15s; }
+  .fin-card:hover { box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
+  .fin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fin-label { font-size: 11px; color: #9ca3af; margin-bottom: 1px; }
+  .fin-value { font-size: 16px; font-weight: 700; }
+  .open-cru-btn { background: #eff6ff; color: #2563eb; border: 1px solid #2563eb; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+
+  .summary-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+  .summary-item:last-child { border-bottom: none; }
+  .summary-label { display: flex; align-items: center; gap: 6px; }
+  .summary-value { color: #6b7280; font-size: 12px; }
+  .summary-action { color: #2563eb; font-size: 11px; cursor: pointer; font-weight: 500; margin-left: 8px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-dot.ok { background: #22c55e; }
+  .status-dot.warn { background: #f59e0b; }
+
+  .contact-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6; gap: 10px; }
+  .contact-item:last-child { border-bottom: none; }
+  .contact-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0; }
+  .contact-name { font-size: 13px; font-weight: 500; }
+  .contact-email { font-size: 11px; color: #9ca3af; }
+  .contact-role { font-size: 11px; color: #9ca3af; margin-left: auto; }
+
+  .job-group { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .job-group-header { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; }
+  .job-group-header h4 { font-size: 14px; font-weight: 600; }
+  .gc-name { font-size: 13px; color: #9ca3af; font-weight: 400; }
+
+  .greeting { font-size: 22px; font-weight: 600; margin-bottom: 3px; }
+  .date-sub { font-size: 13px; color: #9ca3af; margin-bottom: 20px; }
+
+  .sticky-bar { position: fixed; bottom: 0; left: 72px; right: 0; background: #fff; border-top: 2px solid #e5e7eb; padding: 12px 36px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
+  .sticky-text { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .status { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .status.active { background: #dcfce7; color: #166534; }
+
+  /* Data source items */
+  .ds-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f3f4f6; gap: 12px; }
+  .ds-item:last-child { border-bottom: none; }
+  .ds-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .ds-icon.email { background: #eff6ff; color: #2563eb; }
+  .ds-icon.bank { background: #f0fdf4; color: #166534; }
+  .ds-icon.acct { background: #fefce8; color: #a16207; }
+  .ds-info { flex: 1; }
+  .ds-name { font-size: 13px; font-weight: 500; }
+  .ds-desc { font-size: 12px; color: #9ca3af; }
+  .ds-action { font-size: 12px; color: #2563eb; cursor: pointer; font-weight: 500; }
+  .ds-connected { font-size: 12px; color: #22c55e; font-weight: 500; }
+
+  .feat-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .feat-table th { text-align: center; font-size: 11px; font-weight: 600; padding: 10px 8px; border-bottom: 2px solid #e5e7eb; }
+  .feat-table th:first-child { text-align: left; }
+  .feat-table td { padding: 9px 8px; border-bottom: 1px solid #f3f4f6; text-align: center; }
+  .feat-table td:first-child { text-align: left; color: #4b5563; }
+  .feat-check { color: #22c55e; font-weight: 700; }
+  .feat-no { color: #d1d5db; }
+  .feat-partial { color: #f59e0b; font-size: 11px; font-weight: 500; }
+
+  /* ====== WELCOME MODAL WITH CAROUSEL ====== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .modal-overlay.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .modal { background: #fff; border-radius: 16px; width: 620px; max-height: 92vh; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+  .modal-hero { background: linear-gradient(135deg, #0a1a3f 0%, #1a2b5c 50%, #2a4a8c 100%); padding: 36px 40px 28px; text-align: center; position: relative; overflow: hidden; flex-shrink: 0; }
+  .modal-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(218,165,32,0.15) 0%, transparent 70%); }
+  .modal-hero .logo-wrap { margin-bottom: 18px; }
+  .modal-hero .logo-wrap img { height: 36px; }
+  .modal-hero h2 { color: #fff; font-size: 20px; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
+  .modal-hero p { color: rgba(255,255,255,0.8); font-size: 14px; line-height: 1.5; position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
+
+  /* Carousel */
+  .carousel { flex: 1; overflow: hidden; position: relative; min-height: 0; }
+  .carousel-inner { display: flex; transition: transform 0.4s ease; height: 100%; }
+  .carousel-slide { min-width: 100%; padding: 24px 36px 20px; display: flex; flex-direction: column; }
+  .carousel-slide h3 { font-size: 13px; font-weight: 600; color: #1a2b5c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .carousel-slide h4 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .carousel-slide p { font-size: 13px; color: #6b7280; line-height: 1.5; margin-bottom: 12px; }
+  .carousel-video { flex: 1; background: #f1f5f9; border-radius: 10px; overflow: hidden; min-height: 200px; position: relative; }
+  .carousel-video video { width: 100%; height: 100%; object-fit: cover; }
+
+  .carousel-nav { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 0; flex-shrink: 0; }
+  .carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; cursor: pointer; transition: all 0.2s; border: none; padding: 0; }
+  .carousel-dot.active { background: #1a2b5c; width: 20px; border-radius: 4px; }
+  .carousel-arrows { display: flex; gap: 6px; position: absolute; bottom: 16px; right: 16px; z-index: 2; }
+  .carousel-arrows button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .carousel-arrows button:hover { background: #f3f4f6; }
+
+  .modal-footer { padding: 16px 36px 24px; text-align: center; flex-shrink: 0; border-top: 1px solid #f3f4f6; }
+  .modal-free-badge { display: inline-flex; align-items: center; gap: 6px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 20px; padding: 6px 16px; margin-bottom: 14px; font-size: 13px; font-weight: 600; color: #166534; }
+  .modal-cta .btn { padding: 12px 32px; font-size: 15px; }
+  .modal-cta .skip { display: block; margin-top: 10px; font-size: 13px; color: #9ca3af; cursor: pointer; text-decoration: none; }
+  .modal-cta .skip:hover { color: #6b7280; }
 </style>
 </head>
 <body>
 
-<svg class="defs"><defs>
-  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
-  <symbol id="i-dollar" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></symbol>
-  <symbol id="i-clip" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></symbol>
-  <symbol id="i-bar" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
-  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></symbol>
-  <symbol id="i-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
-  <symbol id="i-chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
-  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
-  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
-  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
-  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></symbol>
-  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
-  <symbol id="i-mail" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></symbol>
-</defs></svg>
+<svg style="display:none;">
+  <defs>
+    <symbol id="constrafor-logo" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fbbf24"/><text x="20" y="26" text-anchor="middle" font-size="20" font-weight="700" fill="#1a2b5c" font-family="Arial">C</text></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><polyline points="9 21 9 14 15 14 15 21"/></symbol>
+    <symbol id="icon-financing" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H9.5M9 12.5h5a1.5 1.5 0 010 3H9"/></symbol>
+    <symbol id="icon-compliance" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></symbol>
+    <symbol id="icon-jobs" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></symbol>
+    <symbol id="icon-tools" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="icon-account" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></symbol>
+  </defs>
+</svg>
 
-<!-- Tabs -->
-<div class="tabs">
-  <span class="tl">Screens</span>
-  <button class="tb on" onclick="go('h1')">Home (1 job)</button>
-  <button class="tb" onclick="go('hm')">Home (multiple)</button>
-  <button class="tb" onclick="go('ob')">Onboarding</button>
-  <button class="tb" onclick="go('dt')">Job Detail</button>
+<div class="screen-nav">
+  <span>SCREENS</span>
+  <button class="active" onclick="showScreen('onboarding')">Onboarding</button>
+  <button onclick="showScreen('home1')">Home (1 job)</button>
+  <button onclick="showScreen('homemulti')">Home (multiple)</button>
+  <button onclick="showScreen('jobdetail')">Job Detail</button>
+  <button onclick="showScreen('datasources')">Data Sources</button>
 </div>
 
-
-<!-- ==================== SCREEN 1: HOME 1 JOB ==================== -->
-<div id="s-h1" class="scr on">
-  <div class="nv">
-    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
-    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span><div class="bd">1</div></a>
-    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
-    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
-    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
-    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
-  </div>
-  <div class="mn">
-    <div class="pt">Good morning, Jane</div>
-    <div class="ps" style="margin-bottom:18px;">Thursday, March 12</div>
-    <div class="nt">Baseline: 1 job, 1 module (Compliance only). This is the vast majority of users at the start. Page feels full and useful even with minimal data.</div>
-
-    <!-- Actions -->
-    <div class="st">Actions required</div>
-    <div class="ac-sect">
-      <div class="ac-jh">Riverstone Apartments <span>&middot; Apex Builders Inc.</span></div>
-      <div class="ac-item">
-        <div class="ac-dot red"></div>
-        <div class="ac-label">Upload COI for Apex Builders</div>
-        <div class="ac-tag">Compliance</div>
-        <div class="ac-due red">Due today</div>
+<!-- ====== WELCOME MODAL WITH VIDEO CAROUSEL ====== -->
+<div id="welcomeModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-hero">
+      <div class="logo-wrap">
+        <img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/6969079f295bd8cec0c98e8b_462e797e95d5d81e31f1ada0fbb54aa7_cru%20logo.png" alt="Cru" style="height:36px; filter: brightness(0) invert(1);">
       </div>
+      <h2>Meet your AI-powered back office</h2>
+      <p>Constrafor includes Cru -- AI agents that handle the work you shouldn't have to. From compliance to cash flow, Cru works in the background so you can focus on building.</p>
     </div>
 
-    <!-- Recent updates -->
-    <div class="st" style="margin-top:16px;">Recent updates</div>
-    <div class="cd">
-      <div class="lr ag">
-        <div class="rt">
-          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>We sent a COI reminder to your insurance broker for Riverstone Apartments</div>
-          <div class="rs">Expect a response within 48 hours</div>
-        </div>
-        <div class="rm">2 hours ago</div>
-      </div>
-      <div class="lr">
-        <div class="rt"><div class="rn">Apex Builders invited you to upload a COI</div><div class="rs">Riverstone Apartments</div></div>
-        <div class="rm">1 day ago</div>
-      </div>
-      <div class="lr">
-        <div class="rt"><div class="rn">Account created successfully</div><div class="rs">Welcome to Constrafor</div></div>
-        <div class="rm">2 days ago</div>
-      </div>
-    </div>
-
-    <!-- My Jobs -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:10px;">
-      <div class="st" style="margin-bottom:0;">My Jobs</div>
-      <button class="btn-s"><svg><use href="#i-plus"/></svg> Add Job</button>
-    </div>
-    <div class="cd" style="padding:0;overflow:hidden;">
-      <table class="jtbl">
-        <thead><tr><th>Job</th><th>General Contractor</th><th>Location</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr onclick="go('dt')"><td class="jn">Riverstone Apartments</td><td>Apex Builders Inc.</td><td>Austin, TX</td><td><span class="sb gr">Active</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Upsell -->
-    <div class="hb" style="margin-top:16px;">
-      <div class="hb-i"><svg><use href="#i-dollar"/></svg></div>
-      <div class="hb-t">
-        <div class="ht">Get paid faster on Riverstone Apartments</div>
-        <div class="hd">Early Pay shortens your payment cycle from weeks to days. Submit invoices and get funded quickly.</div>
-      </div>
-      <button class="hb-b">Learn more</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ==================== SCREEN 2: HOME MULTIPLE JOBS ==================== -->
-<div id="s-hm" class="scr">
-  <div class="nv">
-    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
-    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span><div class="bd">5</div></a>
-    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
-    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
-    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
-    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
-  </div>
-  <div class="mn">
-    <div class="pt">Good morning, Jane</div>
-    <div class="ps" style="margin-bottom:18px;">Thursday, March 12</div>
-    <div class="nt">Growth state: 4 jobs, multiple modules active. Each job gets its own actions container. Feed agent items have a warm tint, no indent difference.</div>
-
-    <!-- Actions: one card per job -->
-    <div class="st">Actions required</div>
-    <div class="ac-sect">
-      <div class="ac-jh">Riverstone Apartments <span>&middot; Apex Builders Inc.</span></div>
-      <div class="ac-item">
-        <div class="ac-dot red"></div>
-        <div class="ac-label">Sign contract from Apex Builders</div>
-        <div class="ac-tag">Compliance</div>
-        <div class="ac-due red">Due today</div>
-      </div>
-      <div class="ac-item">
-        <div class="ac-dot yw"></div>
-        <div class="ac-label">Re-upload COI</div>
-        <div class="ac-tag">Compliance</div>
-        <div class="ac-due yw">Due in 3 days</div>
-      </div>
-      <div class="ac-item">
-        <div class="ac-dot bl"></div>
-        <div class="ac-label">Submit invoice for March billing period</div>
-        <div class="ac-tag">Early Pay</div>
-        <div class="ac-due dn">Due in 5 days</div>
-      </div>
-    </div>
-    <div class="ac-sect">
-      <div class="ac-jh">Lakeside Office Park <span>&middot; CoreBuild Group</span></div>
-      <div class="ac-item">
-        <div class="ac-dot red"></div>
-        <div class="ac-label">Submit diversity timesheet</div>
-        <div class="ac-tag">Compliance</div>
-        <div class="ac-due red">Due tomorrow</div>
-      </div>
-      <div class="ac-item">
-        <div class="ac-dot yw"></div>
-        <div class="ac-label">Review and sign lien waiver</div>
-        <div class="ac-tag">Compliance</div>
-        <div class="ac-due yw">Due in 4 days</div>
-      </div>
-    </div>
-
-    <!-- Recent updates -->
-    <div class="st" style="margin-top:4px;">Recent updates</div>
-    <div class="cd">
-      <div class="lr ag">
-        <div class="rt">
-          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>We analyzed your cash position across 4 jobs. Riverstone Apartments is trending below forecast for Q2.</div>
-          <div class="rs">Review cash analysis</div>
-        </div>
-        <div class="rm">2 hours ago</div>
-      </div>
-      <div class="lr">
-        <div class="rt"><div class="rn">Invoice #1042 approved</div><div class="rs">Skyline Heights &middot; Early Pay</div></div>
-        <div class="rm">3 hours ago</div>
-      </div>
-      <div class="lr ag">
-        <div class="rt">
-          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>We sent a COI renewal reminder to your insurance broker for Lakeside Office Park</div>
-          <div class="rs">Expect a response within 48 hours</div>
-        </div>
-        <div class="rm">5 hours ago</div>
-      </div>
-      <div class="lr">
-        <div class="rt"><div class="rn">COI expiring in 12 days</div><div class="rs">Riverstone Apartments &middot; Compliance</div></div>
-        <div class="rm">5 hours ago</div>
-      </div>
-      <div class="lr ag">
-        <div class="rt">
-          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>2 materials flagged as overcharged on Meadowview School. We found $4,200 in potential savings.</div>
-          <div class="rs">Review flagged materials</div>
-        </div>
-        <div class="rm">1 day ago</div>
-      </div>
-      <div class="lr">
-        <div class="rt"><div class="rn">Cash flow forecast updated</div><div class="rs">Lakeside Office Park &middot; Cru</div></div>
-        <div class="rm">1 day ago</div>
-      </div>
-    </div>
-
-    <!-- My Jobs -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:10px;">
-      <div class="st" style="margin-bottom:0;">My Jobs</div>
-      <button class="btn-s"><svg><use href="#i-plus"/></svg> Add Job</button>
-    </div>
-    <div class="fl">
-      <input class="sb-in" placeholder="Search jobs..." />
-      <button class="fb">GC <svg><use href="#i-chev"/></svg></button>
-      <button class="fb">Location <svg><use href="#i-chev"/></svg></button>
-      <button class="fb">Status <svg><use href="#i-chev"/></svg></button>
-    </div>
-    <div class="cd" style="padding:0;overflow:hidden;">
-      <table class="jtbl">
-        <thead><tr><th>Job</th><th>General Contractor</th><th>Location</th><th>Start Date</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr onclick="go('dt')"><td class="jn">Riverstone Apartments</td><td>Apex Builders Inc.</td><td>Austin, TX</td><td>Jan 15, 2025</td><td><span class="sb gr">Active</span></td></tr>
-          <tr><td class="jn">Lakeside Office Park</td><td>CoreBuild Group</td><td>Denver, CO</td><td>Mar 1, 2025</td><td><span class="sb gr">Active</span></td></tr>
-          <tr><td class="jn">Meadowview School</td><td>UrbanWorks LLC</td><td>Seattle, WA</td><td>Feb 10, 2025</td><td><span class="sb yw">Under review</span></td></tr>
-          <tr><td class="jn">Crestwood Mall Expansion</td><td>Horizon Constructors</td><td>Phoenix, AZ</td><td>Apr 1, 2025</td><td><span class="sb yw">Under review</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Upsell -->
-    <div class="hb" style="margin-top:16px;">
-      <div class="hb-i"><svg><use href="#i-dollar"/></svg></div>
-      <div class="hb-t">
-        <div class="ht">3 jobs have outstanding invoices totaling $142,000</div>
-        <div class="hd">Early Pay could get you paid in days instead of weeks. Based on your current jobs, you could unlock up to $98,000 in early payments.</div>
-      </div>
-      <button class="hb-b">Learn more</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ==================== SCREEN 3: ONBOARDING ==================== -->
-<div id="s-ob" class="scr">
-  <div class="nv">
-    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
-    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span></a>
-    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
-    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
-    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
-    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
-  </div>
-  <div class="mn">
-    <div class="nt">GC invited sub to respond to a COI request. Primary task: connect email so Constrafor handles it automatically. Manual upload is a secondary fallback.</div>
-
-    <!-- Welcome -->
-    <div class="wb">
-      <div class="wt">
-        <h2>Welcome to Constrafor, Jane</h2>
-        <p>Apex Builders needs a Certificate of Insurance for <strong>Riverstone Apartments</strong>. Connect your email and we'll handle it for you automatically.</p>
-      </div>
-      <button class="wbtn" onclick="go('dt')">Go to Riverstone Apartments</button>
-    </div>
-
-    <!-- Primary task: connect email -->
-    <div class="st">Let us handle your COI request</div>
-    <div class="cc-card">
-      <div class="cc-top">
-        <div class="cc-ic"><svg><use href="#i-mail"/></svg></div>
-        <h3>Connect your email <span class="free">FREE</span></h3>
-      </div>
-      <div class="cc-desc">When you connect your email, Constrafor will automatically respond to Apex Builders' COI request on your behalf. We'll pull the right documents, verify requirements, and send the response. No manual uploading needed.</div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button class="cc-btn">Connect email</button>
-        <span style="font-size:12px;color:#8c95a6;">or <a href="#" style="color:#1b5fb5;text-decoration:none;font-weight:500;">upload documents manually</a></span>
-      </div>
-    </div>
-
-    <!-- Setup checklist -->
-    <div class="st" style="margin-top:18px;">Get set up</div>
-    <div class="cd" style="padding:0;">
-      <div class="ck" style="background:#fafdf8;">
-        <span class="cc dn2"><svg><use href="#i-check"/></svg></span>
-        <span class="ct dt">Create your account</span>
-        <span class="cm" style="color:#3a9a50;">Done</span>
-      </div>
-      <div class="ck" style="background:#f6f8ff;">
-        <span class="cc nx"><svg style="width:6px;height:6px;"><circle cx="3" cy="3" r="2.5" fill="#fff"/></svg></span>
-        <span class="ct"><strong>Connect your email</strong> &mdash; We'll handle the COI request automatically</span>
-        <span class="cm">Recommended</span>
-      </div>
-      <div class="ck">
-        <span class="cc td"></span>
-        <span class="ct">Complete your company profile</span>
-        <span class="cm">5 min</span>
-      </div>
-      <div class="ck">
-        <span class="cc td"></span>
-        <span class="ct">Set your notification preferences</span>
-        <span class="cm">1 min</span>
-      </div>
-    </div>
-
-    <!-- Capability showcase -->
-    <div class="st" style="margin-top:24px;">There's a lot more Constrafor can do for you</div>
-    <p style="font-size:13px;color:#5a6578;margin-bottom:14px;line-height:1.55;">You're here for compliance, but Constrafor also helps you get paid faster and gives you full visibility into your financials.</p>
-
-    <div class="g3">
-      <div class="cp-card">
-        <div class="cp-img g1">
-          <div class="cp-pv">
-            <div class="cpn">Cash flow forecast</div>
-            <div>See exactly where your money is and where it's going, for every job.</div>
+    <div class="carousel" id="carousel">
+      <div class="carousel-inner" id="carouselInner">
+        <div class="carousel-slide">
+          <h3>Cash Forecasting Agent</h3>
+          <h4>Automatically forecast cash flow</h4>
+          <p>Predict inflows and outflows to detect cash shortfalls early, so you're never caught off guard.</p>
+          <div class="carousel-video">
+            <video autoplay muted loop playsinline><source src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4%2F6973d111abdb71a1ac02e7db_111111_mp4.mp4" type="video/mp4"></video>
           </div>
         </div>
-        <div class="cp-bd">
-          <div class="cpl">Cru <span class="free">FREE</span></div>
-          <h3>Know your numbers in real time</h3>
-          <p>Automated job costing, cash flow forecasting, and bill processing. Your AI financial co-pilot.</p>
-        </div>
-      </div>
-      <div class="cp-card">
-        <div class="cp-img g2x">
-          <div class="cp-pv">
-            <div class="cpn">Early Pay request</div>
-            <div>Submit an invoice and get funded in days, not weeks.</div>
+        <div class="carousel-slide">
+          <h3>Materials Agent</h3>
+          <h4>Don't get overcharged on material purchases</h4>
+          <p>Track every materials bill and match invoices to quotes to flag discrepancies automatically.</p>
+          <div class="carousel-video">
+            <video muted loop playsinline><source src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4%2F6973ca3798f9c21d75bc9e75_3_mp4.mp4" type="video/mp4"></video>
           </div>
         </div>
-        <div class="cp-bd">
-          <div class="cpl">Early Pay</div>
-          <h3>Get paid faster</h3>
-          <p>Shorten your payment cycle and free up working capital. Submit invoices and get funded quickly.</p>
-        </div>
-      </div>
-      <div class="cp-card">
-        <div class="cp-img g3x">
-          <div class="cp-pv">
-            <div class="cpn">Compliance dashboard</div>
-            <div>Contracts, COIs, lien waivers, and timesheets in one place.</div>
+        <div class="carousel-slide">
+          <h3>Job Costing Agent</h3>
+          <h4>Track job costs and flag vs estimates</h4>
+          <p>Get real-time visibility into job costing and automatically compare to estimates across all your projects.</p>
+          <div class="carousel-video">
+            <video muted loop playsinline><source src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4%2F6973d129782050a203681fcd_block%2044_mp4.mp4" type="video/mp4"></video>
           </div>
         </div>
-        <div class="cp-bd">
-          <div class="cpl">Compliance</div>
-          <h3>Stay on top of everything</h3>
-          <p>Manage contracts, insurance, invoices, and lien waivers. We track deadlines and send reminders automatically.</p>
+        <div class="carousel-slide">
+          <h3>Collections Agent</h3>
+          <h4>Never miss a late payment</h4>
+          <p>Syncs with your systems to detect overdue invoices and chase delayed payments on your behalf.</p>
+          <div class="carousel-video">
+            <video muted loop playsinline><source src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4%2F6973c9f09da3e87ddcc5b970_2_mp4.mp4" type="video/mp4"></video>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Add more jobs -->
-    <div class="hb" style="margin-top:16px;">
-      <div class="hb-i"><svg><use href="#i-plus"/></svg></div>
-      <div class="hb-t">
-        <div class="ht">Have other jobs you're working on?</div>
-        <div class="hd">Add your other jobs to track compliance, get early payments, and manage your financials all in one place.</div>
-      </div>
-      <button class="hb-b">Add a job</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ==================== SCREEN 4: JOB DETAIL ==================== -->
-<div id="s-dt" class="scr">
-  <div class="nv">
-    <div class="nv-logo"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#1b2a4a"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="800" fill="#f0c850" font-family="Inter,sans-serif">C</text></svg></div>
-    <a class="nl ac"><svg><use href="#i-home"/></svg><span>Home</span></a>
-    <a class="nl"><svg><use href="#i-dollar"/></svg><span>Funding</span></a>
-    <a class="nl"><svg><use href="#i-clip"/></svg><span>Compliance</span></a>
-    <a class="nl"><svg><use href="#i-bar"/></svg><span>Cru</span></a>
-    <a class="nl" style="margin-top:auto;"><svg><use href="#i-gear"/></svg><span>Settings</span></a>
-  </div>
-  <div class="mn">
-    <div class="nt">Job detail with all 3 capabilities active. Grey/white action cards, uniform recent update rows, properly spaced grid columns.</div>
-
-    <!-- Header -->
-    <div class="dh">
-      <a class="dh-back" onclick="go('h1')"><svg><use href="#i-left"/></svg> My Jobs</a>
-      <div class="dh-top">
-        <div><div class="dh-name">Riverstone Apartments</div><div class="dh-gc">Apex Builders Inc.</div></div>
-        <span class="sb gr">Active</span>
-      </div>
-      <div class="dh-meta">
-        <div class="mi"><div class="ml">Location</div><div class="mv">Austin, TX</div></div>
-        <div class="mi"><div class="ml">Start Date</div><div class="mv">Jan 15, 2025</div></div>
-        <div class="mi"><div class="ml">Contract Value</div><div class="mv">$2,450,000</div></div>
-        <div class="mi"><div class="ml">Owner</div><div class="mv">Google</div></div>
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="st">Actions required</div>
-    <div class="ac-sect">
-      <div class="ac-item">
-        <div class="ac-dot red"></div>
-        <div class="ac-label">Sign contract from Apex Builders</div>
-        <div class="ac-tag">Compliance</div>
-        <div class="ac-due red">Due today</div>
-      </div>
-      <div class="ac-item">
-        <div class="ac-dot yw"></div>
-        <div class="ac-label">Re-upload COI</div>
-        <div class="ac-tag">Compliance</div>
-        <div class="ac-due yw">Due in 3 days</div>
-      </div>
-      <div class="ac-item">
-        <div class="ac-dot bl"></div>
-        <div class="ac-label">Submit invoice for March billing period</div>
-        <div class="ac-tag">Early Pay</div>
-        <div class="ac-due dn">Due in 5 days</div>
-      </div>
-    </div>
-
-    <!-- Recent updates -->
-    <div class="st" style="margin-top:4px;">Recent updates</div>
-    <div class="cd" style="margin-bottom:16px;">
-      <div class="lr ag">
-        <div class="rt">
-          <div class="rn"><svg class="sp-i"><use href="#i-spark"/></svg>Cash flow is forecasted to dip in the next 2 months</div>
-          <div class="rs">Consider submitting your March invoice early</div>
-        </div>
-        <div class="rm">Today</div>
-      </div>
-      <div class="lr">
-        <div class="rt"><div class="rn">Contract signed with Apex Builders</div><div class="rs">Compliance</div></div>
-        <div class="rm">3 days ago</div>
-      </div>
-      <div class="lr">
-        <div class="rt"><div class="rn">Early Pay request #4021 submitted</div><div class="rs">Early Pay</div></div>
-        <div class="rm">5 days ago</div>
-      </div>
-    </div>
-
-    <!-- Two column: Documents + Financial overview -->
-    <div class="g2">
-      <div>
-        <div class="st">Documents</div>
-        <div class="cd" style="padding:0;">
-          <div class="cd-hd"><h3>All documents</h3><a href="#">Filter</a></div>
-          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">master_service_agreement.pdf</a><div class="ds2">Contract &middot; From GC</div></div></div>
-          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">invoice_march_2025.pdf</a><div class="ds2">Invoice &middot; Uploaded by you</div></div></div>
-          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">coi_general_liability.pdf</a><div class="ds2">COI &middot; Uploaded by you</div></div></div>
-          <div class="dr"><div class="di"><svg><use href="#i-file"/></svg></div><div class="df"><a href="#">early_pay_contract.pdf</a><div class="ds2">Early Pay contract &middot; Signed</div></div></div>
-        </div>
-      </div>
-
-      <div>
-        <div class="st">Financial overview</div>
-        <div class="cd" style="padding:0;">
-          <div class="cd-hd"><h3>Job financial health</h3><a href="#">Open in Cru</a></div>
-          <div class="fm"><span class="fl2">Job to Date Billed</span><span class="fv">$1,820,000</span></div>
-          <div class="fm"><span class="fl2">Job to Date Billed %</span><span class="fv">74.3%</span></div>
-          <div class="fm"><span class="fl2">Retainage Held</span><span class="fv">$122,500</span></div>
-          <div class="fm"><span class="fl2">Job Cost to Date</span><span class="fv">$1,694,000</span></div>
-          <div class="ai">
-            <div class="ai-h"><svg><use href="#i-spark"/></svg><span>Constrafor</span></div>
-            <p>Cash flow is forecasted to dip in the next 2 months. Submitting your March invoice through Early Pay could improve your position by ~$38,000 within 5 business days.</p>
+        <div class="carousel-slide">
+          <h3>COI Agent</h3>
+          <h4>Automate your COI submissions</h4>
+          <p>Syncs to your email and automatically submits COIs for initial submission and renewals. No more chasing paperwork.</p>
+          <div class="carousel-video">
+            <video muted loop playsinline><source src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4%2F6973c1fb0986e23593f1f4d9_block%207_mp4.mp4" type="video/mp4"></video>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Two column: Compliance + Early Pay — aligned side by side, equal footing -->
-    <div class="g2" style="margin-top:16px;">
-      <div>
-        <div class="st">Compliance</div>
-        <div class="cd" style="padding:0;">
-          <div class="cd-hd"><h3>Overview</h3><a href="#">View in Compliance</a></div>
-          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Contracts</span><span class="sv">5 signed</span></div>
-          <div class="sr"><span class="sc wa"><svg><use href="#i-alert"/></svg></span><span class="sl">COI Policies</span><span class="sv">1 expiring soon</span></div>
-          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Invoices</span><span class="sv">12 submitted</span></div>
-          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Lien Waivers</span><span class="sv">24 signed</span></div>
-          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Diversity Timesheets</span><span class="sv">Up to date</span></div>
-        </div>
+    <div class="carousel-nav" id="carouselNav">
+      <button class="carousel-dot active" onclick="goToSlide(0)"></button>
+      <button class="carousel-dot" onclick="goToSlide(1)"></button>
+      <button class="carousel-dot" onclick="goToSlide(2)"></button>
+      <button class="carousel-dot" onclick="goToSlide(3)"></button>
+      <button class="carousel-dot" onclick="goToSlide(4)"></button>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-free-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+        Free to try -- no credit card required
       </div>
-
-      <div>
-        <div class="st">Early Pay</div>
-        <div class="cd" style="padding:0;">
-          <div class="cd-hd"><h3>Overview</h3><a href="#">View in Funding</a></div>
-          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Contract</span><span class="sv">Signed</span></div>
-          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Active Requests</span><span class="sv">2 pending</span></div>
-          <div class="sr"><span class="sc ok"><svg><use href="#i-check"/></svg></span><span class="sl">Total Funded</span><span class="sv">$86,400</span></div>
-        </div>
+      <div class="modal-cta">
+        <button class="btn btn-primary" onclick="closeModal()">Get started</button>
+        <a class="skip" onclick="closeModal()">I'll explore on my own</a>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Contacts: own full-width section below -->
-    <div style="margin-top:16px;">
-      <div class="st">Contacts</div>
-      <div class="cd" style="padding:0;">
-        <div class="cr"><div class="ca">JS</div><div class="ci"><div class="cn">Jane Smith</div><div class="ce">janesmith@email.com</div></div><div class="crl">Invoice Approver</div></div>
-        <div class="cr"><div class="ca">KG</div><div class="ci"><div class="cn">Kareena Gomez</div><div class="ce">kareenagomez@email.com</div></div><div class="crl">Invoice Approver</div></div>
-        <div class="cr"><div class="ca">MP</div><div class="ci"><div class="cn">Mike Peterson</div><div class="ce">mpeterson@apex.com</div></div><div class="crl">Project Manager (GC)</div></div>
+<!-- ==================== ONBOARDING ==================== -->
+<div id="onboarding" class="screen active">
+<div class="app">
+  <nav class="sidebar">
+    <div class="logo"><svg><use href="#constrafor-logo"/></svg></div>
+    <a class="active" href="#"><div class="nav-icon"><svg><use href="#icon-home"/></svg></div>Home<span class="badge">1</span></a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-jobs"/></svg></div>Jobs</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-financing"/></svg></div>Financing</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-compliance"/></svg></div>Compliance</a>
+    <a href="#"><div class="nav-icon"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru"></div>Cru<span class="new-tag">NEW</span></a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-tools"/></svg></div>Tools</a>
+    <div class="spacer"></div>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-account"/></svg></div>Account</a>
+  </nav>
+  <div class="main">
+
+    <div class="welcome-banner">
+      <h2>Welcome to Constrafor, Jane</h2>
+      <p><strong>Apex Builders</strong> needs a Certificate of Insurance for <strong>Riverstone Apartments</strong>. Get set up below and your Cru agent will handle it automatically.</p>
+    </div>
+
+    <!-- Connect Email -->
+    <div class="connect-card">
+      <div class="connect-header">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a2b5c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>
+        <h3>Connect your email</h3>
       </div>
+      <p>When you connect your email, your <strong>Cru COI Agent</strong> will automatically respond to Apex Builders' COI request. We'll pull the right documents, verify requirements, and send the response. No manual uploading needed.</p>
+      <div class="connect-tip">
+        <strong>Tip:</strong> Connect the email address where you receive COI requests, invoices, and project correspondence. The more data Cru can see, the more it can automate for you -- including cash flow tracking, job costing, and invoice management.
+      </div>
+      <button class="btn btn-primary">Connect email</button>
     </div>
 
     <!-- Cross-sell -->
-    <div class="hb" style="margin-top:16px;">
-      <div class="hb-i"><svg><use href="#i-dollar"/></svg></div>
-      <div class="hb-t">
-        <div class="ht">Your cash flow is trending low on this job</div>
-        <div class="hd">Submitting your outstanding invoices through Early Pay could improve your working capital by ~$38,000 within 5 business days.</div>
+    <div class="section-header">What Cru can do for you</div>
+    <p style="font-size:13px; color:#6b7280; margin-bottom:4px; line-height:1.4;">Constrafor includes Cru, your AI-powered back office. Beyond handling compliance, Cru agents manage your billing, job costing, cash forecasting, and more.</p>
+    <p style="font-size:12px; color:#166534; margin-bottom:12px; line-height:1.4; font-weight:500;">Free to try -- no credit card required.</p>
+    <div class="crosssell-grid">
+      <div class="crosssell-card">
+        <div class="crosssell-preview cru"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div>
+        <div class="crosssell-body"><div class="crosssell-tag cru">Cash flow + Job costing</div><h4>Know your numbers in real time</h4><p>Cru detects invoices and payments from your email to build cash flow forecasts and track job costs automatically.</p></div>
       </div>
-      <button class="hb-b">Submit Early Pay request</button>
+      <div class="crosssell-card">
+        <div class="crosssell-preview pay"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+        <div class="crosssell-body"><div class="crosssell-tag pay">Early Pay</div><h4>Get paid in days, not weeks</h4><p>Submit an invoice and get funded quickly. Cru flags when your cash flow is tight and suggests Early Pay.</p></div>
+      </div>
+      <div class="crosssell-card">
+        <div class="crosssell-preview comply"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#a16207" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="crosssell-body"><div class="crosssell-tag comply">Compliance</div><h4>Stay on top of everything</h4><p>COIs, lien waivers, timesheets. Your Cru agent handles deadlines and reminders automatically.</p></div>
+      </div>
+    </div>
+
+    <!-- Data Completeness -->
+    <div class="card">
+      <div class="data-meter">
+        <div class="meter-top"><span>Your data completeness</span><span class="pct">25%</span></div>
+        <div class="meter-bar"><div class="meter-fill low" style="width:25%"></div></div>
+        <div class="meter-hint">Connect your <strong>business email</strong> and <strong>bank account</strong> to unlock cash flow forecasting and job cost tracking.</div>
+      </div>
+    </div>
+
+    <!-- Setup Checklist -->
+    <div class="card">
+      <div class="card-header"><h3>Get set up</h3></div>
+      <div class="checklist-item"><div class="check-icon check-done">&#10003;</div><div class="checklist-text done">Create your account</div><div class="checklist-meta">Done</div></div>
+      <div class="checklist-item"><div class="check-icon check-active">2</div><div class="checklist-text">Connect your email so Cru can handle COI requests automatically</div><div class="checklist-meta" style="color:#2563eb; font-weight:500;">Next step</div></div>
+      <div class="checklist-item"><div class="check-icon check-pending">3</div><div class="checklist-text">Go to your job: <strong>Riverstone Apartments</strong></div><div class="checklist-meta"><a class="link" style="font-size:11px;">View job &rarr;</a></div></div>
+      <div class="checklist-item"><div class="check-icon check-pending">4</div><div class="checklist-text"><strong>Explore Cru</strong> -- see how AI agents can manage your cash flow, job costs, and compliance</div><div class="checklist-meta"><a class="link" style="font-size:11px;">Try Cru &rarr;</a></div></div>
+    </div>
+
+    <div class="add-job-banner">
+      <div class="ajb-icon">+</div>
+      <div class="ajb-text"><h4>Track compliance and finances across all your jobs</h4><p>The more jobs you add, the more accurate your cash flow forecast and job cost tracking becomes.</p></div>
+      <button class="btn btn-outline btn-sm">Add a job</button>
     </div>
   </div>
 </div>
+</div>
 
+<!-- ==================== HOME (1 JOB) ==================== -->
+<div id="home1" class="screen">
+<div class="app">
+  <nav class="sidebar">
+    <div class="logo"><svg><use href="#constrafor-logo"/></svg></div>
+    <a class="active" href="#"><div class="nav-icon"><svg><use href="#icon-home"/></svg></div>Home<span class="badge">1</span></a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-jobs"/></svg></div>Jobs</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-financing"/></svg></div>Financing</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-compliance"/></svg></div>Compliance</a>
+    <a href="#"><div class="nav-icon"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru"></div>Cru<span class="new-tag">NEW</span></a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-tools"/></svg></div>Tools</a>
+    <div class="spacer"></div>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-account"/></svg></div>Account</a>
+  </nav>
+  <div class="main">
+    <h1 class="greeting">Good morning, Jane</h1>
+    <div class="date-sub">Thursday, March 12</div>
+
+    <div class="agent-status">
+      <img class="cru-emblem-lg" src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru">
+      <div class="agent-info">
+        <div class="agent-title"><span class="sparkle">&#10024;</span> Cru Agents</div>
+        <div class="agent-detail"><span class="pulse"></span>Monitoring 2 active requests from Apex Builders. Sent a COI reminder to your broker 2 hours ago. Detected 2 invoices in your email.</div>
+      </div>
+    </div>
+
+    <div class="section-header">Actions required</div>
+    <div class="card" style="padding:0;">
+      <div class="job-group-header"><h4>Riverstone Apartments <span class="gc-name">&middot; Apex Builders Inc.</span></h4></div>
+      <div class="action-item"><div class="action-dot red"></div><div class="action-text">Upload COI for Apex Builders</div><span class="action-tag">Compliance</span><span class="action-due">Due today</span></div>
+    </div>
+
+    <!-- Unified Insights Feed -->
+    <div class="insights-feed">
+      <div class="insights-feed-header">
+        <img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru" style="width:18px; height:18px;">
+        <span>Cru Insights</span>
+      </div>
+      <div class="insight-row">
+        <span class="insight-type forecast">Forecast</span>
+        <div class="insight-body">
+          <p>We found <strong>2 invoices totaling $47,200</strong> in your connected email for Riverstone Apartments. Connect your business email to see your full cash flow forecast and job cost breakdown.</p>
+          <a>See what Cru can show you &rarr;</a>
+        </div>
+      </div>
+      <div class="insight-row">
+        <span class="insight-type materials">Materials</span>
+        <div class="insight-body">
+          <p>Cru is ready to track your materials costs. Once your business email is connected, we'll <strong>match invoices to quotes and flag price discrepancies</strong> automatically.</p>
+          <a>Learn more &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data completeness (compact) -->
+    <div class="card" style="padding:12px 18px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:12px; font-weight:500; color:#4b5563;">Your data completeness</span>
+        <span style="font-size:15px; font-weight:700; color:#f59e0b;">35%</span>
+      </div>
+      <div class="meter-bar"><div class="meter-fill low" style="width:35%"></div></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+        <span style="font-size:11px; color:#9ca3af;">Add your business email and bank account to unlock full Cru features</span>
+        <a class="link" style="font-size:11px;">Add sources</a>
+      </div>
+    </div>
+
+    <div class="section-header">Recent updates</div>
+    <div class="card" style="padding:0;">
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title"><span class="sparkle">&#10024;</span>Your Cru agent sent a COI reminder to your insurance broker for Riverstone Apartments</div><div class="feed-sub">Expect a response within 48 hours</div></div>
+        <span class="feed-time">2 hours ago</span>
+      </div>
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title" style="color:#2563eb;"><span class="sparkle">&#10024;</span>Cru detected a $23,400 invoice from Apex Builders in your email</div><div class="feed-sub">Connect your business email to track all invoices automatically</div></div>
+        <span class="feed-time">5 hours ago</span>
+      </div>
+      <div class="feed-item">
+        <div class="feed-icon comply-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg></div>
+        <div class="feed-content"><div class="feed-title">Apex Builders invited you to upload a COI</div><div class="feed-sub">Riverstone Apartments</div></div>
+        <span class="feed-time">1 day ago</span>
+      </div>
+      <div class="feed-item">
+        <div class="feed-icon ok-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="feed-content"><div class="feed-title">Account created successfully</div><div class="feed-sub">Welcome to Constrafor</div></div>
+        <span class="feed-time">2 days ago</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== HOME (MULTIPLE) ==================== -->
+<div id="homemulti" class="screen">
+<div class="app">
+  <nav class="sidebar">
+    <div class="logo"><svg><use href="#constrafor-logo"/></svg></div>
+    <a class="active" href="#"><div class="nav-icon"><svg><use href="#icon-home"/></svg></div>Home<span class="badge">5</span></a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-jobs"/></svg></div>Jobs</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-financing"/></svg></div>Financing</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-compliance"/></svg></div>Compliance</a>
+    <a href="#"><div class="nav-icon"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru"></div>Cru</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-tools"/></svg></div>Tools</a>
+    <div class="spacer"></div>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-account"/></svg></div>Account</a>
+  </nav>
+  <div class="main">
+    <h1 class="greeting">Good morning, Jane</h1>
+    <div class="date-sub">Thursday, March 12</div>
+
+    <div class="agent-status">
+      <img class="cru-emblem-lg" src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru">
+      <div class="agent-info">
+        <div class="agent-title"><span class="sparkle">&#10024;</span> Cru Agents</div>
+        <div class="agent-detail"><span class="pulse"></span>Monitoring 4 active requests across 3 GCs. Updated cash forecast across 4 jobs. Flagged $4,200 in materials overcharges on Meadowview School. Sent COI renewal to broker for Lakeside Office Park.</div>
+      </div>
+    </div>
+
+    <div class="section-header">Actions required</div>
+    <div class="job-group">
+      <div class="job-group-header"><h4>Riverstone Apartments <span class="gc-name">&middot; Apex Builders Inc.</span></h4></div>
+      <div class="action-item"><div class="action-dot red"></div><div class="action-text">Sign contract from Apex Builders</div><span class="action-tag">Compliance</span><span class="action-due">Due today</span></div>
+      <div class="action-item"><div class="action-dot orange"></div><div class="action-text">Re-upload COI</div><span class="action-tag">Compliance</span><span class="action-due soon">Due in 3 days</span></div>
+      <div class="action-item"><div class="action-dot blue"></div><div class="action-text">Submit invoice for March billing period</div><span class="action-tag">Early Pay</span><span class="action-due normal">Due in 5 days</span></div>
+    </div>
+    <div class="job-group">
+      <div class="job-group-header"><h4>Lakeside Office Park <span class="gc-name">&middot; CoreBuild Group</span></h4></div>
+      <div class="action-item"><div class="action-dot red"></div><div class="action-text">Submit diversity timesheet</div><span class="action-tag">Compliance</span><span class="action-due">Due tomorrow</span></div>
+      <div class="action-item"><div class="action-dot orange"></div><div class="action-text">Review and sign lien waiver</div><span class="action-tag">Compliance</span><span class="action-due soon">Due in 4 days</span></div>
+    </div>
+
+    <!-- Unified Insights Feed -->
+    <div class="insights-feed">
+      <div class="insights-feed-header">
+        <img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru" style="width:18px; height:18px;">
+        <span>Cru Insights</span>
+        <span style="margin-left:auto; font-size:11px; color:#9ca3af; text-transform:none; font-weight:400; letter-spacing:0;">4 new</span>
+      </div>
+      <div class="insight-row">
+        <span class="insight-type savings">Savings</span>
+        <div class="insight-body">
+          <span class="insight-val">$4,200</span>
+          <p>2 materials flagged as overcharged on Meadowview School. Cru compared invoices against your original quotes and found price discrepancies.</p>
+          <a>Review flagged materials &rarr;</a>
+        </div>
+      </div>
+      <div class="insight-row">
+        <span class="insight-type job-cost">Job Cost</span>
+        <div class="insight-body">
+          <p><strong>Riverstone Apartments is trending below forecast for Q2</strong> -- job costs are running 8% over budget. Your March invoice ($23,800) hasn't been submitted yet.</p>
+          <a>Review job cost breakdown &rarr;</a>
+        </div>
+      </div>
+      <div class="insight-row">
+        <span class="insight-type forecast">Forecast</span>
+        <div class="insight-body">
+          <p>Cash flow forecast updated across 4 projects. Submitting Riverstone's March invoice through <strong>Early Pay could improve your position by ~$38,000</strong> within 5 business days.</p>
+          <a>Review cash analysis &rarr;</a>
+        </div>
+      </div>
+      <div class="insight-row">
+        <span class="insight-type collections">Collections</span>
+        <div class="insight-body">
+          <p>Invoice #1031 to CoreBuild Group is <strong>14 days past due ($18,600)</strong>. Cru sent a follow-up reminder yesterday. No response yet.</p>
+          <a>View collections status &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data completeness (compact, high) -->
+    <div class="card" style="padding:12px 18px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:12px; font-weight:500; color:#4b5563;">Your data completeness</span>
+        <span style="font-size:15px; font-weight:700; color:#22c55e;">85%</span>
+      </div>
+      <div class="meter-bar"><div class="meter-fill high" style="width:85%"></div></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+        <span style="font-size:11px; color:#9ca3af;">Connect your QuickBooks to unlock automated billing reconciliation</span>
+        <a class="link" style="font-size:11px;">Add source</a>
+      </div>
+    </div>
+
+    <div class="section-header">Recent updates</div>
+    <div class="card" style="padding:0;">
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title"><span class="sparkle">&#10024;</span>Cru materials agent flagged 2 price discrepancies on Meadowview School</div><div class="feed-sub">Lumber +$1.50/unit, Concrete Mix +$5.00/cubic yard vs original quotes</div></div>
+        <span class="feed-time">1 hour ago</span>
+      </div>
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title"><span class="sparkle">&#10024;</span>Cash flow forecast and job cost analysis updated across 4 jobs</div><div class="feed-sub">Riverstone Apartments trending below Q2 target</div></div>
+        <span class="feed-time">2 hours ago</span>
+      </div>
+      <div class="feed-item">
+        <div class="feed-icon pay-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H9.5M9 12.5h5a1.5 1.5 0 010 3H9"/></svg></div>
+        <div class="feed-content"><div class="feed-title">Invoice #1042 approved</div><div class="feed-sub">Skyline Heights &middot; Early Pay</div></div>
+        <span class="feed-time">3 hours ago</span>
+      </div>
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title"><span class="sparkle">&#10024;</span>Cru collections agent sent payment reminder to CoreBuild Group</div><div class="feed-sub">Invoice #1031 is 14 days past due ($18,600)</div></div>
+        <span class="feed-time">5 hours ago</span>
+      </div>
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title"><span class="sparkle">&#10024;</span>Cru COI agent sent renewal reminder to broker for Lakeside Office Park</div><div class="feed-sub">Expect a response within 48 hours</div></div>
+        <span class="feed-time">5 hours ago</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== JOB DETAIL ==================== -->
+<div id="jobdetail" class="screen">
+<div class="app">
+  <nav class="sidebar">
+    <div class="logo"><svg><use href="#constrafor-logo"/></svg></div>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-home"/></svg></div>Home</a>
+    <a class="active" href="#"><div class="nav-icon"><svg><use href="#icon-jobs"/></svg></div>Jobs</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-financing"/></svg></div>Financing</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-compliance"/></svg></div>Compliance</a>
+    <a href="#"><div class="nav-icon"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru"></div>Cru</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-tools"/></svg></div>Tools</a>
+    <div class="spacer"></div>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-account"/></svg></div>Account</a>
+  </nav>
+  <div class="main" style="padding-bottom:72px;">
+    <div class="job-header">
+      <a href="#" class="back-link">&larr; My Jobs</a>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div><h1>Riverstone Apartments</h1><div class="job-sub">Apex Builders Inc.</div></div>
+        <span class="status active" style="padding:4px 14px;">Active</span>
+      </div>
+      <div class="job-meta">
+        <div><div class="meta-label">Location</div><div class="meta-value">Austin, TX</div></div>
+        <div><div class="meta-label">Start Date</div><div class="meta-value">Jan 15, 2025</div></div>
+        <div><div class="meta-label">Contract Value</div><div class="meta-value">$2,450,000</div></div>
+        <div><div class="meta-label">Owner</div><div class="meta-value">Google</div></div>
+      </div>
+    </div>
+
+    <div class="pinned-insight">
+      <div class="pi-label">
+        <img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru" style="width:20px; height:20px; filter: brightness(0) invert(1);">
+        <span>Cru Intelligence</span>
+      </div>
+      <p>Cash flow is forecasted to dip in the next 2 months, and job costs are running <strong>8% over budget ($135,200 over)</strong>. Submitting your March invoice through Early Pay could improve your position by <strong>~$38,000</strong> within 5 business days.</p>
+      <div class="pi-actions">
+        <button class="btn-pi primary">Submit Early Pay request</button>
+        <button class="btn-pi secondary">View full forecast in Cru</button>
+      </div>
+    </div>
+
+    <div class="section-header">Actions required</div>
+    <div class="card" style="padding:0;">
+      <div class="action-item"><div class="action-dot red"></div><div class="action-text">Sign contract from Apex Builders</div><span class="action-tag">Compliance</span><span class="action-due">Due today</span></div>
+      <div class="action-item"><div class="action-dot orange"></div><div class="action-text">Re-upload COI</div><span class="action-tag">Compliance</span><span class="action-due soon">Due in 3 days</span></div>
+      <div class="action-item"><div class="action-dot blue"></div><div class="action-text">Submit invoice for March billing period</div><span class="action-tag">Early Pay</span><span class="action-due normal">Due in 5 days</span></div>
+    </div>
+
+    <div class="section-header">Recent updates</div>
+    <div class="card" style="padding:0;">
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title"><span class="sparkle">&#10024;</span>Cash forecast updated: dip projected in next 2 months</div><div class="feed-sub">Consider submitting your March invoice early</div></div>
+        <span class="feed-time">Today</span>
+      </div>
+      <div class="feed-item agent">
+        <div class="feed-icon cru-fi"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:16px; height:16px;"></div>
+        <div class="feed-content"><div class="feed-title"><span class="sparkle">&#10024;</span>Job costs running 8% over budget -- $135,200 over estimate</div><div class="feed-sub">Review cost breakdown in Cru</div></div>
+        <span class="feed-time">Today</span>
+      </div>
+      <div class="feed-item">
+        <div class="feed-icon comply-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg></div>
+        <div class="feed-content"><div class="feed-title">Contract signed with Apex Builders</div><div class="feed-sub">Compliance</div></div>
+        <span class="feed-time">3 days ago</span>
+      </div>
+      <div class="feed-item">
+        <div class="feed-icon pay-fi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg></div>
+        <div class="feed-content"><div class="feed-title">Early Pay request #4021 submitted</div><div class="feed-sub">Early Pay</div></div>
+        <span class="feed-time">5 days ago</span>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:4px;">
+      <div>
+        <div class="section-header">Documents</div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><strong style="font-size:13px;">All documents</strong><a class="link" style="font-size:11px;">Filter</a></div>
+          <div style="font-size:13px;">
+            <div style="padding:6px 0; border-bottom:1px solid #f3f4f6;"><a class="link">master_service_agreement.pdf</a><br><span style="font-size:11px; color:#9ca3af;">Contract &middot; From GC</span></div>
+            <div style="padding:6px 0; border-bottom:1px solid #f3f4f6;"><a class="link">invoice_march_2025.pdf</a><br><span style="font-size:11px; color:#9ca3af;">Invoice &middot; Uploaded by you</span></div>
+            <div style="padding:6px 0; border-bottom:1px solid #f3f4f6;"><a class="link">coi_general_liability.pdf</a><br><span style="font-size:11px; color:#9ca3af;">COI &middot; Uploaded by you</span></div>
+            <div style="padding:6px 0;"><a class="link">early_pay_contract.pdf</a><br><span style="font-size:11px; color:#9ca3af;">Early Pay contract &middot; Signed</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-header">Financial overview</div>
+        <div class="fin-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <strong style="font-size:13px;">Job financial health</strong>
+            <button class="open-cru-btn">
+              <img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="" style="width:14px; height:14px;">
+              Open in Cru &rarr;
+            </button>
+          </div>
+          <div class="fin-grid">
+            <div><div class="fin-label">Job to Date Billed</div><div class="fin-value">$1,820,000</div></div>
+            <div><div class="fin-label">Job to Date Billed %</div><div class="fin-value">74.3%</div></div>
+            <div><div class="fin-label">Retainage Held</div><div class="fin-value">$122,500</div></div>
+            <div><div class="fin-label">Job Cost to Date</div><div class="fin-value" style="color:#ef4444;">$1,694,000</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:4px;">
+      <div>
+        <div class="section-header">Compliance</div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><strong style="font-size:13px;">Overview</strong><a class="link" style="font-size:11px;">View in Compliance</a></div>
+          <div class="summary-item"><div class="summary-label"><div class="status-dot ok"></div>Contracts</div><span class="summary-value">5 signed</span></div>
+          <div class="summary-item"><div class="summary-label"><div class="status-dot warn"></div>COI Policies</div><div><span class="summary-value">1 expiring soon</span><span class="summary-action">Renew &rarr;</span></div></div>
+          <div class="summary-item"><div class="summary-label"><div class="status-dot ok"></div>Invoices</div><span class="summary-value">12 submitted</span></div>
+          <div class="summary-item"><div class="summary-label"><div class="status-dot ok"></div>Lien Waivers</div><span class="summary-value">24 signed</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-header">Early Pay</div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><strong style="font-size:13px;">Overview</strong><a class="link" style="font-size:11px;">View in Funding</a></div>
+          <div class="summary-item"><div class="summary-label"><div class="status-dot ok"></div>Contract</div><span class="summary-value">Signed</span></div>
+          <div class="summary-item"><div class="summary-label"><div class="status-dot ok"></div>Active Requests</div><div><span class="summary-value">2 pending</span><span class="summary-action">View status &rarr;</span></div></div>
+          <div class="summary-item"><div class="summary-label"><div class="status-dot ok"></div>Total Funded</div><span class="summary-value">$86,400</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:4px;">Contacts</div>
+    <div class="card">
+      <div class="contact-item"><div class="contact-avatar" style="background:#6366f1;">JS</div><div><div class="contact-name">Jane Smith</div><div class="contact-email">janesmith@email.com</div></div><div class="contact-role">Invoice Approver</div></div>
+      <div class="contact-item"><div class="contact-avatar" style="background:#14b8a6;">KG</div><div><div class="contact-name">Kareena Gomez</div><div class="contact-email">kareena@email.com</div></div><div class="contact-role">Invoice Approver</div></div>
+      <div class="contact-item"><div class="contact-avatar" style="background:#f43f5e;">MP</div><div><div class="contact-name">Mike Peterson</div><div class="contact-email">mpeterson@apex.com</div></div><div class="contact-role">Project Manager (GC)</div></div>
+    </div>
+  </div>
+
+  <div class="sticky-bar">
+    <div class="sticky-text">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>
+      <span><strong>Your cash flow is trending low on this job.</strong> Submitting through Early Pay could improve your working capital by ~$38,000.</span>
+    </div>
+    <button class="btn btn-green btn-sm">Submit Early Pay request</button>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DATA SOURCES ==================== -->
+<div id="datasources" class="screen">
+<div class="app">
+  <nav class="sidebar">
+    <div class="logo"><svg><use href="#constrafor-logo"/></svg></div>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-home"/></svg></div>Home</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-jobs"/></svg></div>Jobs</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-financing"/></svg></div>Financing</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-compliance"/></svg></div>Compliance</a>
+    <a href="#"><div class="nav-icon"><img src="https://cdn.prod.website-files.com/67ef1d5719e6b26589a57ac4/69b02ea81175b9d7a730cea0_cru_emblem%201.png" alt="Cru"></div>Cru</a>
+    <a href="#"><div class="nav-icon"><svg><use href="#icon-tools"/></svg></div>Tools</a>
+    <div class="spacer"></div>
+    <a class="active" href="#"><div class="nav-icon"><svg><use href="#icon-account"/></svg></div>Account</a>
+  </nav>
+  <div class="main">
+    <h1 class="greeting">Connect your data sources</h1>
+    <p style="font-size:14px; color:#6b7280; margin-bottom:20px; line-height:1.5;">The more data Cru can access, the more it can automate for you. Each source unlocks new capabilities across compliance, cash flow, job costing, and payments.</p>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="data-meter">
+        <div class="meter-top"><span>Your data completeness</span><span class="pct">35%</span></div>
+        <div class="meter-bar"><div class="meter-fill low" style="width:35%"></div></div>
+        <div class="meter-hint">Connecting all sources unlocks your complete Cru financial dashboard with AI-powered insights.</div>
+      </div>
+    </div>
+
+    <div class="section-header">Email accounts</div>
+    <p style="font-size:13px; color:#6b7280; margin-bottom:10px; line-height:1.4;">Cru scans your email for COI requests, invoices, payment confirmations, and project correspondence. We never read personal messages or share your data.</p>
+    <div class="card">
+      <div class="ds-item">
+        <div class="ds-icon email"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div class="ds-info"><div class="ds-name">jane@gmail.com <span style="font-size:10px; background:#dcfce7; color:#166534; padding:1px 6px; border-radius:3px; margin-left:4px;">Connected</span></div><div class="ds-desc">COI requests, GC correspondence</div></div>
+        <span class="ds-connected">&#10003; Active</span>
+      </div>
+      <div style="background:#fefce8; border:1px solid #fde68a; border-radius:8px; padding:12px 14px; margin:10px 0; font-size:13px; line-height:1.4;">
+        <strong style="color:#92400e;">Is this where you receive invoices and payment notifications?</strong><br>
+        <span style="color:#6b7280;">If your invoices and financial correspondence go to a different email, connect it below to unlock cash flow tracking, job costing, and invoice management.</span>
+      </div>
+      <div style="background:#eff6ff; border:1px dashed #93c5fd; border-radius:8px; padding:14px; margin-top:8px; display:flex; align-items:center; gap:12px;">
+        <div class="ds-icon email" style="background:#dbeafe;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div class="ds-info" style="flex:1;"><div class="ds-name" style="font-weight:600;">Add your business/accounting email</div><div class="ds-desc" style="color:#1e40af;"><strong>Unlocks:</strong> Cash flow forecasting, automatic invoice detection, payment tracking, materials cost analysis, job costing</div></div>
+        <button class="btn btn-primary btn-sm">+ Connect email</button>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:16px;">Bank account</div>
+    <p style="font-size:13px; color:#6b7280; margin-bottom:10px; line-height:1.4;">Securely connect your bank to see your real-time cash position and automatically match payments to invoices. Uses Plaid for bank-level security.</p>
+    <div class="card">
+      <div style="background:#f0fdf4; border:1px dashed #86efac; border-radius:8px; padding:14px; display:flex; align-items:center; gap:12px;">
+        <div class="ds-icon bank" style="background:#bbf7d0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg></div>
+        <div class="ds-info" style="flex:1;"><div class="ds-name" style="font-weight:600;">Connect your business bank account</div><div class="ds-desc" style="color:#166534;"><strong>Unlocks:</strong> Real-time cash position, payment-to-invoice matching, complete Cru dashboard, proactive cash alerts</div></div>
+        <button class="btn btn-primary btn-sm">+ Connect bank</button>
+      </div>
+      <div style="margin-top:10px; padding:8px 12px; background:#f8f9fb; border-radius:6px; font-size:11px; color:#9ca3af; display:flex; align-items:center; gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Bank-level encryption via Plaid. Read-only access -- Cru can never move money or modify your account.
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:16px;">Accounting software <span style="font-size:10px; background:#eff6ff; color:#2563eb; padding:2px 6px; border-radius:3px; margin-left:4px; vertical-align:middle;">COMING SOON</span></div>
+    <p style="font-size:13px; color:#6b7280; margin-bottom:10px;">Connect QuickBooks, Xero, or Sage to automate billing reconciliation and job costing.</p>
+    <div class="card" style="opacity:0.6;">
+      <div class="ds-item">
+        <div class="ds-icon acct"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+        <div class="ds-info"><div class="ds-name">QuickBooks, Xero, or Sage</div><div class="ds-desc">Unlocks: Automated billing reconciliation, job costing sync, payroll tracking</div></div>
+        <span style="font-size:11px; color:#9ca3af; font-style:italic;">Coming soon</span>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:20px;">What each connection unlocks</div>
+    <div class="card" style="overflow-x:auto;">
+      <table class="feat-table">
+        <thead><tr><th style="text-align:left;">Feature</th><th>COI Email Only</th><th>+ Business Email</th><th>+ Bank Account</th></tr></thead>
+        <tbody>
+          <tr><td>Cru COI agent (auto-respond to GCs)</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Compliance tracking</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Invoice detection</td><td class="feat-no">&mdash;</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Cash flow forecast</td><td class="feat-no">&mdash;</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Job cost tracking</td><td class="feat-no">&mdash;</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Materials cost analysis</td><td class="feat-no">&mdash;</td><td class="feat-check">&#10003;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Real-time cash position</td><td class="feat-no">&mdash;</td><td class="feat-no">&mdash;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Payment-to-invoice matching</td><td class="feat-no">&mdash;</td><td class="feat-no">&mdash;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Proactive cash alerts</td><td class="feat-no">&mdash;</td><td class="feat-no">&mdash;</td><td class="feat-check">&#10003;</td></tr>
+          <tr><td>Full Cru dashboard</td><td class="feat-no">&mdash;</td><td class="feat-partial">Partial</td><td class="feat-check">&#10003;</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
 
 <script>
-function go(s){
-  document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));
-  document.querySelectorAll('.tb').forEach(e=>e.classList.remove('on'));
-  document.getElementById('s-'+s).classList.add('on');
-  const m={h1:0,hm:1,ob:2,dt:3};
-  document.querySelectorAll('.tb')[m[s]].classList.add('on');
-  window.scrollTo(0,0);
+let currentSlide = 0;
+const totalSlides = 5;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.screen-nav button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+  document.getElementById('welcomeModal').classList.add('hidden');
 }
+
+function closeModal() {
+  document.getElementById('welcomeModal').classList.add('hidden');
+}
+
+function goToSlide(n) {
+  currentSlide = n;
+  document.getElementById('carouselInner').style.transform = 'translateX(-' + (n * 100) + '%)';
+  document.querySelectorAll('.carousel-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === n);
+  });
+  // Play the current video, pause others
+  document.querySelectorAll('.carousel-slide video').forEach((v, i) => {
+    if (i === n) { v.play(); } else { v.pause(); }
+  });
+}
+
+// Auto-advance carousel every 5 seconds
+let carouselInterval = setInterval(() => {
+  if (!document.getElementById('welcomeModal').classList.contains('hidden')) {
+    goToSlide((currentSlide + 1) % totalSlides);
+  }
+}, 5000);
+
+// Pause auto-advance on hover
+document.querySelector('.carousel')?.addEventListener('mouseenter', () => clearInterval(carouselInterval));
+document.querySelector('.carousel')?.addEventListener('mouseleave', () => {
+  carouselInterval = setInterval(() => {
+    if (!document.getElementById('welcomeModal').classList.contains('hidden')) {
+      goToSlide((currentSlide + 1) % totalSlides);
+    }
+  }, 5000);
+});
 </script>
 </body>
 </html>
