@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UCC Filing Tracker</title>
+  <style>
+    :root {
+      --primary: #1a56db;
+      --primary-light: #eff6ff;
+      --primary-dark: #1e429f;
+      --success: #057a55;
+      --success-light: #d1fae5;
+      --warning: #c27803;
+      --warning-light: #fef3c7;
+      --danger: #c81e1e;
+      --danger-light: #fee2e2;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    /* HEADER */
+    .header {
+      background: var(--gray-900);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 2px solid var(--primary);
+    }
+    .header-left h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-left p { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+    .header-actions { display: flex; gap: 8px; }
+    /* BUTTONS */
+    .btn {
+      padding: 7px 13px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: white; color: var(--gray-700); border: 1px solid var(--gray-300); }
+    .btn-secondary:hover { background: var(--gray-50); }
+    .btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid #fca5a5; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-success { background: var(--success-light); color: var(--success); border: 1px solid #6ee7b7; }
+    .btn-success:hover { background: #a7f3d0; }
+    .btn-sm { padding: 5px 9px; font-size: 11px; }
+    /* MAIN LAYOUT */
+    .main { display: flex; flex: 1; overflow: hidden; }
+    /* LEFT PANEL */
+    .left-panel {
+      width: 270px;
+      background: white;
+      border-right: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .panel-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+    .panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 8px;
+    }
+    .input-row { display: flex; gap: 5px; margin-bottom: 6px; }
+    .input-field {
+      flex: 1;
+      padding: 7px 9px;
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+    }
+    .input-field:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,86,219,0.12); }
+    .csv-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px dashed var(--gray-300);
+      font-size: 11px;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .csv-label:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .search-box {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .search-box input {
+      width: 100%;
+      padding: 6px 9px;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+    }
+    .search-box input:focus { border-color: var(--primary); }
+    /* SUB LIST */
+    .sub-list { flex: 1; overflow-y: auto; }
+    .sub-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--gray-100);
+      cursor: pointer;
+      transition: background 0.1s;
+      border-left: 3px solid transparent;
+    }
+    .sub-item:hover { background: var(--gray-50); }
+    .sub-item.active { background: var(--primary-light); border-left-color: var(--primary); }
+    .sub-name { font-size: 13px; font-weight: 500; color: var(--gray-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sub-meta { display: flex; align-items: center; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-pending { background: var(--gray-100); color: var(--gray-600); }
+    .badge-clear { background: var(--success-light); color: var(--success); }
+    .badge-filings { background: var(--danger-light); color: var(--danger); }
+    .badge-partial { background: var(--warning-light); color: var(--warning); }
+    .badge-inaccessible { background: var(--gray-100); color: var(--gray-500); }
+    /* RIGHT PANEL */
+    .right-panel { flex: 1; overflow-y: auto; padding: 18px 22px; background: var(--gray-50); }
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--gray-400);
+      text-align: center;
+    }
+    .empty-icon { font-size: 52px; margin-bottom: 14px; }
+    .empty-title { font-size: 16px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; }
+    /* DETAIL VIEW */
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .detail-name { font-size: 20px; font-weight: 700; color: var(--gray-900); }
+    .detail-date { font-size: 11px; color: var(--gray-400); margin-top: 3px; }
+    .detail-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 12px; }
+    /* SUMMARY CARDS */
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+    .summary-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .summary-label { font-size: 10px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .summary-value { font-size: 22px; font-weight: 800; color: var(--gray-900); }
+    .summary-value.red { color: var(--danger); }
+    .summary-value.green { color: var(--success); }
+    .summary-value.yellow { color: var(--warning); }
+    /* SECTION */
+    .section {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--gray-50);
+    }
+    .section-title { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+    .section-body { padding: 14px 16px; }
+    /* STATE GRID */
+    .state-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 6px; }
+    .state-btn {
+      padding: 7px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--gray-200);
+      background: white;
+      cursor: pointer;
+      font-size: 11px;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .state-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+    .state-btn.s-clear { background: var(--success-light); border-color: #6ee7b7; }
+    .state-btn.s-filings { background: var(--danger-light); border-color: #fca5a5; }
+    .state-btn.s-inaccessible { background: var(--gray-100); border-color: var(--gray-300); }
+    .state-code { font-weight: 700; font-size: 12px; display: block; color: var(--gray-800); }
+    .state-lbl { font-size: 10px; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .state-status { font-size: 9px; margin-top: 2px; font-weight: 600; }
+    .s-clear .state-status { color: var(--success); }
+    .s-filings .state-status { color: var(--danger); }
+    .s-inaccessible .state-status { color: var(--gray-400); }
+    .state-legend { display: flex; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-600); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    /* FILING CARDS */
+    .no-filings { text-align: center; padding: 24px; color: var(--gray-400); font-size: 13px; }
+    .filing-card {
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .filing-card-header {
+      padding: 10px 14px;
+      background: var(--gray-50);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--gray-200);
+      gap: 8px;
+    }
+    .filing-num { font-weight: 600; font-size: 13px; color: var(--gray-900); }
+    .filing-state-badge {
+      background: var(--primary);
+      color: white;
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .filing-card-body { padding: 12px 14px; }
+    .filing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .filing-field label { font-size: 10px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 2px; }
+    .filing-field span { font-size: 12px; color: var(--gray-800); }
+    .filing-field.full { grid-column: 1 / -1; }
+    .status-pill {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-active { background: var(--danger-light); color: var(--danger); }
+    .status-terminated { background: var(--success-light); color: var(--success); }
+    .status-lapsed { background: var(--warning-light); color: var(--warning); }
+    .status-unknown { background: var(--gray-100); color: var(--gray-600); }
+    .inaccessible-alert {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #92400e;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    /* MODAL */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal {
+      background: white;
+      border-radius: 10px;
+      width: 520px;
+      max-width: 95vw;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 1;
+    }
+    .modal-title { font-size: 15px; font-weight: 600; }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--gray-400); padding: 2px 6px; border-radius: 4px; }
+    .modal-close:hover { background: var(--gray-100); color: var(--gray-700); }
+    .modal-body { padding: 18px; }
+    .modal-footer { padding: 14px 18px; border-top: 1px solid var(--gray-200); display: flex; justify-content: flex-end; gap: 8px; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { display: block; font-size: 12px; font-weight: 500; color: var(--gray-700); margin-bottom: 4px; }
+    .form-control {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,86,219,0.1); }
+    textarea.form-control { resize: vertical; min-height: 72px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    /* STATE MODAL */
+    .state-action-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .state-action-sub { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; }
+    .action-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .action-opt {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 2px solid var(--gray-200);
+      background: white;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .action-opt:hover { border-color: var(--primary); background: var(--primary-light); }
+    .action-opt .opt-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+    .action-opt .opt-label { font-weight: 600; font-size: 12px; display: block; }
+    .action-opt .opt-desc { font-size: 11px; color: var(--gray-500); margin-top: 1px; display: block; }
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: var(--gray-900);
+      color: white;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+    /* NOTES AREA */
+    .notes-area {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      resize: none;
+      min-height: 52px;
+      color: var(--gray-700);
+    }
+    .notes-area:focus { border-color: var(--primary); }
+    .count-badge { font-size: 11px; font-weight: 600; background: var(--gray-100); color: var(--gray-600); padding: 1px 6px; border-radius: 9999px; }
+    .count-badge.red { background: var(--danger-light); color: var(--danger); }
+    .count-badge.yellow { background: var(--warning-light); color: var(--warning); }
+    #hidden-csv { display: none; }
+    .sub-list-empty { text-align: center; padding: 28px 14px; color: var(--gray-400); font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>&#128196; UCC Filing Tracker</h1>
+    <p>Subcontractor UCC Lien Search &amp; Tracking</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-secondary" onclick="exportCSV()">&#8659; Export CSV</button>
+    <button class="btn btn-secondary" onclick="clearAll()" style="color:#c81e1e;">&#128465; Clear All</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="panel-header">
+      <div class="panel-title">Subcontractors</div>
+      <div class="input-row">
+        <input class="input-field" id="name-input" type="text" placeholder="Enter name..." onkeydown="if(event.key==='Enter')addSub()">
+        <button class="btn btn-primary" onclick="addSub()">+&nbsp;Add</button>
+      </div>
+      <label class="csv-label" for="hidden-csv">&#128196; Import CSV (Name column)</label>
+      <input type="file" id="hidden-csv" accept=".csv" onchange="importCSV(event)">
+    </div>
+    <div class="search-box">
+      <input type="text" placeholder="&#128269; Filter subcontractors..." oninput="filterSubs(this.value)">
+    </div>
+    <div class="sub-list" id="sub-list"></div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="right-panel">
+    <div class="empty-state">
+      <div class="empty-icon">&#128269;</div>
+      <div class="empty-title">Select a Subcontractor</div>
+      <div class="empty-sub">Add names on the left, then select one to begin<br>searching UCC filings across all 50 states.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="modal-overlay" class="overlay" style="display:none;" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const STATES = [
+  {c:"AL",n:"Alabama",url:"https://arc-sos.state.al.us/CGI/UCCNAME.MBR/INPUT"},
+  {c:"AK",n:"Alaska",url:"https://dnr.alaska.gov/ssd/recoff/ucc"},
+  {c:"AZ",n:"Arizona",url:"https://apps.azsos.gov/apps/ucc/search/"},
+  {c:"AR",n:"Arkansas",url:"https://portal.arkansas.gov/service/ar-ucc-search/"},
+  {c:"CA",n:"California",url:"https://bizfileonline.sos.ca.gov/search/ucc"},
+  {c:"CO",n:"Colorado",url:"https://www.sos.state.co.us/ucc/pages/search/standardSearch.xhtml"},
+  {c:"CT",n:"Connecticut",url:"https://service.ct.gov/business/s/onlineenquiry"},
+  {c:"DE",n:"Delaware",url:"https://corp.delaware.gov/uccsearch/"},
+  {c:"FL",n:"Florida",url:"https://floridaucc.com/search"},
+  {c:"GA",n:"Georgia",url:"https://search.gsccca.org/UCC_Search/"},
+  {c:"HI",n:"Hawaii",url:"https://boc.ehawaii.gov/"},
+  {c:"ID",n:"Idaho",url:"https://sosbiz.idaho.gov/search/ucc"},
+  {c:"IL",n:"Illinois",url:"https://apps.ilsos.gov/uccsearch/"},
+  {c:"IN",n:"Indiana",url:"https://bsd.sos.in.gov/PublicUCCSearch"},
+  {c:"IA",n:"Iowa",url:"https://filings.sos.iowa.gov/UCCSearch/UCC"},
+  {c:"KS",n:"Kansas",url:"https://mykansas.ks.gov/ucc/?p=fsrc_menu"},
+  {c:"KY",n:"Kentucky",url:"https://web.sos.ky.gov/ftucc/search.aspx"},
+  {c:"LA",n:"Louisiana",url:"https://www.sos.la.gov/businessservices/uniformcommercialcode/Pages/default.aspx"},
+  {c:"ME",n:"Maine",url:"https://apps1.web.maine.gov/cgi-bin/online/ucc/index.pl"},
+  {c:"MD",n:"Maryland",url:"https://egov.maryland.gov/sdat/uccfiling/uccmainpage.aspx"},
+  {c:"MA",n:"Massachusetts",url:"https://www.sec.state.ma.us/divisions/corporations/filing-by-subject/ucc/corporations-uniform-commercial-code.htm"},
+  {c:"MI",n:"Michigan",url:"https://ucc.michigan.gov/ucc-search"},
+  {c:"MN",n:"Minnesota",url:"https://mblsportal.sos.mn.gov/Secured/SearchUCC"},
+  {c:"MS",n:"Mississippi",url:"https://www.sos.ms.gov/business-services/ucc-search"},
+  {c:"MO",n:"Missouri",url:"https://www.sos.mo.gov/ucc"},
+  {c:"MT",n:"Montana",url:"https://biz.sosmt.gov/search/ucc"},
+  {c:"NE",n:"Nebraska",url:"https://sos.nebraska.gov/business-services/uccefs-search-and-filing-center"},
+  {c:"NV",n:"Nevada",url:"https://projectorion.nv.gov/"},
+  {c:"NH",n:"New Hampshire",url:"https://www.sos.nh.gov/ucc"},
+  {c:"NJ",n:"New Jersey",url:"https://www.njportal.com/ucc/"},
+  {c:"NM",n:"New Mexico",url:"https://enterprise.sos.nm.gov/search/ucc"},
+  {c:"NY",n:"New York",url:"https://appext20.dos.ny.gov/pls/ucc_public/web_search.inhouse_search"},
+  {c:"NC",n:"North Carolina",url:"https://www.sosnc.gov/online_services/search/by_title/search_uniform_commercial_code"},
+  {c:"ND",n:"North Dakota",url:"https://cis.sos.nd.gov/"},
+  {c:"OH",n:"Ohio",url:"https://ucc.ohiosos.gov/"},
+  {c:"OK",n:"Oklahoma",url:"https://www.sos.ok.gov/business/ucc"},
+  {c:"OR",n:"Oregon",url:"https://secure.sos.state.or.us/ucc/searchHome.action"},
+  {c:"PA",n:"Pennsylvania",url:"https://file.dos.pa.gov/search/ucc"},
+  {c:"RI",n:"Rhode Island",url:"https://business.sos.ri.gov/corpweb/uccsearch/uccsearch.aspx"},
+  {c:"SC",n:"South Carolina",url:"https://ucconline.sc.gov/UCCFiling/UCCMainPage.aspx"},
+  {c:"SD",n:"South Dakota",url:"https://sosenterprise.sd.gov/ucc/"},
+  {c:"TN",n:"Tennessee",url:"https://tnbear.tn.gov/UCC/"},
+  {c:"TX",n:"Texas",url:"https://www.sos.state.tx.us/ucc/index.shtml"},
+  {c:"UT",n:"Utah",url:"https://corporations.utah.gov/uniform-commercial-code/"},
+  {c:"VT",n:"Vermont",url:"https://www.vtsosonline.com/Online/UccInquire/"},
+  {c:"VA",n:"Virginia",url:"https://cis.scc.virginia.gov/UCCOnlineSearch/UCCSearch"},
+  {c:"WA",n:"Washington",url:"https://fortress.wa.gov/dol/ucc/search.aspx"},
+  {c:"WV",n:"West Virginia",url:"https://apps.wv.gov/sos/ucc/"},
+  {c:"WI",n:"Wisconsin",url:"https://dfi.wi.gov/Pages/BusinessServices/UCC/SearchLienFilings.aspx"},
+  {c:"WY",n:"Wyoming",url:"https://ucc.wyo.gov/"}
+];
+
+let subs = JSON.parse(localStorage.getItem('ucc_subs') || '[]');
+let selectedId = null;
+let filterVal = '';
+
+function save() { localStorage.setItem('ucc_subs', JSON.stringify(subs)); }
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+function fmt(dt) { if (!dt) return '—'; return new Date(dt+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+
+// ============================================================
+// ADD / IMPORT
+// ============================================================
+function addSub() {
+  const inp = document.getElementById('name-input');
+  const name = inp.value.trim();
+  if (!name) { toast('Please enter a name'); return; }
+  if (subs.find(s => s.name.toLowerCase() === name.toLowerCase())) { toast('That name already exists'); return; }
+  const sub = { id: uid(), name, added: new Date().toISOString().slice(0,10), states: {}, filings: [], notes: '' };
+  subs.unshift(sub);
+  save();
+  inp.value = '';
+  renderList();
+  selectSub(sub.id);
+  toast('Added: ' + name);
+}
+
+function importCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const lines = ev.target.result.split('\n').map(l => l.trim()).filter(Boolean);
+    let added = 0, skipped = 0;
+    lines.forEach((line, i) => {
+      if (i === 0 && /^(name|subcontractor|company|vendor|debtor)/i.test(line.split(',')[0])) return;
+      const name = line.split(',')[0].replace(/^"|"$/g,'').trim();
+      if (!name) return;
+      if (subs.find(s => s.name.toLowerCase() === name.toLowerCase())) { skipped++; return; }
+      subs.push({ id: uid(), name, added: new Date().toISOString().slice(0,10), states: {}, filings: [], notes: '' });
+      added++;
+    });
+    save();
+    renderList();
+    toast(`Imported ${added} names${skipped ? ', ' + skipped + ' duplicates skipped' : ''}`);
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function filterSubs(val) { filterVal = val.toLowerCase(); renderList(); }
+
+// ============================================================
+// RENDER LIST
+// ============================================================
+function getStatus(sub) {
+  const stateVals = Object.values(sub.states);
+  if (!stateVals.length) return 'pending';
+  const hasFilings = sub.filings && sub.filings.length > 0;
+  const hasInaccessible = stateVals.some(s => s === 'inaccessible');
+  const allSearched = stateVals.length >= 50;
+  if (hasFilings && hasInaccessible) return 'partial';
+  if (hasFilings) return 'filings';
+  if (hasInaccessible && !hasFilings) return 'partial';
+  if (!hasFilings && stateVals.some(s => s === 'clear')) return 'clear';
+  return 'pending';
+}
+
+function getStatusLabel(st) {
+  return {pending:'Pending',clear:'All Clear',filings:'Filings Found',partial:'Incomplete / Issues'}[st] || st;
+}
+
+function renderList() {
+  const container = document.getElementById('sub-list');
+  const filtered = subs.filter(s => !filterVal || s.name.toLowerCase().includes(filterVal));
+
+  if (!subs.length) {
+    container.innerHTML = '<div class="sub-list-empty">No subcontractors yet.<br>Add a name or import a CSV.</div>';
+    return;
+  }
+  if (!filtered.length) {
+    container.innerHTML = '<div class="sub-list-empty">No matches found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(sub => {
+    const st = getStatus(sub);
+    const stateCount = Object.keys(sub.states).length;
+    const filingCount = (sub.filings || []).length;
+    const badgeCls = { pending:'badge-pending', clear:'badge-clear', filings:'badge-filings', partial:'badge-partial' }[st] || 'badge-pending';
+    return `<div class="sub-item${selectedId===sub.id?' active':''}" onclick="selectSub('${sub.id}')">
+      <div class="sub-name">${esc(sub.name)}</div>
+      <div class="sub-meta">
+        <span class="badge ${badgeCls}">${getStatusLabel(st)}</span>
+        ${stateCount ? `<span style="font-size:10px;color:var(--gray-400)">${stateCount}/50 states</span>` : ''}
+        ${filingCount ? `<span style="font-size:10px;color:var(--danger);font-weight:600">${filingCount} filing${filingCount!==1?'s':''}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// DETAIL VIEW
+// ============================================================
+function selectSub(id) {
+  selectedId = id;
+  renderList();
+  const sub = subs.find(s => s.id === id);
+  if (!sub) return;
+  renderDetail(sub);
+}
+
+function renderDetail(sub) {
+  const panel = document.getElementById('right-panel');
+  const st = getStatus(sub);
+  const stateVals = sub.states || {};
+  const searchedCount = Object.keys(stateVals).length;
+  const clearCount = Object.values(stateVals).filter(v => v === 'clear').length;
+  const filingCount = (sub.filings || []).length;
+  const inaccessibleCount = Object.values(stateVals).filter(v => v === 'inaccessible').length;
+  const filingStateCount = Object.values(stateVals).filter(v => v === 'filings').length;
+
+  const badgeCls = { pending:'badge-pending', clear:'badge-clear', filings:'badge-filings', partial:'badge-partial' }[st] || 'badge-pending';
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div>
+        <div class="detail-name">${esc(sub.name)}</div>
+        <div class="detail-date">Added ${fmt(sub.added)} &nbsp;&#183;&nbsp; <span class="badge ${badgeCls}">${getStatusLabel(st)}</span></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" onclick="openAddFiling('${sub.id}')">+ Add Filing</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSub('${sub.id}')">&#128465; Remove</button>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-label">States Searched</div>
+        <div class="summary-value">${searchedCount}<span style="font-size:13px;color:var(--gray-400);font-weight:400">/50</span></div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">UCC Filings Found</div>
+        <div class="summary-value ${filingCount ? 'red' : ''}">${filingCount}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">States Clear</div>
+        <div class="summary-value ${clearCount && !filingCount ? 'green' : ''}">${clearCount}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Inaccessible</div>
+        <div class="summary-value ${inaccessibleCount ? 'yellow' : ''}">${inaccessibleCount}</div>
+      </div>
+    </div>
+
+    ${inaccessibleCount ? `
+    <div class="inaccessible-alert">
+      <span style="font-size:16px">&#9888;</span>
+      <span><strong>${inaccessibleCount} state${inaccessibleCount!==1?'s':''} could not be accessed</strong> during this search. Results may be incomplete. Consider contacting these state offices directly or using a commercial UCC search service.</span>
+    </div>` : ''}
+
+    <!-- STATE SEARCH GRID -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">State UCC Search &#8212; All 50 States</div>
+        <div style="font-size:11px;color:var(--gray-500)">Click any state to open its Secretary of State portal</div>
+      </div>
+      <div class="section-body">
+        <div class="state-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb;border:1px solid #d1d5db"></div>Not Yet Searched</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#d1fae5;border:1px solid #6ee7b7"></div>Searched &#8212; Clear</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fee2e2;border:1px solid #fca5a5"></div>Filings Found</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f3f4f6;border:1px solid #d1d5db"></div>Inaccessible</div>
+        </div>
+        <div class="state-grid">
+          ${STATES.map(s => {
+            const sv = stateVals[s.c];
+            let cls = '';
+            let statusTxt = '';
+            if (sv === 'clear') { cls = 's-clear'; statusTxt = '&#10003; Clear'; }
+            else if (sv === 'filings') { cls = 's-filings'; statusTxt = '&#9679; Filings'; }
+            else if (sv === 'inaccessible') { cls = 's-inaccessible'; statusTxt = '&#9888; N/A'; }
+            return `<button class="state-btn ${cls}" onclick="openStateModal('${sub.id}','${s.c}')">
+              <span class="state-code">${s.c}</span>
+              <span class="state-lbl">${s.n}</span>
+              ${statusTxt ? `<div class="state-status">${statusTxt}</div>` : ''}
+            </button>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- FILINGS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">UCC Filings &nbsp;<span class="count-badge ${filingCount ? 'red' : ''}">${filingCount}</span></div>
+        <button class="btn btn-primary btn-sm" onclick="openAddFiling('${sub.id}')">+ Add Filing</button>
+      </div>
+      <div class="section-body" style="padding: ${filingCount ? '14px 16px' : '0'}">
+        ${filingCount === 0 ? `<div class="no-filings">&#128196; No UCC filings recorded for this subcontractor.<br><span style="font-size:11px">Use the state buttons above to search, then add any findings here.</span></div>` : ''}
+        ${(sub.filings || []).map(f => renderFiling(f, sub.id)).join('')}
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="section">
+      <div class="section-header"><div class="section-title">Notes</div></div>
+      <div class="section-body">
+        <textarea class="notes-area" placeholder="Add internal notes about this subcontractor's UCC status..." onblur="saveNotes('${sub.id}', this.value)">${esc(sub.notes || '')}</textarea>
+      </div>
+    </div>
+  `;
+}
+
+function renderFiling(f, subId) {
+  const statusMap = { active:'Active', terminated:'Terminated', lapsed:'Lapsed/Expired', unknown:'Unknown' };
+  const statusCls = { active:'status-active', terminated:'status-terminated', lapsed:'status-lapsed', unknown:'status-unknown' };
+  const state = STATES.find(s => s.c === f.state);
+  return `
+    <div class="filing-card">
+      <div class="filing-card-header">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          ${f.state ? `<span class="filing-state-badge">${f.state}</span>` : ''}
+          <span class="filing-num">Filing #${esc(f.filingNumber || 'N/A')}</span>
+          <span class="status-pill ${statusCls[f.status] || 'status-unknown'}">${statusMap[f.status] || 'Unknown'}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          ${f.state ? `<a href="${STATES.find(s=>s.c===f.state)?.url||'#'}" target="_blank" class="btn btn-secondary btn-sm">&#128279; View Portal</a>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteFiling('${subId}','${f.id}')">&#128465;</button>
+        </div>
+      </div>
+      <div class="filing-card-body">
+        <div class="filing-grid">
+          <div class="filing-field"><label>Debtor Name</label><span>${esc(f.debtor||'—')}</span></div>
+          <div class="filing-field"><label>Secured Party</label><span>${esc(f.securedParty||'—')}</span></div>
+          <div class="filing-field"><label>Filing Date</label><span>${fmt(f.filingDate)}</span></div>
+          <div class="filing-field"><label>Expiration Date</label><span>${fmt(f.expirationDate)}</span></div>
+          ${f.collateral ? `<div class="filing-field full"><label>Collateral / Description</label><span>${esc(f.collateral)}</span></div>` : ''}
+          ${f.notes ? `<div class="filing-field full"><label>Notes</label><span>${esc(f.notes)}</span></div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// STATE MODAL
+// ============================================================
+function openStateModal(subId, stateCode) {
+  const sub = subs.find(s => s.id === subId);
+  const state = STATES.find(s => s.c === stateCode);
+  if (!sub || !state) return;
+  const current = sub.states[stateCode];
+
+  showModal(`
+    <div class="modal-header">
+      <div class="modal-title">&#127968; ${state.n} (${state.c}) &#8212; UCC Search</div>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:14px">
+        <a href="${state.url}" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;font-size:13px;padding:10px">
+          &#128279; Open ${state.n} Secretary of State UCC Portal
+        </a>
+        <div style="font-size:11px;color:var(--gray-400);text-align:center;margin-top:5px">Opens in a new tab. Search for <strong>${esc(sub.name)}</strong> in the portal, then return to record the result below.</div>
+      </div>
+      <div style="border-top:1px solid var(--gray-200);padding-top:14px">
+        <div class="state-action-title">Record Search Result</div>
+        <div class="state-action-sub">What did you find for <strong>${esc(sub.name)}</strong> in ${state.n}?</div>
+        <div class="action-opts">
+          <button class="action-opt${current==='clear'?' selected':''}" onclick="setStateStatus('${subId}','${stateCode}','clear')">
+            <span class="opt-icon">&#9989;</span>
+            <span class="opt-label">No Filings Found</span>
+            <span class="opt-desc">Searched successfully &#8212; name is clear</span>
+          </button>
+          <button class="action-opt${current==='filings'?' selected':''}" onclick="setStateStatus('${subId}','${stateCode}','filings')">
+            <span class="opt-icon">&#9888;&#65039;</span>
+            <span class="opt-label">Filings Found</span>
+            <span class="opt-desc">UCC filings exist &#8212; record details below</span>
+          </button>
+          <button class="action-opt${current==='inaccessible'?' selected':''}" onclick="setStateStatus('${subId}','${stateCode}','inaccessible')">
+            <span class="opt-icon">&#128683;</span>
+            <span class="opt-label">Could Not Access</span>
+            <span class="opt-desc">Portal unavailable, requires fee, or login needed</span>
+          </button>
+          <button class="action-opt${!current?' selected':''}" onclick="setStateStatus('${subId}','${stateCode}',null)">
+            <span class="opt-icon">&#8634;&#65039;</span>
+            <span class="opt-label">Reset / Not Searched</span>
+            <span class="opt-desc">Clear this state's status</span>
+          </button>
+        </div>
+      </div>
+      ${current === 'filings' ? `
+      <div style="margin-top:14px;border-top:1px solid var(--gray-200);padding-top:14px">
+        <div style="font-size:12px;color:var(--gray-600);margin-bottom:10px">&#128073; Add the filing details using the <strong>"+ Add Filing"</strong> button in the main view, and select <strong>${state.c}</strong> as the state.</div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closeModal();openAddFiling('${subId}','${stateCode}')">+ Add Filing Details for ${state.c}</button>
+      </div>` : ''}
+    </div>
+  `);
+}
+
+function setStateStatus(subId, stateCode, status) {
+  const sub = subs.find(s => s.id === subId);
+  if (!sub) return;
+  if (status === null) { delete sub.states[stateCode]; }
+  else { sub.states[stateCode] = status; }
+  save();
+  closeModal();
+  renderDetail(sub);
+  renderList();
+  toast(status ? `${stateCode}: marked as "${status}"` : `${stateCode}: status cleared`);
+}
+
+// ============================================================
+// ADD FILING MODAL
+// ============================================================
+function openAddFiling(subId, preState) {
+  showModal(`
+    <div class="modal-header">
+      <div class="modal-title">&#128196; Add UCC Filing</div>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">State *</label>
+          <select class="form-control" id="f-state">
+            <option value="">-- Select State --</option>
+            ${STATES.map(s => `<option value="${s.c}"${preState===s.c?' selected':''}>${s.c} &#8212; ${s.n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Filing Number</label>
+          <input class="form-control" id="f-num" type="text" placeholder="e.g. 2024-123456">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Filing Status *</label>
+          <select class="form-control" id="f-status">
+            <option value="active">Active</option>
+            <option value="terminated">Terminated</option>
+            <option value="lapsed">Lapsed / Expired</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Debtor Name</label>
+          <input class="form-control" id="f-debtor" type="text" placeholder="Name on the filing">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Secured Party / Creditor</label>
+        <input class="form-control" id="f-secured" type="text" placeholder="Lender, creditor, or lienholder name">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Filing Date</label>
+          <input class="form-control" id="f-filed" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Expiration Date</label>
+          <input class="form-control" id="f-expires" type="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Collateral Description</label>
+        <textarea class="form-control" id="f-collateral" placeholder="Describe the collateral listed in the filing..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Internal Notes</label>
+        <textarea class="form-control" id="f-notes" placeholder="Any additional notes or context..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFiling('${subId}')">Save Filing</button>
+    </div>
+  `);
+}
+
+function saveFiling(subId) {
+  const sub = subs.find(s => s.id === subId);
+  if (!sub) return;
+  const state = document.getElementById('f-state').value;
+  const status = document.getElementById('f-status').value;
+  if (!state) { toast('Please select a state'); return; }
+  const filing = {
+    id: uid(),
+    state,
+    filingNumber: document.getElementById('f-num').value.trim(),
+    status,
+    debtor: document.getElementById('f-debtor').value.trim(),
+    securedParty: document.getElementById('f-secured').value.trim(),
+    filingDate: document.getElementById('f-filed').value,
+    expirationDate: document.getElementById('f-expires').value,
+    collateral: document.getElementById('f-collateral').value.trim(),
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  if (!sub.filings) sub.filings = [];
+  sub.filings.push(filing);
+  // Auto-mark state as filings found
+  sub.states[state] = 'filings';
+  save();
+  closeModal();
+  renderDetail(sub);
+  renderList();
+  toast('Filing saved for ' + state);
+}
+
+function deleteFiling(subId, filingId) {
+  const sub = subs.find(s => s.id === subId);
+  if (!sub) return;
+  if (!confirm('Delete this filing record?')) return;
+  sub.filings = sub.filings.filter(f => f.id !== filingId);
+  save();
+  renderDetail(sub);
+  renderList();
+  toast('Filing removed');
+}
+
+function deleteSub(subId) {
+  if (!confirm('Remove this subcontractor and all its data?')) return;
+  subs = subs.filter(s => s.id !== subId);
+  selectedId = null;
+  save();
+  renderList();
+  document.getElementById('right-panel').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">&#128269;</div>
+      <div class="empty-title">Select a Subcontractor</div>
+      <div class="empty-sub">Select a subcontractor on the left to view UCC details.</div>
+    </div>`;
+  toast('Subcontractor removed');
+}
+
+function saveNotes(subId, val) {
+  const sub = subs.find(s => s.id === subId);
+  if (!sub) return;
+  sub.notes = val;
+  save();
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCSV() {
+  if (!subs.length) { toast('No data to export'); return; }
+  const rows = [['Name','Overall Status','States Searched','States Clear','Inaccessible','Filing Count','Filing State','Filing #','Filing Status','Debtor','Secured Party','Filing Date','Expiration','Collateral','Notes']];
+  subs.forEach(sub => {
+    const stateVals = sub.states || {};
+    const status = getStatus(sub);
+    const searched = Object.keys(stateVals).length;
+    const clear = Object.values(stateVals).filter(v=>v==='clear').length;
+    const inac = Object.values(stateVals).filter(v=>v==='inaccessible').length;
+    const filings = sub.filings || [];
+    if (!filings.length) {
+      rows.push([sub.name, getStatusLabel(status), searched, clear, inac, 0, '', '', '', '', '', '', '', '', sub.notes || '']);
+    } else {
+      filings.forEach(f => {
+        rows.push([sub.name, getStatusLabel(status), searched, clear, inac, filings.length, f.state||'', f.filingNumber||'', f.status||'', f.debtor||'', f.securedParty||'', f.filingDate||'', f.expirationDate||'', f.collateral||'', f.notes||'']);
+      });
+    }
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'ucc-tracker-export-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('Exported CSV');
+}
+
+function clearAll() {
+  if (!confirm('Delete ALL subcontractors and data? This cannot be undone.')) return;
+  subs = [];
+  selectedId = null;
+  save();
+  renderList();
+  document.getElementById('right-panel').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">&#128269;</div>
+      <div class="empty-title">All Clear</div>
+      <div class="empty-sub">All data has been cleared.</div>
+    </div>`;
+  toast('All data cleared');
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function showModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+function closeModalOnBg(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ============================================================
+// INIT
+// ============================================================
+renderList();
+if (subs.length) selectSub(subs[0].id);
+</script>
+</body>
+</html>
