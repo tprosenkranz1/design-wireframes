@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cru Bookkeeping: ERP Automation Architecture</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #fafaf7;
+    color: #222;
+    margin: 0;
+    padding: 40px 20px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px 0; }
+  h2 { font-size: 16px; margin: 32px 0 12px 0; color: #444; font-weight: 600; letter-spacing: 0.2px; }
+  .subtitle { color: #777; font-size: 13px; margin-bottom: 30px; }
+  .diagram {
+    background: white;
+    border: 1px solid #e5e3dc;
+    border-radius: 8px;
+    padding: 32px 24px;
+    margin-bottom: 24px;
+  }
+  .legend { font-size: 12px; color: #666; margin-top: 12px; }
+  .legend span { display: inline-block; margin-right: 18px; }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; border: 1px solid rgba(0,0,0,0.08); }
+  .callouts { font-size: 12px; color: #555; margin-top: 16px; background: #faf7ef; border-left: 3px solid #d9cfb7; padding: 10px 14px; border-radius: 3px; }
+  .callouts b { color: #222; }
+  .callouts p { margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Cru Bookkeeping: ERP Automation</h1>
+<div class="subtitle">Service architecture, data flow, and UI filtering. Updated after 4/1 meeting with Mike Hack.</div>
+
+<h2>1. Service architecture</h2>
+<div class="diagram">
+<svg viewBox="0 0 1140 400" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- EJ / EMQUE side -->
+  <rect x="20" y="40" width="240" height="340" rx="10" fill="#f4efe4" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="140" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#8a6d2e">EJ ELECTRIC / EMQUE</text>
+  <text x="140" y="82" text-anchor="middle" font-size="11" fill="#8a6d2e">Their infrastructure</text>
+
+  <rect x="40" y="105" width="200" height="55" rx="6" fill="white" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="140" y="128" text-anchor="middle" font-size="13" font-weight="600">EMQUE ERP database</text>
+  <text x="140" y="146" text-anchor="middle" font-size="10" fill="#666">System of record</text>
+
+  <rect x="40" y="180" width="200" height="95" rx="6" fill="white" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="140" y="203" text-anchor="middle" font-size="12" font-weight="600">gl_tran (full table)</text>
+  <text x="140" y="222" text-anchor="middle" font-size="10" fill="#666">direct read access</text>
+  <text x="140" y="237" text-anchor="middle" font-size="10" fill="#666">all accounts, all entities</text>
+  <text x="140" y="257" text-anchor="middle" font-size="10" fill="#888">we filter on our side</text>
+  <text x="140" y="270" text-anchor="middle" font-size="10" fill="#888">(not Mike's side)</text>
+
+  <rect x="40" y="295" width="200" height="70" rx="6" fill="#fff5ee" stroke="#d0a88a" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="140" y="318" text-anchor="middle" font-size="11" font-weight="600" fill="#8a4a2b">Out of MVP</text>
+  <text x="140" y="335" text-anchor="middle" font-size="10" fill="#8a4a2b">payroll subledger,</text>
+  <text x="140" y="350" text-anchor="middle" font-size="10" fill="#8a4a2b">AP items + tx, AR tables</text>
+
+  <!-- Access channel -->
+  <rect x="290" y="175" width="140" height="90" rx="6" fill="#eef2ef" stroke="#a7bdad" stroke-width="1.5"/>
+  <text x="360" y="198" text-anchor="middle" font-size="12" font-weight="600">Database connection</text>
+  <text x="360" y="216" text-anchor="middle" font-size="10" fill="#2d5c3a">read-only access</text>
+  <text x="360" y="232" text-anchor="middle" font-size="10" fill="#666">over standard protocol</text>
+  <text x="360" y="248" text-anchor="middle" font-size="10" fill="#666">(ODBC / JDBC)</text>
+  <text x="360" y="260" text-anchor="middle" font-size="9" fill="#888">Cru servers whitelisted</text>
+
+  <!-- Cru backend -->
+  <rect x="450" y="20" width="670" height="380" rx="10" fill="#eef2f7" stroke="#b8c9de" stroke-width="1.5"/>
+  <text x="785" y="45" text-anchor="middle" font-size="13" font-weight="700" fill="#2e5a8a">CRU BACKEND</text>
+  <text x="785" y="62" text-anchor="middle" font-size="11" fill="#2e5a8a">Our infrastructure (linear pipeline)</text>
+
+  <!-- Linear pipeline boxes -->
+  <rect x="470" y="85" width="140" height="105" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="540" y="110" text-anchor="middle" font-size="12" font-weight="600">1. Pull</text>
+  <text x="540" y="128" text-anchor="middle" font-size="10" fill="#666">EmqueLedgerService</text>
+  <text x="540" y="145" text-anchor="middle" font-size="10" fill="#666">nightly SQL query</text>
+  <text x="540" y="160" text-anchor="middle" font-size="10" fill="#666">company = 'EJ'</text>
+  <text x="540" y="175" text-anchor="middle" font-size="9" fill="#888">behind feature flag</text>
+
+  <rect x="630" y="85" width="140" height="105" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="700" y="110" text-anchor="middle" font-size="12" font-weight="600">2. Stage</text>
+  <text x="700" y="128" text-anchor="middle" font-size="10" fill="#666">Raw rows landed</text>
+  <text x="700" y="143" text-anchor="middle" font-size="10" fill="#666">in Cru's storage</text>
+  <text x="700" y="161" text-anchor="middle" font-size="10" fill="#888">lets us re-parse</text>
+  <text x="700" y="175" text-anchor="middle" font-size="10" fill="#888">without re-pulling</text>
+
+  <rect x="790" y="85" width="140" height="105" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="860" y="110" text-anchor="middle" font-size="12" font-weight="600">3. Parse</text>
+  <text x="860" y="128" text-anchor="middle" font-size="10" fill="#666">extract vendor</text>
+  <text x="860" y="143" text-anchor="middle" font-size="10" fill="#666">and inv # from</text>
+  <text x="860" y="158" text-anchor="middle" font-size="10" fill="#666">description text</text>
+
+  <rect x="950" y="85" width="140" height="105" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="1020" y="110" text-anchor="middle" font-size="12" font-weight="600">4. Normalize</text>
+  <text x="1020" y="128" text-anchor="middle" font-size="10" fill="#666">rename / reshape</text>
+  <text x="1020" y="143" text-anchor="middle" font-size="10" fill="#666">to Cru GL format</text>
+  <text x="1020" y="161" text-anchor="middle" font-size="10" fill="#888">reused from</text>
+  <text x="1020" y="175" text-anchor="middle" font-size="10" fill="#888">CSV upload flow</text>
+
+  <rect x="630" y="225" width="140" height="105" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="700" y="250" text-anchor="middle" font-size="12" font-weight="600">5. Match</text>
+  <text x="700" y="268" text-anchor="middle" font-size="10" fill="#666">tie bank lines</text>
+  <text x="700" y="283" text-anchor="middle" font-size="10" fill="#666">to GL lines</text>
+  <text x="700" y="301" text-anchor="middle" font-size="10" fill="#888">unchanged,</text>
+  <text x="700" y="315" text-anchor="middle" font-size="10" fill="#888">already in prod</text>
+
+  <rect x="790" y="225" width="300" height="105" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="2"/>
+  <text x="940" y="250" text-anchor="middle" font-size="12" font-weight="600">6. Reconciliation snapshots</text>
+  <text x="940" y="270" text-anchor="middle" font-size="10" fill="#666">timestamped results</text>
+  <text x="940" y="285" text-anchor="middle" font-size="10" fill="#666">queryable by date range</text>
+  <text x="940" y="305" text-anchor="middle" font-size="10" fill="#888">what the UI reads from</text>
+
+  <!-- Plaid band -->
+  <rect x="470" y="355" width="620" height="35" rx="6" fill="#f4f1e9" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="780" y="378" text-anchor="middle" font-size="11" font-weight="600">Plaid (bank side, already automated) — feeds bank lines into step 5</text>
+
+  <!-- Arrows: EMQUE to channel, channel to step 1 -->
+  <line x1="242" y1="215" x2="288" y2="215" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="422" y1="215" x2="468" y2="160" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Top row: 1 -> 2 -> 3 -> 4 -->
+  <line x1="612" y1="137" x2="628" y2="137" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="772" y1="137" x2="788" y2="137" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="932" y1="137" x2="948" y2="137" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 4 -> 5 (L-shape going down and left) -->
+  <path d="M 1020 192 L 1020 210 L 700 210 L 700 223" stroke="#666" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- 5 -> 6 (bottom row, left to right) -->
+  <line x1="772" y1="277" x2="788" y2="277" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Plaid -> 5 (up) -->
+  <line x1="700" y1="355" x2="700" y2="333" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+</svg>
+<div class="legend">
+  <span><span class="dot" style="background:#f4efe4"></span>EJ / EMQUE side</span>
+  <span><span class="dot" style="background:#eef2ef"></span>Access channel</span>
+  <span><span class="dot" style="background:#eef2f7"></span>Cru backend</span>
+  <span><span class="dot" style="background:#fff5ee"></span>Out of MVP</span>
+</div>
+<div class="callouts">
+  <p><b>How to read this:</b> one linear pipeline. Pull from EMQUE, stage raw, parse the description, normalize, match, store a snapshot. The UI reads from snapshots. Plaid feeds the match step separately on the bank side. All six steps are new build work - Match and Normalize reuse logic from the current CSV flow, but wiring them to the EMQUE source is fresh.</p>
+</div>
+</div>
+
+<h2>2. Data flow</h2>
+<div class="diagram">
+<svg viewBox="0 0 1140 450" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
+  <defs>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="28" font-size="12" font-weight="700" fill="#555">OVERNIGHT (scheduled)</text>
+
+  <!-- Step 1 -->
+  <rect x="20" y="45" width="220" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="130" y="75" text-anchor="middle" font-size="12" font-weight="600">1. Pull from EMQUE</text>
+  <text x="130" y="105" text-anchor="middle" font-size="10" fill="#666">SELECT entered_on_date,</text>
+  <text x="130" y="120" text-anchor="middle" font-size="10" fill="#666">description, debit, credit,</text>
+  <text x="130" y="135" text-anchor="middle" font-size="10" fill="#666">journal_type</text>
+  <text x="130" y="155" text-anchor="middle" font-size="10" fill="#666">FROM gl_tran</text>
+  <text x="130" y="175" text-anchor="middle" font-size="10" fill="#666">WHERE company = 'EJ'</text>
+  <text x="130" y="190" text-anchor="middle" font-size="10" fill="#666">AND entered_on_date &#62; watermark</text>
+  <text x="130" y="222" text-anchor="middle" font-size="10" fill="#888">5 columns. That's the CSV.</text>
+
+  <line x1="242" y1="140" x2="278" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- Step 2 -->
+  <rect x="280" y="45" width="180" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="370" y="68" text-anchor="middle" font-size="12" font-weight="600">2. Stage raw</text>
+  <text x="370" y="90" text-anchor="middle" font-size="10" fill="#666">Land rows in Cru storage</text>
+  <text x="370" y="105" text-anchor="middle" font-size="10" fill="#666">unchanged</text>
+  <text x="370" y="125" text-anchor="middle" font-size="10" fill="#666">Dedup on primary key</text>
+  <text x="370" y="150" text-anchor="middle" font-size="10" fill="#888">Why: the description parser</text>
+  <text x="370" y="165" text-anchor="middle" font-size="10" fill="#888">will improve over time.</text>
+  <text x="370" y="180" text-anchor="middle" font-size="10" fill="#888">Staging lets us re-parse</text>
+  <text x="370" y="195" text-anchor="middle" font-size="10" fill="#888">historical rows without</text>
+  <text x="370" y="210" text-anchor="middle" font-size="10" fill="#888">re-hitting EMQUE.</text>
+
+  <line x1="462" y1="140" x2="498" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- Step 3 -->
+  <rect x="500" y="45" width="200" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="600" y="68" text-anchor="middle" font-size="12" font-weight="600">3. Parse description</text>
+  <text x="600" y="95" text-anchor="middle" font-size="10" fill="#666">Turn narrative into fields:</text>
+  <text x="600" y="120" text-anchor="middle" font-size="10" fill="#666">&#8226; vendor name</text>
+  <text x="600" y="138" text-anchor="middle" font-size="10" fill="#666">&#8226; invoice # (if present)</text>
+  <text x="600" y="168" text-anchor="middle" font-size="10" fill="#888">Regex patterns, tuned</text>
+  <text x="600" y="183" text-anchor="middle" font-size="10" fill="#888">on real sample rows</text>
+
+  <line x1="702" y1="140" x2="738" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- Step 4 -->
+  <rect x="740" y="45" width="190" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="835" y="68" text-anchor="middle" font-size="12" font-weight="600">4. Normalize</text>
+  <text x="835" y="88" text-anchor="middle" font-size="10" fill="#666">Shape to Cru GL format:</text>
+  <text x="835" y="108" text-anchor="middle" font-size="10" fill="#666">Date | Description |</text>
+  <text x="835" y="122" text-anchor="middle" font-size="10" fill="#666">Debit | Credit | Journal |</text>
+  <text x="835" y="136" text-anchor="middle" font-size="10" fill="#666">Vendor | Check # | Inv #</text>
+  <text x="835" y="158" text-anchor="middle" font-size="10" fill="#888">dates MM/DD/YYYY</text>
+  <text x="835" y="172" text-anchor="middle" font-size="10" fill="#888">amounts 2 decimals</text>
+  <text x="835" y="186" text-anchor="middle" font-size="10" fill="#888">journal code lookup</text>
+
+  <line x1="932" y1="140" x2="968" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- Step 5 -->
+  <rect x="970" y="45" width="150" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="1045" y="68" text-anchor="middle" font-size="12" font-weight="600">5. Match</text>
+  <text x="1045" y="90" text-anchor="middle" font-size="10" fill="#666">GL line &#8596; bank line</text>
+  <text x="1045" y="105" text-anchor="middle" font-size="10" fill="#666">classify as</text>
+  <text x="1045" y="120" text-anchor="middle" font-size="10" fill="#666">matched / unmatched</text>
+  <text x="1045" y="143" text-anchor="middle" font-size="10" fill="#888">unchanged from</text>
+  <text x="1045" y="157" text-anchor="middle" font-size="10" fill="#888">current CSV flow</text>
+
+  <line x1="1045" y1="248" x2="1045" y2="285" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- Step 6 -->
+  <rect x="860" y="290" width="260" height="70" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="2"/>
+  <text x="990" y="315" text-anchor="middle" font-size="12" font-weight="600">6. Write reconciliation snapshot</text>
+  <text x="990" y="335" text-anchor="middle" font-size="10" fill="#666">timestamped, stored by date</text>
+  <text x="990" y="350" text-anchor="middle" font-size="10" fill="#888">this is what the UI reads from</text>
+
+  <!-- Separator -->
+  <line x1="840" y1="290" x2="840" y2="440" stroke="#ddd" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <text x="20" y="310" font-size="12" font-weight="700" fill="#555">USER SIDE</text>
+  <rect x="20" y="325" width="800" height="105" rx="6" fill="#f4f1e9" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="420" y="350" text-anchor="middle" font-size="13" font-weight="600">Transactions tab</text>
+  <text x="420" y="373" text-anchor="middle" font-size="11" fill="#555">User picks a date range. UI queries snapshots for that slice.</text>
+  <text x="420" y="393" text-anchor="middle" font-size="11" fill="#555">Shows match rate, matched/unmatched, inflows/outflows for the range.</text>
+  <text x="420" y="415" text-anchor="middle" font-size="10" fill="#888">(See diagram 3 below for what the filter actually looks like)</text>
+
+  <line x1="860" y1="330" x2="822" y2="370" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+</svg>
+<div class="legend">
+  <span><span class="dot" style="background:#fdfbf5"></span>Automated step (overnight)</span>
+  <span><span class="dot" style="background:#eef2f7"></span>Stored result</span>
+  <span><span class="dot" style="background:#f4f1e9"></span>What the user sees</span>
+</div>
+<div class="callouts">
+  <p><b>The pipeline in one sentence.</b> Pull 5 columns, stage them, parse vendor and invoice out of the description, shape into the CSV format, match against bank lines, store the snapshot.</p>
+</div>
+</div>
+
+<h2>3. UI filtering mechanism</h2>
+<div class="diagram">
+<svg viewBox="0 0 1140 390" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
+  <defs>
+    <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- BEFORE (today) -->
+  <text x="20" y="25" font-size="13" font-weight="700" fill="#8a4a2b">TODAY (Instance dropdown)</text>
+  <rect x="20" y="40" width="520" height="150" rx="8" fill="white" stroke="#d0a88a" stroke-width="1.5"/>
+  <text x="45" y="70" font-size="14" font-weight="600" fill="#333">Transactions</text>
+  <rect x="45" y="90" width="180" height="32" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
+  <text x="55" y="111" font-size="11" fill="#333">Instance:  Oct 2025 upload</text>
+  <text x="215" y="111" font-size="11" fill="#666">&#9662;</text>
+  <rect x="235" y="90" width="120" height="32" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
+  <text x="245" y="111" font-size="11" fill="#333">Account: All</text>
+  <text x="345" y="111" font-size="11" fill="#666">&#9662;</text>
+  <rect x="405" y="90" width="110" height="32" rx="4" fill="white" stroke="#bbb" stroke-width="1"/>
+  <text x="415" y="111" font-size="11" fill="#333">Download</text>
+  <text x="45" y="150" font-size="10" fill="#888">Named "Instance" because each upload = a discrete event the user had to label.</text>
+  <text x="45" y="167" font-size="10" fill="#888">Fine for manual uploads. Breaks down with automated sync - nothing to name.</text>
+
+  <!-- AFTER (proposed) -->
+  <text x="20" y="225" font-size="13" font-weight="700" fill="#2e5a8a">PROPOSED (Date range picker)</text>
+  <rect x="20" y="240" width="720" height="130" rx="8" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="45" y="270" font-size="14" font-weight="600" fill="#333">Transactions</text>
+  <text x="610" y="270" font-size="10" fill="#7a8a7a">&#9679; Synced 3 hrs ago</text>
+
+  <!-- Date picker main button -->
+  <rect x="45" y="295" width="200" height="36" rx="4" fill="#eef4fa" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="58" y="318" font-size="11" fill="#333" font-weight="600">Last 30 days</text>
+  <text x="148" y="318" font-size="10" fill="#666">Mar 23 - Apr 22</text>
+  <text x="235" y="318" font-size="12" fill="#666">&#9662;</text>
+
+  <!-- Account picker secondary -->
+  <rect x="260" y="295" width="160" height="36" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
+  <text x="272" y="318" font-size="11" fill="#333">Account: All accounts</text>
+  <text x="410" y="318" font-size="12" fill="#666">&#9662;</text>
+
+  <!-- Download button -->
+  <rect x="550" y="295" width="95" height="36" rx="4" fill="white" stroke="#bbb" stroke-width="1"/>
+  <text x="597" y="318" text-anchor="middle" font-size="11" fill="#333">&#8595; Download</text>
+
+  <!-- Sync now button -->
+  <rect x="655" y="295" width="85" height="36" rx="4" fill="#eef2ef" stroke="#a7bdad" stroke-width="1"/>
+  <text x="697" y="318" text-anchor="middle" font-size="11" fill="#2d5c3a">Sync now</text>
+
+  <text x="45" y="355" font-size="10" fill="#888">Day granularity. Clicking the date button opens preset list + custom calendar inside a popover.</text>
+
+  <!-- Right-side explanation -->
+  <rect x="760" y="240" width="360" height="130" rx="8" fill="#faf7ef" stroke="#d9cfb7" stroke-width="1"/>
+  <text x="780" y="265" font-size="12" font-weight="700" fill="#5c4a23">Why this works</text>
+
+  <text x="780" y="290" font-size="11" fill="#444" font-weight="600">&#8226; One primary filter.</text>
+  <text x="795" y="305" font-size="10" fill="#666">Replaces Instance dropdown.</text>
+
+  <text x="780" y="325" font-size="11" fill="#444" font-weight="600">&#8226; Presets hidden until clicked.</text>
+  <text x="795" y="340" font-size="10" fill="#666">Popover, not inline chips.</text>
+
+  <text x="780" y="360" font-size="11" fill="#444" font-weight="600">&#8226; Download + Sync stay in header.</text>
+</svg>
+<div class="legend">
+  <span><span class="dot" style="background:#eef4fa"></span>Active / selected</span>
+  <span><span class="dot" style="background:#f6f4f0"></span>Secondary control</span>
+  <span><span class="dot" style="background:#eef2ef"></span>Sync action</span>
+</div>
+<div class="callouts">
+  <p><b>Answer to "can someone just hit a date picker and be done with it?"</b> Yes. One primary control: a date range button that opens a preset list + custom calendar. Day granularity, no timestamps. Sync status is a small piece of text elsewhere in the header, not part of the filter. Account filter stays as a secondary dropdown for the case where someone wants to isolate one account.</p>
+</div>
+</div>
+
+<h2>4. Data fields: what we need vs. what EMQUE gives us vs. the gap</h2>
+<div class="diagram">
+<style>
+  .fields-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .fields-table th { text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #555; background: #faf7ef; border-bottom: 2px solid #d9cfb7; }
+  .fields-table td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+  .fields-table tr:last-child td { border-bottom: none; }
+  .fields-table td.field { font-weight: 600; width: 150px; color: #222; }
+  .fields-table td.source { width: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #444; }
+  .status { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; letter-spacing: 0.2px; }
+  .status.direct { background: #e7f3e8; color: #2d5c3a; }
+  .status.derive { background: #fff3d6; color: #947416; }
+  .status.missing { background: #fbe9e4; color: #8a4a2b; }
+  .note { color: #666; font-size: 11px; }
+  .section-head { background: #f0f4f9; }
+  .section-head td { font-weight: 700; color: #2e5a8a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; padding: 8px 12px; }
+</style>
+
+<p style="font-size: 12px; color: #666; margin: 0 0 18px 0;">Target CSV columns (from <code>general_ledger_template.csv</code>): <code>Date, Description, Debit, Credit, Journal, Vendor Name, Client Name, Job, Inv #</code>. Nine fields. Nothing else.</p>
+
+<table class="fields-table">
+  <thead>
+    <tr>
+      <th style="width:130px">CSV column</th>
+      <th style="width:200px">EMQUE source</th>
+      <th style="width:120px">Status</th>
+      <th>What we do with it</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="section-head"><td colspan="4">Available directly from EMQUE (5 of 9)</td></tr>
+    <tr>
+      <td class="field">Date</td>
+      <td class="source">entered_on_date</td>
+      <td><span class="status direct">Direct</span></td>
+      <td class="note">Format to MM/DD/YYYY. Confirm with Mike whether a posting date exists separately.</td>
+    </tr>
+    <tr>
+      <td class="field">Description</td>
+      <td class="source">description</td>
+      <td><span class="status direct">Direct</span></td>
+      <td class="note">Pass through. Also the source we parse Vendor/Check/Inv out of.</td>
+    </tr>
+    <tr>
+      <td class="field">Debit</td>
+      <td class="source">debit amount</td>
+      <td><span class="status direct">Direct</span></td>
+      <td class="note">Strip commas, round to 2 decimals.</td>
+    </tr>
+    <tr>
+      <td class="field">Credit</td>
+      <td class="source">credit amount</td>
+      <td><span class="status direct">Direct</span></td>
+      <td class="note">Same treatment.</td>
+    </tr>
+    <tr>
+      <td class="field">Journal</td>
+      <td class="source">journal_type</td>
+      <td><span class="status direct">Direct (map?)</span></td>
+      <td class="note">Template uses "CD" / "CR". Mike showed "GD" for cash disbursement. Confirm whether EMQUE's codes match ours or we need a translation layer.</td>
+    </tr>
+
+    <tr class="section-head"><td colspan="4">Derived from description via parser (2 of 9)</td></tr>
+    <tr>
+      <td class="field">Vendor Name</td>
+      <td class="source">parsed from description</td>
+      <td><span class="status derive">Derived</span></td>
+      <td class="note">Sample pattern: <code>{VENDOR} CK: {#} INV: {#}</code>. Vendor is the leading token before "CK:" or "INV:". Confirm EMQUE descriptions follow the same shape.</td>
+    </tr>
+    <tr>
+      <td class="field">Inv #</td>
+      <td class="source">parsed from description</td>
+      <td><span class="status derive">Derived</span></td>
+      <td class="note">Regex on "INV: {value}". Returns empty when not present.</td>
+    </tr>
+
+    <tr class="section-head"><td colspan="4">Not visible in GL - need to ask Mike (2 of 9)</td></tr>
+    <tr>
+      <td class="field">Client Name</td>
+      <td class="source">unknown</td>
+      <td><span class="status missing">Ask Mike</span></td>
+      <td class="note">Sample rows show Client Name blank on disbursements (CD) and populated on receipts (CR). Suggests it lives in AR world, not GL. Likely leave blank for GL-sourced MVP rows.</td>
+    </tr>
+    <tr>
+      <td class="field">Job</td>
+      <td class="source">unknown</td>
+      <td><span class="status missing">Ask Mike</span></td>
+      <td class="note">Likely lives in EMQUE's job costing module. Ask whether it's joinable from GL by check number or journal reference.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callouts">
+  <p><b>Summary:</b> 9 fields. 5 are a straight pass-through from EMQUE. 2 come from parsing the description field. 2 are open questions for Mike (Client Name and Job).</p>
+  <p><b>Description parser pattern (from template sample):</b> <code>{VENDOR} [CK: {check#}] [INV: {invoice#}]</code>. Vendor is the leading segment before "CK:" or "INV:". Check # lives inside the description, not as a separate CSV column - so we only need to extract it for the Vendor parse, not as its own output field.</p>
+  <p><b>One thing to confirm with Mike:</b> do EMQUE's journal_type codes (he showed "GD") match our CSV's codes ("CD", "CR"), or do we need a translation table?</p>
+</div>
+</div>
+
+</div>
+</body>
+</html>
