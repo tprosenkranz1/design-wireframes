@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+<!-- Updated 2026-04-23: corrected bank pipeline to reference actual backend models (PlaidToken/PlaidAccount/PlaidTransaction) + PlaidTransactionsSyncService; dropped check_number-as-discrete-field claim -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cru Bookkeeping: ERP Automation Architecture</title>
+<title>Cru Bookkeeping: ERP + Bank Automation Architecture</title>
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -34,10 +35,10 @@
 <body>
 <div class="wrap">
 
-<h1>Cru Bookkeeping: ERP Automation</h1>
-<div class="subtitle">Service architecture, data flow, and UI filtering. Updated after 4/1 meeting with Mike Hack.</div>
+<h1>Cru Bookkeeping: ERP + Bank Automation <span style="font-size:11px; color:#b8914c; font-weight:400;">(rev. 2026-04-23, post backend-model verification)</span></h1>
+<div class="subtitle">Both sides of the reconciliation: GL from EMQUE and bank transactions from Plaid. Service architecture, data flow, UI filtering, and field mappings. Bank pipeline grounded against real Django models: <code>PlaidToken</code>, <code>PlaidAccount</code>, <code>PlaidTransaction</code>.</div>
 
-<h2>1. Service architecture</h2>
+<h2>1. GL side service architecture</h2>
 <div class="diagram">
 <svg viewBox="0 0 1140 400" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
   <defs>
@@ -116,10 +117,10 @@
   <text x="700" y="315" text-anchor="middle" font-size="10" fill="#888">already in prod</text>
 
   <rect x="790" y="225" width="300" height="105" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="2"/>
-  <text x="940" y="250" text-anchor="middle" font-size="12" font-weight="600">6. Reconciliation snapshots</text>
-  <text x="940" y="270" text-anchor="middle" font-size="10" fill="#666">timestamped results</text>
-  <text x="940" y="285" text-anchor="middle" font-size="10" fill="#666">queryable by date range</text>
-  <text x="940" y="305" text-anchor="middle" font-size="10" fill="#888">what the UI reads from</text>
+  <text x="940" y="250" text-anchor="middle" font-size="12" font-weight="600">6. Reconciliation state</text>
+  <text x="940" y="270" text-anchor="middle" font-size="10" fill="#666">latest match results per period</text>
+  <text x="940" y="285" text-anchor="middle" font-size="10" fill="#666">refreshed as new data lands</text>
+  <text x="940" y="305" text-anchor="middle" font-size="10" fill="#888">freezes only at monthly book close</text>
 
   <!-- Plaid band -->
   <rect x="470" y="355" width="620" height="35" rx="6" fill="#f4f1e9" stroke="#c9b98f" stroke-width="1.5"/>
@@ -150,185 +151,281 @@
   <span><span class="dot" style="background:#fff5ee"></span>Out of MVP</span>
 </div>
 <div class="callouts">
-  <p><b>How to read this:</b> one linear pipeline. Pull from EMQUE, stage raw, parse the description, normalize, match, store a snapshot. The UI reads from snapshots. Plaid feeds the match step separately on the bank side. All six steps are new build work - Match and Normalize reuse logic from the current CSV flow, but wiring them to the EMQUE source is fresh.</p>
+  <p><b>How to read this:</b> one linear pipeline. Pull from EMQUE, stage raw, parse the description, normalize, match, store a snapshot. The UI reads from reconciliation state. Bank lines come in via a parallel pipeline from Plaid (see section 2). All six steps are new build work - Match and Normalize reuse logic from the current CSV flow, but wiring them to the EMQUE source is fresh.</p>
 </div>
 </div>
 
-<h2>2. Data flow</h2>
+<h2>2. Bank side service architecture</h2>
 <div class="diagram">
-<svg viewBox="0 0 1140 450" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
+<svg viewBox="0 0 1140 420" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
+  <defs>
+    <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- EJ banks side -->
+  <rect x="20" y="40" width="240" height="360" rx="10" fill="#f4efe4" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="140" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#8a6d2e">EJ BANK ACCOUNTS</text>
+  <text x="140" y="82" text-anchor="middle" font-size="11" fill="#8a6d2e">Their bank portals</text>
+
+  <rect x="40" y="105" width="200" height="60" rx="6" fill="white" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="140" y="128" text-anchor="middle" font-size="12" font-weight="600">Operating accounts</text>
+  <text x="140" y="146" text-anchor="middle" font-size="10" fill="#666">HSBC, TD, etc.</text>
+
+  <rect x="40" y="180" width="200" height="85" rx="6" fill="white" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="140" y="203" text-anchor="middle" font-size="12" font-weight="600">Today: xlsx export</text>
+  <text x="140" y="222" text-anchor="middle" font-size="10" fill="#666">Manual pull from portal,</text>
+  <text x="140" y="237" text-anchor="middle" font-size="10" fill="#666">drop into Cru</text>
+  <text x="140" y="255" text-anchor="middle" font-size="10" fill="#888">Fallback in target state</text>
+
+  <rect x="40" y="285" width="200" height="95" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="140" y="308" text-anchor="middle" font-size="12" font-weight="600">Target: Plaid connected</text>
+  <text x="140" y="326" text-anchor="middle" font-size="10" fill="#666">bank creds authorized</text>
+  <text x="140" y="341" text-anchor="middle" font-size="10" fill="#666">via standard Plaid flow</text>
+  <text x="140" y="361" text-anchor="middle" font-size="9" fill="#888">Some Syracuse accounts</text>
+  <text x="140" y="373" text-anchor="middle" font-size="9" fill="#888">still being connected</text>
+
+  <!-- Plaid middle -->
+  <rect x="290" y="155" width="140" height="130" rx="6" fill="#eef2ef" stroke="#a7bdad" stroke-width="1.5"/>
+  <text x="360" y="180" text-anchor="middle" font-size="12" font-weight="600">Plaid</text>
+  <text x="360" y="198" text-anchor="middle" font-size="10" fill="#2d5c3a">bank aggregator</text>
+  <text x="360" y="215" text-anchor="middle" font-size="10" fill="#666">/transactions/sync</text>
+  <text x="360" y="229" text-anchor="middle" font-size="10" fill="#666">cursor-based + webhooks</text>
+  <text x="360" y="250" text-anchor="middle" font-size="9" fill="#888">PlaidTransactionsSyncService</text>
+  <text x="360" y="264" text-anchor="middle" font-size="9" fill="#888">(CRU-276, v1.76.0)</text>
+  <text x="360" y="276" text-anchor="middle" font-size="9" fill="#888">persists rows into our DB</text>
+
+  <!-- Cru backend -->
+  <rect x="450" y="20" width="670" height="400" rx="10" fill="#eef2f7" stroke="#b8c9de" stroke-width="1.5"/>
+  <text x="785" y="45" text-anchor="middle" font-size="13" font-weight="700" fill="#2e5a8a">CRU BACKEND</text>
+  <text x="785" y="62" text-anchor="middle" font-size="11" fill="#2e5a8a">Our infrastructure (bank pipeline)</text>
+
+  <!-- Plaid models (already exist) -->
+  <rect x="470" y="85" width="180" height="100" rx="6" fill="#e9eff4" stroke="#8fa9c4" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="560" y="107" text-anchor="middle" font-size="11" font-weight="600">payments_plaidtoken</text>
+  <text x="560" y="122" text-anchor="middle" font-size="11" font-weight="600">payments_plaidaccount</text>
+  <text x="560" y="137" text-anchor="middle" font-size="11" font-weight="600">payments_plaidtransaction</text>
+  <text x="560" y="157" text-anchor="middle" font-size="9" fill="#666">FK chain: Token &#8594; Account &#8594; Txn</text>
+  <text x="560" y="170" text-anchor="middle" font-size="9" fill="#888">Bookkeeping Agent reads</text>
+  <text x="560" y="180" text-anchor="middle" font-size="9" fill="#888">from here, not from Plaid API</text>
+
+  <!-- Bookkeeping pipeline - 5 steps, no parse -->
+  <rect x="670" y="85" width="140" height="100" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="740" y="110" text-anchor="middle" font-size="12" font-weight="600">1. Pull</text>
+  <text x="740" y="128" text-anchor="middle" font-size="10" fill="#666">New reader queries</text>
+  <text x="740" y="143" text-anchor="middle" font-size="10" fill="#666">PlaidTransaction rows</text>
+  <text x="740" y="158" text-anchor="middle" font-size="10" fill="#666">for company + account</text>
+  <text x="740" y="175" text-anchor="middle" font-size="9" fill="#888">watermark on row id / date</text>
+
+  <rect x="830" y="85" width="130" height="100" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="895" y="110" text-anchor="middle" font-size="12" font-weight="600">2. Stage</text>
+  <text x="895" y="128" text-anchor="middle" font-size="10" fill="#666">raw rows landed</text>
+  <text x="895" y="145" text-anchor="middle" font-size="10" fill="#666">dedupe on</text>
+  <text x="895" y="160" text-anchor="middle" font-size="10" fill="#666">transaction_id</text>
+
+  <rect x="980" y="85" width="130" height="100" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="1045" y="110" text-anchor="middle" font-size="12" font-weight="600">3. Normalize</text>
+  <text x="1045" y="128" text-anchor="middle" font-size="10" fill="#666">reshape to Cru's</text>
+  <text x="1045" y="143" text-anchor="middle" font-size="10" fill="#666">4-column bank CSV</text>
+  <text x="1045" y="163" text-anchor="middle" font-size="9" fill="#888">drop pending,</text>
+  <text x="1045" y="175" text-anchor="middle" font-size="9" fill="#888">filter accounts in scope</text>
+
+  <rect x="740" y="210" width="180" height="100" rx="6" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="830" y="235" text-anchor="middle" font-size="12" font-weight="600">4. Classify</text>
+  <text x="830" y="253" text-anchor="middle" font-size="10" fill="#666">18 deterministic rules</text>
+  <text x="830" y="268" text-anchor="middle" font-size="10" fill="#666">against raw narrative</text>
+  <text x="830" y="288" text-anchor="middle" font-size="9" fill="#888">CRU-306, CRU-498 -</text>
+  <text x="830" y="300" text-anchor="middle" font-size="9" fill="#888">already in prod</text>
+
+  <rect x="940" y="210" width="170" height="100" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="2"/>
+  <text x="1025" y="235" text-anchor="middle" font-size="12" font-weight="600">5. Feed matcher</text>
+  <text x="1025" y="255" text-anchor="middle" font-size="10" fill="#666">hand rows to</text>
+  <text x="1025" y="270" text-anchor="middle" font-size="10" fill="#666">matching engine</text>
+  <text x="1025" y="290" text-anchor="middle" font-size="9" fill="#888">same engine as GL side</text>
+  <text x="1025" y="302" text-anchor="middle" font-size="9" fill="#888">(CRU-307 - already in prod)</text>
+
+  <!-- Reconciliation state (shared with GL) -->
+  <rect x="670" y="335" width="450" height="60" rx="6" fill="#f4f1e9" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="895" y="358" text-anchor="middle" font-size="12" font-weight="600">Shared reconciliation state (same output as GL pipeline)</text>
+  <text x="895" y="378" text-anchor="middle" font-size="10" fill="#666">UI reads matched + classified rows from here</text>
+
+  <!-- Arrows -->
+  <line x1="242" y1="215" x2="288" y2="215" stroke="#666" stroke-width="1.5" marker-end="url(#arrowB)"/>
+  <line x1="242" y1="325" x2="288" y2="240" stroke="#666" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowB)"/>
+  <line x1="432" y1="215" x2="468" y2="135" stroke="#666" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+  <!-- Top row: plaid table -> 1 -> 2 -> 3 -->
+  <line x1="652" y1="135" x2="668" y2="135" stroke="#666" stroke-width="1.5" marker-end="url(#arrowB)"/>
+  <line x1="812" y1="135" x2="828" y2="135" stroke="#666" stroke-width="1.5" marker-end="url(#arrowB)"/>
+  <line x1="962" y1="135" x2="978" y2="135" stroke="#666" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+  <!-- 3 -> 4 (L-shape down and left) -->
+  <path d="M 1045 187 L 1045 200 L 830 200 L 830 208" stroke="#666" stroke-width="1.5" fill="none" marker-end="url(#arrowB)"/>
+
+  <!-- 4 -> 5 -->
+  <line x1="922" y1="260" x2="938" y2="260" stroke="#666" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+  <!-- 5 -> state -->
+  <line x1="1025" y1="312" x2="1025" y2="333" stroke="#666" stroke-width="1.5" marker-end="url(#arrowB)"/>
+</svg>
+<div class="legend">
+  <span><span class="dot" style="background:#f4efe4"></span>EJ bank side</span>
+  <span><span class="dot" style="background:#eef2ef"></span>Plaid</span>
+  <span><span class="dot" style="background:#e9eff4"></span>Already in Cru</span>
+  <span><span class="dot" style="background:#eef2f7"></span>Cru backend</span>
+</div>
+<div class="callouts">
+  <p><b>How to read this:</b> <code>PlaidTransactionsSyncService</code> (shipped as CRU-276) already talks to Plaid's <code>/transactions/sync</code> endpoint using a cursor stored on <code>PlaidToken.transactions_cursor</code>, writes rows into the <code>PlaidTransaction</code> table, and fires off webhook-driven deltas. Our new work is a reader that pulls from that table into the Bookkeeping Agent, normalizes to the 4-column bank CSV, classifies against the 18 rules, and hands rows to the same matching engine the GL side uses. Both pipelines write into the shared reconciliation state the UI reads from.</p>
+  <p><b>No parse step needed here (unlike the GL side).</b> The classification engine runs text-based rules against the raw narrative (<code>PlaidTransaction.name</code>), and the matcher uses narrative + amount + date. That's enough to classify and match without splitting vendor/invoice out of the text. If we later need a clean check number for reference data, we read <code>PlaidTransaction.payment_meta</code> (JSON) and fall back to a narrative regex - a check extractor, not a full parser.</p>
+  <p><b>Current state caveat:</b> today the Bookkeeping Agent reads bank data from manual xlsx uploads, not from the Plaid tables. The target state lifts the xlsx step out of the critical path and keeps it as a fallback for banks Plaid doesn't cover and for historical backfill beyond Plaid's retention window.</p>
+  <p><b>Things the reader has to filter:</b> <code>pending=true</code> rows (exclude until posted), <code>is_from_constrafor=true</code> rows (Constrafor-originated payments, should not hit client rec), and the company's skip logic on <code>update_transactions</code> (EJ will need <code>should_update_plaid_data_daily=True</code> so syncs actually run daily, not monthly).</p>
+</div>
+</div>
+
+<h2>3. Data flow (both pipelines converging at the matcher)</h2>
+<div class="diagram">
+<svg viewBox="0 0 1140 560" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
   <defs>
     <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#666"/>
     </marker>
   </defs>
 
-  <text x="20" y="28" font-size="12" font-weight="700" fill="#555">OVERNIGHT (scheduled)</text>
+  <!-- =========================== -->
+  <!-- GL LANE (top)               -->
+  <!-- =========================== -->
+  <text x="20" y="25" font-size="12" font-weight="700" fill="#8a6d2e">GL LANE - from EMQUE</text>
 
-  <!-- Step 1 -->
-  <rect x="20" y="45" width="220" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
-  <text x="130" y="75" text-anchor="middle" font-size="12" font-weight="600">1. Pull from EMQUE</text>
-  <text x="130" y="105" text-anchor="middle" font-size="10" fill="#666">SELECT entered_on_date,</text>
-  <text x="130" y="120" text-anchor="middle" font-size="10" fill="#666">description, debit, credit,</text>
-  <text x="130" y="135" text-anchor="middle" font-size="10" fill="#666">journal_type</text>
-  <text x="130" y="155" text-anchor="middle" font-size="10" fill="#666">FROM gl_tran</text>
-  <text x="130" y="175" text-anchor="middle" font-size="10" fill="#666">WHERE company = 'EJ'</text>
-  <text x="130" y="190" text-anchor="middle" font-size="10" fill="#666">AND entered_on_date &#62; watermark</text>
-  <text x="130" y="222" text-anchor="middle" font-size="10" fill="#888">5 columns. That's the CSV.</text>
+  <rect x="20" y="40" width="180" height="130" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="110" y="62" text-anchor="middle" font-size="12" font-weight="600">1. Pull</text>
+  <text x="110" y="82" text-anchor="middle" font-size="10" fill="#666">ODBC/JDBC SELECT</text>
+  <text x="110" y="96" text-anchor="middle" font-size="10" fill="#666">from gl_tran WHERE</text>
+  <text x="110" y="110" text-anchor="middle" font-size="10" fill="#666">entered_on_date &#62; watermark</text>
+  <text x="110" y="135" text-anchor="middle" font-size="9" fill="#888">5 columns raw</text>
 
-  <line x1="242" y1="140" x2="278" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <line x1="202" y1="105" x2="228" y2="105" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
-  <!-- Step 2 -->
-  <rect x="280" y="45" width="180" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
-  <text x="370" y="68" text-anchor="middle" font-size="12" font-weight="600">2. Stage raw</text>
-  <text x="370" y="90" text-anchor="middle" font-size="10" fill="#666">Land rows in Cru storage</text>
-  <text x="370" y="105" text-anchor="middle" font-size="10" fill="#666">unchanged</text>
-  <text x="370" y="125" text-anchor="middle" font-size="10" fill="#666">Dedup on primary key</text>
-  <text x="370" y="150" text-anchor="middle" font-size="10" fill="#888">Why: the description parser</text>
-  <text x="370" y="165" text-anchor="middle" font-size="10" fill="#888">will improve over time.</text>
-  <text x="370" y="180" text-anchor="middle" font-size="10" fill="#888">Staging lets us re-parse</text>
-  <text x="370" y="195" text-anchor="middle" font-size="10" fill="#888">historical rows without</text>
-  <text x="370" y="210" text-anchor="middle" font-size="10" fill="#888">re-hitting EMQUE.</text>
+  <rect x="230" y="40" width="160" height="130" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="310" y="62" text-anchor="middle" font-size="12" font-weight="600">2. Stage</text>
+  <text x="310" y="82" text-anchor="middle" font-size="10" fill="#666">Raw rows landed</text>
+  <text x="310" y="96" text-anchor="middle" font-size="10" fill="#666">in Cru storage</text>
+  <text x="310" y="120" text-anchor="middle" font-size="9" fill="#888">Lets us re-parse</text>
+  <text x="310" y="132" text-anchor="middle" font-size="9" fill="#888">without re-hitting EMQUE</text>
 
-  <line x1="462" y1="140" x2="498" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <line x1="392" y1="105" x2="418" y2="105" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
-  <!-- Step 3 -->
-  <rect x="500" y="45" width="200" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
-  <text x="600" y="68" text-anchor="middle" font-size="12" font-weight="600">3. Parse description</text>
-  <text x="600" y="95" text-anchor="middle" font-size="10" fill="#666">Turn narrative into fields:</text>
-  <text x="600" y="120" text-anchor="middle" font-size="10" fill="#666">&#8226; vendor name</text>
-  <text x="600" y="138" text-anchor="middle" font-size="10" fill="#666">&#8226; invoice # (if present)</text>
-  <text x="600" y="168" text-anchor="middle" font-size="10" fill="#888">Regex patterns, tuned</text>
-  <text x="600" y="183" text-anchor="middle" font-size="10" fill="#888">on real sample rows</text>
+  <rect x="420" y="40" width="170" height="130" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="505" y="62" text-anchor="middle" font-size="12" font-weight="600">3. Parse</text>
+  <text x="505" y="82" text-anchor="middle" font-size="10" fill="#666">description narrative</text>
+  <text x="505" y="96" text-anchor="middle" font-size="10" fill="#666">&rarr; vendor, invoice #</text>
+  <text x="505" y="120" text-anchor="middle" font-size="9" fill="#888">Regex on real sample rows</text>
+  <text x="505" y="132" text-anchor="middle" font-size="9" fill="#888">(GL-only step)</text>
 
-  <line x1="702" y1="140" x2="738" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <line x1="592" y1="105" x2="618" y2="105" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
-  <!-- Step 4 -->
-  <rect x="740" y="45" width="190" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
-  <text x="835" y="68" text-anchor="middle" font-size="12" font-weight="600">4. Normalize</text>
-  <text x="835" y="88" text-anchor="middle" font-size="10" fill="#666">Shape to Cru GL format:</text>
-  <text x="835" y="108" text-anchor="middle" font-size="10" fill="#666">Date | Description |</text>
-  <text x="835" y="122" text-anchor="middle" font-size="10" fill="#666">Debit | Credit | Journal |</text>
-  <text x="835" y="136" text-anchor="middle" font-size="10" fill="#666">Vendor | Check # | Inv #</text>
-  <text x="835" y="158" text-anchor="middle" font-size="10" fill="#888">dates MM/DD/YYYY</text>
-  <text x="835" y="172" text-anchor="middle" font-size="10" fill="#888">amounts 2 decimals</text>
-  <text x="835" y="186" text-anchor="middle" font-size="10" fill="#888">journal code lookup</text>
+  <rect x="620" y="40" width="170" height="130" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
+  <text x="705" y="62" text-anchor="middle" font-size="12" font-weight="600">4. Normalize</text>
+  <text x="705" y="82" text-anchor="middle" font-size="10" fill="#666">Shape to 9-column</text>
+  <text x="705" y="96" text-anchor="middle" font-size="10" fill="#666">GL CSV format</text>
+  <text x="705" y="120" text-anchor="middle" font-size="9" fill="#888">dates MM/DD/YYYY,</text>
+  <text x="705" y="132" text-anchor="middle" font-size="9" fill="#888">journal code lookup</text>
 
-  <line x1="932" y1="140" x2="968" y2="140" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <!-- GL arrow into matcher -->
+  <path d="M 790 105 L 830 105 L 830 270" stroke="#666" stroke-width="1.5" fill="none" marker-end="url(#arrow2)"/>
 
-  <!-- Step 5 -->
-  <rect x="970" y="45" width="150" height="200" rx="6" fill="#fdfbf5" stroke="#d9cfb7" stroke-width="1.5"/>
-  <text x="1045" y="68" text-anchor="middle" font-size="12" font-weight="600">5. Match</text>
-  <text x="1045" y="90" text-anchor="middle" font-size="10" fill="#666">GL line &#8596; bank line</text>
-  <text x="1045" y="105" text-anchor="middle" font-size="10" fill="#666">classify as</text>
-  <text x="1045" y="120" text-anchor="middle" font-size="10" fill="#666">matched / unmatched</text>
-  <text x="1045" y="143" text-anchor="middle" font-size="10" fill="#888">unchanged from</text>
-  <text x="1045" y="157" text-anchor="middle" font-size="10" fill="#888">current CSV flow</text>
+  <!-- =========================== -->
+  <!-- BANK LANE (middle)          -->
+  <!-- =========================== -->
+  <text x="20" y="210" font-size="12" font-weight="700" fill="#2e5a8a">BANK LANE - from Plaid</text>
 
-  <line x1="1045" y1="248" x2="1045" y2="285" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <rect x="20" y="225" width="180" height="130" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="110" y="247" text-anchor="middle" font-size="12" font-weight="600">1. Pull</text>
+  <text x="110" y="267" text-anchor="middle" font-size="10" fill="#666">SELECT FROM</text>
+  <text x="110" y="281" text-anchor="middle" font-size="10" fill="#666">payments_plaidtransaction</text>
+  <text x="110" y="295" text-anchor="middle" font-size="10" fill="#666">for company + accounts</text>
+  <text x="110" y="320" text-anchor="middle" font-size="9" fill="#888">sync is already webhook-driven</text>
 
-  <!-- Step 6 -->
-  <rect x="860" y="290" width="260" height="70" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="2"/>
-  <text x="990" y="315" text-anchor="middle" font-size="12" font-weight="600">6. Write reconciliation snapshot</text>
-  <text x="990" y="335" text-anchor="middle" font-size="10" fill="#666">timestamped, stored by date</text>
-  <text x="990" y="350" text-anchor="middle" font-size="10" fill="#888">this is what the UI reads from</text>
+  <line x1="202" y1="290" x2="228" y2="290" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
-  <!-- Separator -->
-  <line x1="840" y1="290" x2="840" y2="440" stroke="#ddd" stroke-width="1" stroke-dasharray="3 3"/>
+  <rect x="230" y="225" width="160" height="130" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="310" y="247" text-anchor="middle" font-size="12" font-weight="600">2. Stage</text>
+  <text x="310" y="267" text-anchor="middle" font-size="10" fill="#666">Raw rows landed</text>
+  <text x="310" y="281" text-anchor="middle" font-size="10" fill="#666">dedupe on transaction_id</text>
+  <text x="310" y="305" text-anchor="middle" font-size="9" fill="#888">lets us re-classify</text>
+  <text x="310" y="317" text-anchor="middle" font-size="9" fill="#888">as rules evolve</text>
 
-  <text x="20" y="310" font-size="12" font-weight="700" fill="#555">USER SIDE</text>
-  <rect x="20" y="325" width="800" height="105" rx="6" fill="#f4f1e9" stroke="#c9b98f" stroke-width="1.5"/>
-  <text x="420" y="350" text-anchor="middle" font-size="13" font-weight="600">Transactions tab</text>
-  <text x="420" y="373" text-anchor="middle" font-size="11" fill="#555">User picks a date range. UI queries snapshots for that slice.</text>
-  <text x="420" y="393" text-anchor="middle" font-size="11" fill="#555">Shows match rate, matched/unmatched, inflows/outflows for the range.</text>
-  <text x="420" y="415" text-anchor="middle" font-size="10" fill="#888">(See diagram 3 below for what the filter actually looks like)</text>
+  <line x1="392" y1="290" x2="418" y2="290" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
 
-  <line x1="860" y1="330" x2="822" y2="370" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <rect x="420" y="225" width="170" height="130" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="505" y="247" text-anchor="middle" font-size="12" font-weight="600">3. Normalize</text>
+  <text x="505" y="267" text-anchor="middle" font-size="10" fill="#666">Shape to 4-column</text>
+  <text x="505" y="281" text-anchor="middle" font-size="10" fill="#666">bank CSV format</text>
+  <text x="505" y="305" text-anchor="middle" font-size="9" fill="#888">sign-split amount,</text>
+  <text x="505" y="317" text-anchor="middle" font-size="9" fill="#888">drop pending, map account</text>
+
+  <line x1="592" y1="290" x2="618" y2="290" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <rect x="620" y="225" width="170" height="130" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="705" y="247" text-anchor="middle" font-size="12" font-weight="600">4. Classify</text>
+  <text x="705" y="267" text-anchor="middle" font-size="10" fill="#666">18 deterministic rules</text>
+  <text x="705" y="281" text-anchor="middle" font-size="10" fill="#666">against raw narrative</text>
+  <text x="705" y="305" text-anchor="middle" font-size="9" fill="#888">CRU-306, CRU-498</text>
+  <text x="705" y="317" text-anchor="middle" font-size="9" fill="#888">already in prod</text>
+
+  <!-- Bank arrow into matcher -->
+  <path d="M 790 290 L 830 290 L 830 270" stroke="#666" stroke-width="1.5" fill="none"/>
+
+  <!-- =========================== -->
+  <!-- SHARED MATCHER + STATE      -->
+  <!-- =========================== -->
+  <rect x="830" y="150" width="290" height="170" rx="8" fill="#faf2e4" stroke="#b8914c" stroke-width="2"/>
+  <text x="975" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="#5c4a23">5. Match (shared engine)</text>
+  <text x="975" y="202" text-anchor="middle" font-size="11" fill="#444">GL rows &#8596; bank rows</text>
+  <text x="975" y="222" text-anchor="middle" font-size="10" fill="#666">1:1 first, then 1:many</text>
+  <text x="975" y="238" text-anchor="middle" font-size="10" fill="#666">within time window</text>
+  <text x="975" y="262" text-anchor="middle" font-size="10" fill="#666">matched / unmatched / partial</text>
+  <text x="975" y="288" text-anchor="middle" font-size="9" fill="#888">CRU-307 - already in prod,</text>
+  <text x="975" y="300" text-anchor="middle" font-size="9" fill="#888">unchanged from current CSV flow</text>
+
+  <!-- arrow down to recon state -->
+  <line x1="975" y1="322" x2="975" y2="360" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+  <!-- =========================== -->
+  <!-- RECONCILIATION STATE        -->
+  <!-- =========================== -->
+  <rect x="810" y="365" width="310" height="80" rx="6" fill="#eef2f7" stroke="#8fa9c4" stroke-width="2"/>
+  <text x="965" y="390" text-anchor="middle" font-size="12" font-weight="600">6. Reconciliation state</text>
+  <text x="965" y="410" text-anchor="middle" font-size="10" fill="#666">Continuously refreshed per period</text>
+  <text x="965" y="428" text-anchor="middle" font-size="10" fill="#888">No snapshot. Late rows just update the state.</text>
+
+  <!-- =========================== -->
+  <!-- USER SIDE                   -->
+  <!-- =========================== -->
+  <text x="20" y="400" font-size="12" font-weight="700" fill="#555">USER SIDE</text>
+  <rect x="20" y="415" width="770" height="120" rx="6" fill="#f4f1e9" stroke="#c9b98f" stroke-width="1.5"/>
+  <text x="405" y="442" text-anchor="middle" font-size="13" font-weight="600">Transactions tab</text>
+  <text x="405" y="466" text-anchor="middle" font-size="11" fill="#555">User picks a date range. UI queries the reconciliation state for that slice.</text>
+  <text x="405" y="486" text-anchor="middle" font-size="11" fill="#555">Shows match rate, classifications, matched/unmatched, inflows/outflows.</text>
+  <text x="405" y="510" text-anchor="middle" font-size="10" fill="#888">See the UI filtering section for what this actually looks like.</text>
+
+  <!-- recon state -> UI -->
+  <line x1="810" y1="415" x2="788" y2="445" stroke="#666" stroke-width="1.5" marker-end="url(#arrow2)"/>
 </svg>
 <div class="legend">
-  <span><span class="dot" style="background:#fdfbf5"></span>Automated step (overnight)</span>
-  <span><span class="dot" style="background:#eef2f7"></span>Stored result</span>
-  <span><span class="dot" style="background:#f4f1e9"></span>What the user sees</span>
+  <span><span class="dot" style="background:#fdfbf5"></span>GL lane (EMQUE)</span>
+  <span><span class="dot" style="background:#eef2f7"></span>Bank lane (Plaid)</span>
+  <span><span class="dot" style="background:#faf2e4"></span>Shared matcher</span>
+  <span><span class="dot" style="background:#f4f1e9"></span>User view</span>
 </div>
 <div class="callouts">
-  <p><b>The pipeline in one sentence.</b> Pull 5 columns, stage them, parse vendor and invoice out of the description, shape into the CSV format, match against bank lines, store the snapshot.</p>
+  <p><b>The flow in one sentence.</b> Two lanes, same matcher. GL pulls from EMQUE, parses narratives into vendor/invoice, normalizes. Bank reads <code>PlaidTransaction</code> rows that <code>PlaidTransactionsSyncService</code> has already pulled from Plaid, normalizes, classifies against 18 rules. Both lanes hand rows to the same matching engine (CRU-307), which updates the shared reconciliation state the UI reads from.</p>
+  <p><b>Why the bank lane is one step shorter.</b> No parse step. Classification works on the raw <code>name</code> narrative, the matcher works on narrative + amount + date. We don't need to dig vendor or invoice numbers out of the narrative to make classify/match work. Check number, if needed downstream for reference lookups, lives in <code>payment_meta</code> JSON - we'd read it there, not parse the narrative.</p>
+  <p><b>What's already in prod.</b> Classify (CRU-306, CRU-498), match (CRU-307), and the current CSV flow into both. What's new is wiring the two Pull+Stage+Normalize lanes in front of them.</p>
 </div>
 </div>
 
-<h2>3. UI filtering mechanism</h2>
-<div class="diagram">
-<svg viewBox="0 0 1140 390" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
-  <defs>
-    <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
-    </marker>
-  </defs>
-
-  <!-- BEFORE (today) -->
-  <text x="20" y="25" font-size="13" font-weight="700" fill="#8a4a2b">TODAY (Instance dropdown)</text>
-  <rect x="20" y="40" width="520" height="150" rx="8" fill="white" stroke="#d0a88a" stroke-width="1.5"/>
-  <text x="45" y="70" font-size="14" font-weight="600" fill="#333">Transactions</text>
-  <rect x="45" y="90" width="180" height="32" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
-  <text x="55" y="111" font-size="11" fill="#333">Instance:  Oct 2025 upload</text>
-  <text x="215" y="111" font-size="11" fill="#666">&#9662;</text>
-  <rect x="235" y="90" width="120" height="32" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
-  <text x="245" y="111" font-size="11" fill="#333">Account: All</text>
-  <text x="345" y="111" font-size="11" fill="#666">&#9662;</text>
-  <rect x="405" y="90" width="110" height="32" rx="4" fill="white" stroke="#bbb" stroke-width="1"/>
-  <text x="415" y="111" font-size="11" fill="#333">Download</text>
-  <text x="45" y="150" font-size="10" fill="#888">Named "Instance" because each upload = a discrete event the user had to label.</text>
-  <text x="45" y="167" font-size="10" fill="#888">Fine for manual uploads. Breaks down with automated sync - nothing to name.</text>
-
-  <!-- AFTER (proposed) -->
-  <text x="20" y="225" font-size="13" font-weight="700" fill="#2e5a8a">PROPOSED (Date range picker)</text>
-  <rect x="20" y="240" width="720" height="130" rx="8" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
-  <text x="45" y="270" font-size="14" font-weight="600" fill="#333">Transactions</text>
-  <text x="610" y="270" font-size="10" fill="#7a8a7a">&#9679; Synced 3 hrs ago</text>
-
-  <!-- Date picker main button -->
-  <rect x="45" y="295" width="200" height="36" rx="4" fill="#eef4fa" stroke="#8fa9c4" stroke-width="1.5"/>
-  <text x="58" y="318" font-size="11" fill="#333" font-weight="600">Last 30 days</text>
-  <text x="148" y="318" font-size="10" fill="#666">Mar 23 - Apr 22</text>
-  <text x="235" y="318" font-size="12" fill="#666">&#9662;</text>
-
-  <!-- Account picker secondary -->
-  <rect x="260" y="295" width="160" height="36" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
-  <text x="272" y="318" font-size="11" fill="#333">Account: All accounts</text>
-  <text x="410" y="318" font-size="12" fill="#666">&#9662;</text>
-
-  <!-- Download button -->
-  <rect x="550" y="295" width="95" height="36" rx="4" fill="white" stroke="#bbb" stroke-width="1"/>
-  <text x="597" y="318" text-anchor="middle" font-size="11" fill="#333">&#8595; Download</text>
-
-  <!-- Sync now button -->
-  <rect x="655" y="295" width="85" height="36" rx="4" fill="#eef2ef" stroke="#a7bdad" stroke-width="1"/>
-  <text x="697" y="318" text-anchor="middle" font-size="11" fill="#2d5c3a">Sync now</text>
-
-  <text x="45" y="355" font-size="10" fill="#888">Day granularity. Clicking the date button opens preset list + custom calendar inside a popover.</text>
-
-  <!-- Right-side explanation -->
-  <rect x="760" y="240" width="360" height="130" rx="8" fill="#faf7ef" stroke="#d9cfb7" stroke-width="1"/>
-  <text x="780" y="265" font-size="12" font-weight="700" fill="#5c4a23">Why this works</text>
-
-  <text x="780" y="290" font-size="11" fill="#444" font-weight="600">&#8226; One primary filter.</text>
-  <text x="795" y="305" font-size="10" fill="#666">Replaces Instance dropdown.</text>
-
-  <text x="780" y="325" font-size="11" fill="#444" font-weight="600">&#8226; Presets hidden until clicked.</text>
-  <text x="795" y="340" font-size="10" fill="#666">Popover, not inline chips.</text>
-
-  <text x="780" y="360" font-size="11" fill="#444" font-weight="600">&#8226; Download + Sync stay in header.</text>
-</svg>
-<div class="legend">
-  <span><span class="dot" style="background:#eef4fa"></span>Active / selected</span>
-  <span><span class="dot" style="background:#f6f4f0"></span>Secondary control</span>
-  <span><span class="dot" style="background:#eef2ef"></span>Sync action</span>
-</div>
-<div class="callouts">
-  <p><b>Answer to "can someone just hit a date picker and be done with it?"</b> Yes. One primary control: a date range button that opens a preset list + custom calendar. Day granularity, no timestamps. Sync status is a small piece of text elsewhere in the header, not part of the filter. Account filter stays as a secondary dropdown for the case where someone wants to isolate one account.</p>
-</div>
-</div>
-
-<h2>4. Data fields: what we need vs. what EMQUE gives us vs. the gap</h2>
+<h2>4. GL CSV fields: what we need vs. what EMQUE gives us vs. the gap</h2>
 <div class="diagram">
 <style>
   .fields-table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -424,6 +521,174 @@
   <p><b>Summary:</b> 9 fields. 5 are a straight pass-through from EMQUE. 2 come from parsing the description field. 2 are open questions for Mike (Client Name and Job).</p>
   <p><b>Description parser pattern (from template sample):</b> <code>{VENDOR} [CK: {check#}] [INV: {invoice#}]</code>. Vendor is the leading segment before "CK:" or "INV:". Check # lives inside the description, not as a separate CSV column - so we only need to extract it for the Vendor parse, not as its own output field.</p>
   <p><b>One thing to confirm with Mike:</b> do EMQUE's journal_type codes (he showed "GD") match our CSV's codes ("CD", "CR"), or do we need a translation table?</p>
+</div>
+</div>
+
+<h2>5. Bank CSV fields: what we need vs. what the PlaidTransaction model gives us</h2>
+<div class="diagram">
+<p style="font-size: 12px; color: #666; margin: 0 0 18px 0;">Target CSV columns (from <code>bank_statement_template.csv</code>): <code>Narrative, Post Date, Credit Amount, Debit Amount</code>. Four fields visible to the user, plus four internal fields attached during ingest (Classifications, General Ledger Tag, Ledger Tag Status, Account). Sources below reference real Django model columns verified against <code>payments/models/plaid_transaction.py</code>.</p>
+
+<table class="fields-table">
+  <thead>
+    <tr>
+      <th style="width:130px">CSV column</th>
+      <th style="width:220px">PlaidTransaction source</th>
+      <th style="width:120px">Status</th>
+      <th>What we do with it</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="section-head"><td colspan="4">Available directly from PlaidTransaction rows (4 of 4 visible columns)</td></tr>
+    <tr>
+      <td class="field">Narrative</td>
+      <td class="source">PlaidTransaction.name</td>
+      <td><span class="status direct">Direct</span></td>
+      <td class="note">CharField(512). Pass through raw - this is the field the classification rules run against. <code>merchant_name</code> isn't stored as a column on our model; if we ever want it, pull from <code>payment_meta</code> JSON.</td>
+    </tr>
+    <tr>
+      <td class="field">Post Date</td>
+      <td class="source">PlaidTransaction.date</td>
+      <td><span class="status direct">Direct</span></td>
+      <td class="note">DateField (posted date). Format MM/DD/YYYY. Do NOT use <code>authorized_date</code> - that's the card auth, not the settle. Both columns exist on the model.</td>
+    </tr>
+    <tr>
+      <td class="field">Credit Amount</td>
+      <td class="source">PlaidTransaction.amount (inflow)</td>
+      <td><span class="status derive">Sign-split</span></td>
+      <td class="note">Single DecimalField(11,2) column in our DB. Plaid uses positive for outflows by default. If the amount represents an inflow for this account, it goes in Credit; otherwise Debit. One number becomes two columns in our format.</td>
+    </tr>
+    <tr>
+      <td class="field">Debit Amount</td>
+      <td class="source">PlaidTransaction.amount (outflow)</td>
+      <td><span class="status derive">Sign-split</span></td>
+      <td class="note">Same column-split logic as Credit, just the other side.</td>
+    </tr>
+
+    <tr class="section-head"><td colspan="4">Internal fields attached during ingest (4 more, not shown in CSV)</td></tr>
+    <tr>
+      <td class="field">Classifications</td>
+      <td class="source">rules engine output</td>
+      <td><span class="status direct">Computed</span></td>
+      <td class="note">18 deterministic rules run per-row against Narrative and Account. Unmatched rows get tagged "unmatched". Already in production (CRU-306, CRU-498).</td>
+    </tr>
+    <tr>
+      <td class="field">General Ledger Tag</td>
+      <td class="source">matcher output</td>
+      <td><span class="status direct">Computed</span></td>
+      <td class="note">Link to the matched GL row (or set of rows in 1:many). From the existing matching engine (CRU-307).</td>
+    </tr>
+    <tr>
+      <td class="field">Ledger Tag Status</td>
+      <td class="source">matcher output</td>
+      <td><span class="status direct">Computed</span></td>
+      <td class="note">matched / unmatched / partial. Drives the unmatched-items queue in the UI.</td>
+    </tr>
+    <tr>
+      <td class="field">Account</td>
+      <td class="source">PlaidAccount FK (PlaidTransaction.account_id)</td>
+      <td><span class="status derive">Mapped</span></td>
+      <td class="note">Resolve the <code>PlaidAccount</code> row's <code>account_name</code> to our display name (Operating, Disbursement, etc.) via the per-company account mapping. PlaidAccount FK is nullable on the model - need to handle that case.</td>
+    </tr>
+
+    <tr class="section-head"><td colspan="4">Other PlaidTransaction fields we care about</td></tr>
+    <tr>
+      <td class="field">Pending filter</td>
+      <td class="source">PlaidTransaction.pending</td>
+      <td><span class="status direct">Filter</span></td>
+      <td class="note">BooleanField on the model. Today's CSV flow has no concept of pending. Default plan: exclude <code>pending=true</code> until posted. Open question for the team.</td>
+    </tr>
+    <tr>
+      <td class="field">Constrafor-originated filter</td>
+      <td class="source">PlaidTransaction.is_from_constrafor</td>
+      <td><span class="status direct">Filter</span></td>
+      <td class="note">BooleanField. Flags transactions that originated from inside Constrafor (not client bank activity). Almost certainly need to exclude these from the reconciliation view. Confirm with Evgeniy.</td>
+    </tr>
+    <tr>
+      <td class="field">Check # (if needed)</td>
+      <td class="source">PlaidTransaction.payment_meta (JSON)</td>
+      <td><span class="status derive">TBD</span></td>
+      <td class="note">There is NO discrete <code>check_number</code> column on our <code>PlaidTransaction</code> model - only a <code>payment_meta</code> JSONField that may contain Plaid's <code>check_number</code> if the bank supplied it. For MVP we don't need this (classification + matching don't use check#). If a future use case needs it, read <code>payment_meta["check_number"]</code> first and regex the narrative as fallback.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callouts">
+  <p><b>Summary:</b> 4 visible columns populated from <code>PlaidTransaction</code> (2 pass-through, 2 sign-split). 4 internal columns computed by the existing classification + matching engines. Two filters we need during ingest: <code>pending=true</code> (exclude) and <code>is_from_constrafor=true</code> (exclude).</p>
+  <p><b>Correction versus earlier draft:</b> prior version claimed Plaid gives us <code>check_number</code> as a discrete field. Verified against <code>payments/models/plaid_transaction.py</code> - it doesn't. No such column on our model. If check number matters downstream, it's a <code>payment_meta</code> JSON lookup with narrative regex fallback. For MVP it doesn't matter: classification and matching work off narrative + amount + date.</p>
+  <p><b>Current state caveat:</b> <code>PlaidTransactionsSyncService</code> (CRU-276, shipped Nov 2025) already populates the <code>PlaidTransaction</code> table via cursor-based sync and webhooks. The Bookkeeping Agent for EJ still reads xlsx uploads today. Net-new work is the Bookkeeping Agent reader + filters, not the Plaid sync itself.</p>
+</div>
+</div>
+
+<h2>6. UI filtering mechanism</h2>
+<div class="diagram">
+<svg viewBox="0 0 1140 390" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block">
+  <defs>
+    <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- BEFORE (today) -->
+  <text x="20" y="25" font-size="13" font-weight="700" fill="#8a4a2b">TODAY (Instance dropdown)</text>
+  <rect x="20" y="40" width="520" height="150" rx="8" fill="white" stroke="#d0a88a" stroke-width="1.5"/>
+  <text x="45" y="70" font-size="14" font-weight="600" fill="#333">Transactions</text>
+  <rect x="45" y="90" width="180" height="32" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
+  <text x="55" y="111" font-size="11" fill="#333">Instance:  Oct 2025 upload</text>
+  <text x="215" y="111" font-size="11" fill="#666">&#9662;</text>
+  <rect x="235" y="90" width="120" height="32" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
+  <text x="245" y="111" font-size="11" fill="#333">Account: All</text>
+  <text x="345" y="111" font-size="11" fill="#666">&#9662;</text>
+  <rect x="405" y="90" width="110" height="32" rx="4" fill="white" stroke="#bbb" stroke-width="1"/>
+  <text x="415" y="111" font-size="11" fill="#333">Download</text>
+  <text x="45" y="150" font-size="10" fill="#888">Named "Instance" because each upload = a discrete event the user had to label.</text>
+  <text x="45" y="167" font-size="10" fill="#888">Fine for manual uploads. Breaks down with automated sync - nothing to name.</text>
+
+  <!-- AFTER (proposed) -->
+  <text x="20" y="225" font-size="13" font-weight="700" fill="#2e5a8a">PROPOSED (Date range picker)</text>
+  <rect x="20" y="240" width="720" height="130" rx="8" fill="white" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="45" y="270" font-size="14" font-weight="600" fill="#333">Transactions</text>
+  <text x="610" y="270" font-size="10" fill="#7a8a7a">&#9679; Synced 3 hrs ago</text>
+
+  <!-- Date picker main button -->
+  <rect x="45" y="295" width="200" height="36" rx="4" fill="#eef4fa" stroke="#8fa9c4" stroke-width="1.5"/>
+  <text x="58" y="318" font-size="11" fill="#333" font-weight="600">Last 30 days</text>
+  <text x="148" y="318" font-size="10" fill="#666">Mar 23 - Apr 22</text>
+  <text x="235" y="318" font-size="12" fill="#666">&#9662;</text>
+
+  <!-- Account picker secondary -->
+  <rect x="260" y="295" width="160" height="36" rx="4" fill="#f6f4f0" stroke="#bbb" stroke-width="1"/>
+  <text x="272" y="318" font-size="11" fill="#333">Account: All accounts</text>
+  <text x="410" y="318" font-size="12" fill="#666">&#9662;</text>
+
+  <!-- Download button -->
+  <rect x="550" y="295" width="95" height="36" rx="4" fill="white" stroke="#bbb" stroke-width="1"/>
+  <text x="597" y="318" text-anchor="middle" font-size="11" fill="#333">&#8595; Download</text>
+
+  <!-- Sync now button -->
+  <rect x="655" y="295" width="85" height="36" rx="4" fill="#eef2ef" stroke="#a7bdad" stroke-width="1"/>
+  <text x="697" y="318" text-anchor="middle" font-size="11" fill="#2d5c3a">Sync now</text>
+
+  <text x="45" y="355" font-size="10" fill="#888">Day granularity. Clicking the date button opens preset list + custom calendar inside a popover.</text>
+
+  <!-- Right-side explanation -->
+  <rect x="760" y="240" width="360" height="130" rx="8" fill="#faf7ef" stroke="#d9cfb7" stroke-width="1"/>
+  <text x="780" y="265" font-size="12" font-weight="700" fill="#5c4a23">Why this works</text>
+
+  <text x="780" y="290" font-size="11" fill="#444" font-weight="600">&#8226; One primary filter.</text>
+  <text x="795" y="305" font-size="10" fill="#666">Replaces Instance dropdown.</text>
+
+  <text x="780" y="325" font-size="11" fill="#444" font-weight="600">&#8226; Presets hidden until clicked.</text>
+  <text x="795" y="340" font-size="10" fill="#666">Popover, not inline chips.</text>
+
+  <text x="780" y="360" font-size="11" fill="#444" font-weight="600">&#8226; Download + Sync stay in header.</text>
+</svg>
+<div class="legend">
+  <span><span class="dot" style="background:#eef4fa"></span>Active / selected</span>
+  <span><span class="dot" style="background:#f6f4f0"></span>Secondary control</span>
+  <span><span class="dot" style="background:#eef2ef"></span>Sync action</span>
+</div>
+<div class="callouts">
+  <p><b>Answer to "can someone just hit a date picker and be done with it?"</b> Yes. One primary control: a date range button that opens a preset list + custom calendar. Day granularity, no timestamps. Sync status is a small piece of text elsewhere in the header, not part of the filter. Account filter stays as a secondary dropdown for the case where someone wants to isolate one account.</p>
 </div>
 </div>
 
