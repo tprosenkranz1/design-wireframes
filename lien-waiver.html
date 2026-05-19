@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constrafor Ledger - Lien Waivers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#00257d;
+    --navy-deep:#1a2f5a;
+    --ink:#1a2533;
+    --ink-soft:#5a6573;
+    --bg:#f4f4f5;
+    --card:#ffffff;
+    --border:#e6e6e8;
+    --gold-tx:#9a7400;
+    --gold-dot:#d4a017;
+    --green-bg:#e6f2ed; --green-tx:#02623a;
+    --amber-bg:#fdf3d8; --amber-tx:#8a6a00;
+    --amber-card:#fdf8ec; --amber-card-bd:#efe2bb;
+    --red-bg:#fbeae9; --red-tx:#c3291d;
+    --blue-bg:#eaf4fe; --blue-tx:#1c5696;
+    --neutral-bg:#f0f0f1; --neutral-tx:#5a6573;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Lato',-apple-system,'system-ui','Segoe UI',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    min-height:100vh;
+  }
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:264px;
+    flex:0 0 264px;
+    background:#fff;
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    position:sticky;
+    top:0;
+    overflow-y:auto;
+  }
+  .brand{
+    display:flex;align-items:center;gap:11px;
+    padding:20px 20px 18px;
+  }
+  .brand .logo{
+    width:34px;height:34px;border-radius:9px;
+    background:var(--navy);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:18px;
+  }
+  .brand .name{font-weight:900;font-size:18px;color:var(--ink);line-height:1;}
+  .brand .sub{font-size:9px;letter-spacing:2.5px;color:var(--ink-soft);font-weight:700;margin-top:3px;}
+  .nav{padding:4px 12px 12px;flex:1;}
+  .nav-section{margin-top:14px;}
+  .nav-section-label{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:10.5px;letter-spacing:1.3px;font-weight:900;
+    color:var(--navy);padding:6px 10px 4px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 10px;border-radius:7px;
+    font-size:13.5px;font-weight:700;color:var(--ink);
+    cursor:pointer;margin:1px 0;
+    border-left:3px solid transparent;
+    text-decoration:none;
+  }
+  .nav-item .ic{width:16px;text-align:center;color:var(--ink-soft);font-size:13px;}
+  .nav-item:hover{background:#f6f6f7;}
+  .nav-item.active{
+    background:#fbf6e6;
+    border-left-color:var(--gold-dot);
+  }
+  .nav-item.active .ic{color:var(--gold-tx);}
+  .badge-pill{
+    margin-left:auto;font-size:10.5px;font-weight:900;
+    min-width:18px;height:18px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    padding:0 5px;
+  }
+  .badge-amber{background:#f6e6b8;color:#7a5c00;}
+  .badge-red{background:#f6d2cf;color:#a3271c;}
+  .sidebar-foot{
+    border-top:1px solid var(--border);
+    padding:14px 20px;font-size:11.5px;color:var(--ink-soft);
+  }
+  .sidebar-foot .co{font-weight:900;color:var(--ink);font-size:13px;}
+  .sidebar-foot .sync{display:flex;align-items:center;gap:6px;margin-top:6px;color:#02623a;font-weight:700;}
+  .sidebar-foot .dot{width:7px;height:7px;border-radius:50%;background:#16a34a;}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    display:flex;align-items:center;gap:18px;
+    padding:16px 34px;background:var(--bg);
+    border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:5;
+  }
+  .topbar h2{font-size:18px;font-weight:900;color:var(--ink);}
+  .search{
+    margin-left:auto;width:330px;max-width:38vw;
+    background:#fff;border:1px solid var(--border);border-radius:8px;
+    padding:8px 12px;font-size:12.5px;color:var(--ink-soft);
+    display:flex;align-items:center;gap:8px;
+  }
+  .role-toggle{display:flex;background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .role-toggle span{padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink-soft);}
+  .role-toggle span.on{background:var(--navy);color:#fff;}
+  .avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:#dfe3ea;color:var(--navy-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:12px;
+  }
+  .content{padding:26px 34px 60px;max-width:1280px;}
+
+  /* ---------- PAGE HEADER ---------- */
+  .eyebrow{
+    display:flex;align-items:center;gap:7px;
+    font-size:11px;letter-spacing:1.6px;font-weight:900;color:var(--ink-soft);
+    margin-bottom:9px;
+  }
+  .eyebrow .ed{width:7px;height:7px;border-radius:50%;background:var(--gold-dot);}
+  h1{font-size:31px;font-weight:900;color:var(--navy);letter-spacing:-0.3px;}
+  .lead{margin-top:7px;font-size:14px;color:var(--ink-soft);max-width:760px;line-height:1.5;}
+
+  /* ---------- BANNERS ---------- */
+  .banner{
+    display:flex;align-items:flex-start;gap:11px;
+    padding:13px 16px;border-radius:10px;font-size:13px;line-height:1.5;
+    margin-top:18px;
+  }
+  .banner .bic{font-size:14px;line-height:1.4;flex:0 0 auto;}
+  .banner-green{background:var(--green-bg);color:#1f3d30;border:1px solid #cfe6da;}
+  .banner-blue{background:var(--blue-bg);color:#1d3a52;border:1px solid #d2e5f6;}
+  .ai-pill{
+    display:inline-flex;align-items:center;gap:4px;
+    background:#fff;border:1px solid #d2e5f6;border-radius:5px;
+    padding:1px 6px;font-weight:900;font-size:11px;color:var(--navy);
+    margin-right:2px;
+  }
+  .ai-pill .star{color:var(--gold-dot);}
+  b.hl{color:var(--ink);}
+
+  /* ---------- STAT CARDS ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:20px;
+  }
+  .stat{
+    background:#fff;border:1px solid var(--border);border-radius:12px;
+    padding:15px 16px 16px;
+  }
+  .stat.warn{background:var(--amber-card);border-color:var(--amber-card-bd);}
+  .stat .sl{font-size:10.5px;letter-spacing:1px;font-weight:900;color:var(--ink-soft);}
+  .stat .sv{font-size:27px;font-weight:900;color:var(--navy);margin-top:9px;letter-spacing:-0.5px;}
+  .stat .ss{font-size:11.5px;margin-top:5px;color:var(--ink-soft);font-weight:700;}
+  .stat.warn .ss{color:var(--amber-tx);}
+  .stat .ss.good{color:var(--green-tx);}
+
+  /* ---------- SECTION CARD / TABLE ---------- */
+  .card{
+    background:#fff;border:1px solid var(--border);border-radius:12px;
+    margin-top:22px;overflow:hidden;
+  }
+  .card-head{
+    display:flex;align-items:center;gap:12px;
+    padding:17px 20px;border-bottom:1px solid var(--border);
+  }
+  .card-head h3{font-size:15.5px;font-weight:900;color:var(--ink);}
+  .card-head .sub{font-size:12px;color:var(--ink-soft);font-weight:700;}
+  .card-head .actions{margin-left:auto;display:flex;gap:8px;}
+  .btn{
+    font-family:inherit;font-size:12.5px;font-weight:700;
+    padding:7px 13px;border-radius:7px;cursor:pointer;border:1px solid var(--border);
+    background:#fff;color:var(--ink);
+  }
+  .btn-primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .btn-sm{padding:5px 11px;font-size:11.5px;}
+
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-size:10.5px;letter-spacing:0.7px;font-weight:900;
+    color:var(--ink-soft);padding:11px 14px;border-bottom:1px solid var(--border);
+    background:#fafafa;
+  }
+  tbody td{
+    padding:14px 14px;font-size:13px;border-bottom:1px solid #f0f0f1;
+    vertical-align:middle;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.clickable{cursor:pointer;}
+  tbody tr.clickable:hover{background:#fcfcfd;}
+  .ent{font-weight:900;color:var(--ink);}
+  .muted{color:var(--ink-soft);font-weight:700;}
+  .amt{font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .caret{display:inline-block;width:13px;color:var(--ink-soft);font-size:10px;transition:transform .15s;}
+  tr.open .caret{transform:rotate(90deg);}
+
+  /* ---------- BADGES ---------- */
+  .tag{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:11.5px;font-weight:900;padding:3px 9px;border-radius:20px;white-space:nowrap;
+  }
+  .t-green{background:var(--green-bg);color:var(--green-tx);}
+  .t-amber{background:var(--amber-bg);color:var(--amber-tx);}
+  .t-red{background:var(--red-bg);color:var(--red-tx);}
+  .t-blue{background:var(--blue-bg);color:var(--blue-tx);}
+  .t-neutral{background:var(--neutral-bg);color:var(--neutral-tx);}
+  .pay-held{color:var(--amber-tx);font-weight:900;font-size:12px;}
+  .pay-block{color:var(--red-tx);font-weight:900;font-size:12px;}
+  .pay-clear{color:var(--ink-soft);font-weight:700;font-size:12px;}
+
+  /* ---------- EXPANDED DETAIL ---------- */
+  .detail-row td{background:#fbfbfc;padding:0;border-bottom:1px solid #f0f0f1;}
+  .detail-wrap{display:none;padding:20px 26px 22px;}
+  tr.open + .detail-row .detail-wrap{display:block;}
+  .detail-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:26px;}
+  .detail-title{font-size:11px;letter-spacing:1px;font-weight:900;color:var(--ink-soft);margin-bottom:12px;}
+  .timeline{position:relative;padding-left:20px;}
+  .timeline::before{content:"";position:absolute;left:5px;top:4px;bottom:4px;width:2px;background:var(--border);}
+  .tl-item{position:relative;padding-bottom:14px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{
+    content:"";position:absolute;left:-18px;top:3px;
+    width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--border);
+  }
+  .tl-item.done::before{background:var(--green-tx);border-color:var(--green-tx);}
+  .tl-item.active::before{background:var(--gold-dot);border-color:var(--gold-dot);}
+  .tl-when{font-size:11px;font-weight:900;color:var(--ink-soft);}
+  .tl-what{font-size:12.5px;color:var(--ink);margin-top:2px;line-height:1.45;}
+  .gate-box{
+    background:#fff;border:1px solid var(--amber-card-bd);border-radius:10px;padding:15px 16px;
+  }
+  .gate-box .gh{font-size:12px;font-weight:900;color:var(--amber-tx);display:flex;align-items:center;gap:6px;}
+  .gate-box .grow{display:flex;justify-content:space-between;font-size:12.5px;margin-top:10px;}
+  .gate-box .grow .k{color:var(--ink-soft);font-weight:700;}
+  .gate-box .grow .v{font-weight:900;color:var(--ink);}
+  .gate-box .gnote{font-size:11.5px;color:var(--ink-soft);margin-top:11px;line-height:1.5;border-top:1px solid #f0f0f1;padding-top:10px;}
+  .doc-chip{
+    display:inline-flex;align-items:center;gap:7px;margin-top:12px;
+    background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 11px;
+    font-size:12px;font-weight:700;color:var(--ink);
+  }
+
+  /* ---------- ACTIVITY LOG ---------- */
+  .log-row{display:flex;gap:12px;padding:12px 20px;border-bottom:1px solid #f0f0f1;font-size:12.5px;align-items:center;}
+  .log-row:last-child{border-bottom:none;}
+  .log-time{flex:0 0 118px;color:var(--ink-soft);font-weight:700;font-size:11.5px;}
+  .log-icon{flex:0 0 22px;text-align:center;}
+  .log-text{flex:1;color:var(--ink);line-height:1.45;}
+  .log-text b{font-weight:900;}
+  .log-auto{flex:0 0 auto;}
+  .mini{font-size:10px;font-weight:900;letter-spacing:0.5px;padding:2px 7px;border-radius:4px;}
+  .mini-auto{background:var(--blue-bg);color:var(--blue-tx);}
+  .mini-you{background:var(--neutral-bg);color:var(--neutral-tx);}
+
+  .footnote{margin-top:24px;font-size:11.5px;color:var(--ink-soft);line-height:1.6;}
+</style>
+</head>
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">C</div>
+    <div>
+      <div class="name">Constrafor</div>
+      <div class="sub">LEDGER</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <a class="nav-item"><span class="ic">&#9635;</span> Dashboard</a>
+    <a class="nav-item"><span class="ic">&#10022;</span> AI Review Queue
+      <span class="badge-pill badge-amber">6</span></a>
+
+    <div class="nav-section">
+      <div class="nav-section-label">BILLING <span>&#9650;</span></div>
+      <a class="nav-item"><span class="ic">&#9636;</span> Prime Contracts</a>
+      <a class="nav-item"><span class="ic">&#8635;</span> Change Orders</a>
+      <a class="nav-item"><span class="ic">&#8594;</span> Invoices
+        <span class="badge-pill badge-red">3</span></a>
+      <a class="nav-item"><span class="ic">&#9680;</span> Retainage</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">PAYABLES <span>&#9650;</span></div>
+      <a class="nav-item"><span class="ic">&#8801;</span> Subcontracts &amp; POs</a>
+      <a class="nav-item"><span class="ic">&#8592;</span> Bills
+        <span class="badge-pill badge-red">5</span></a>
+      <a class="nav-item"><span class="ic">&#9638;</span> Materials</a>
+      <a class="nav-item"><span class="ic">$</span> Payroll</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">ACCOUNTING <span>&#9650;</span></div>
+      <a class="nav-item"><span class="ic">&#9638;</span> General Ledger</a>
+      <a class="nav-item"><span class="ic">&#8863;</span> Journal Entries</a>
+      <a class="nav-item"><span class="ic">&#8997;</span> Bank
+        <span class="badge-pill badge-red">4</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">COMPLIANCE <span>&#9650;</span></div>
+      <a class="nav-item"><span class="ic">&#9671;</span> COI Tracker
+        <span class="badge-pill badge-amber">2</span></a>
+      <a class="nav-item active"><span class="ic">&#167;</span> Lien Waivers
+        <span class="badge-pill badge-amber">3</span></a>
+      <a class="nav-item"><span class="ic">&#9634;</span> Certified Payroll</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">REPORTS <span>&#9650;</span></div>
+      <a class="nav-item"><span class="ic">&#9651;</span> WIP Schedule</a>
+      <a class="nav-item"><span class="ic">&#8862;</span> Job Cost</a>
+      <a class="nav-item"><span class="ic">&#128200;</span> Financial Statements</a>
+      <a class="nav-item"><span class="ic">&#9095;</span> Cash Forecast</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">SETTINGS <span>&#9650;</span></div>
+      <a class="nav-item"><span class="ic">&#9085;</span> Directory</a>
+      <a class="nav-item"><span class="ic">&#9939;</span> Data Connectors</a>
+      <a class="nav-item"><span class="ic">&#9881;</span> Company &amp; Preferences</a>
+    </div>
+  </nav>
+
+  <div class="sidebar-foot">
+    <div class="co">Metro Sub LLC</div>
+    <div>Apr 2026 &middot; Accrual basis</div>
+    <div class="sync"><span class="dot"></span> Live sync &mdash; 2 min ago</div>
+  </div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+<div class="main">
+  <div class="topbar">
+    <h2>Lien Waivers</h2>
+    <div class="search"><span>&#9906;</span> Search jobs, vendors, GL codes&hellip;</div>
+    <div class="role-toggle"><span class="on">Owner</span><span>Bookkeeper</span></div>
+    <div class="avatar">RM</div>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow"><span class="ed"></span> COMPLIANCE</div>
+    <h1>Lien Waivers</h1>
+    <p class="lead">Conditional and unconditional waivers - generated, sent, chased, and validated automatically by the Lien Waiver Agent, and gating payment until they clear.</p>
+
+    <!-- banners -->
+    <div class="banner banner-green">
+      <span class="bic">&#10003;</span>
+      <div><b class="hl">&#9733; Powered by the Lien Waiver Agent.</b> Every payment to a sub or supplier triggers the right waiver. The agent picks the state form, pre-fills it from the ledger, sends it, follows up until signed, and verifies what comes back. Payments are auto-held until the conditional waiver clears.</div>
+    </div>
+    <div class="banner banner-blue">
+      <span class="bic">&#9432;</span>
+      <div><span class="ai-pill"><span class="star">&#10022;</span> AI</span> Returned waivers auto-validate at <b class="hl">&#8805;90% confidence</b>. 70-89% routes to the <b class="hl">AI Review Queue</b> as an LW item. Below 70% is rejected and re-sent with a correction note.</div>
+    </div>
+
+    <!-- stat cards -->
+    <div class="stats">
+      <div class="stat">
+        <div class="sl">OPEN REQUIREMENTS</div>
+        <div class="sv">14</div>
+        <div class="ss">Across 5 jobs</div>
+      </div>
+      <div class="stat warn">
+        <div class="sl">AWAITING SIGNATURE</div>
+        <div class="sv">6</div>
+        <div class="ss">2 past chase window</div>
+      </div>
+      <div class="stat warn">
+        <div class="sl">ACTION NEEDED</div>
+        <div class="sv">3</div>
+        <div class="ss">In AI Review Queue</div>
+      </div>
+      <div class="stat warn">
+        <div class="sl">PAYMENTS HELD</div>
+        <div class="sv">$63,400</div>
+        <div class="ss">4 bills gated</div>
+      </div>
+      <div class="stat">
+        <div class="sl">AUTO-VALIDATED</div>
+        <div class="sv">88%</div>
+        <div class="ss good">No human touch (Apr)</div>
+      </div>
+    </div>
+
+    <!-- ============ WAIVER TRACKER ============ -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Waiver Tracker</h3>
+        <span class="sub">&mdash; conditional &amp; unconditional, all active jobs</span>
+        <div class="actions">
+          <button class="btn">Filter</button>
+          <button class="btn btn-primary">+ New requirement</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30px;"></th>
+            <th>SUBCONTRACTOR</th>
+            <th>JOB</th>
+            <th>WAIVER TYPE</th>
+            <th>THROUGH AMT</th>
+            <th>STATE FORM</th>
+            <th>STATUS</th>
+            <th>PAYMENT</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- expandable row -->
+          <tr class="clickable" onclick="toggleRow(this)">
+            <td><span class="caret">&#9654;</span></td>
+            <td class="ent">City Electric Co.</td>
+            <td class="muted">JB-0012 Harbor School</td>
+            <td>Conditional progress</td>
+            <td class="amt">$5,890</td>
+            <td class="muted">TX statutory</td>
+            <td><span class="tag t-amber">&#9679; Chasing &middot; follow-up 2</span></td>
+            <td><span class="pay-held">&#9888; Held</span></td>
+            <td><button class="btn btn-sm" onclick="event.stopPropagation()">Resend</button></td>
+          </tr>
+          <tr class="detail-row">
+            <td colspan="9">
+              <div class="detail-wrap">
+                <div class="detail-grid">
+                  <div>
+                    <div class="detail-title">WAIVER LIFECYCLE &mdash; BL-1141 / SC-11</div>
+                    <div class="timeline">
+                      <div class="tl-item done">
+                        <div class="tl-when">Apr 28</div>
+                        <div class="tl-what">Requirement created &mdash; bill <b>BL-1141</b> moved to <b>Scheduled</b>. Agent determined a conditional progress waiver is required.</div>
+                      </div>
+                      <div class="tl-item done">
+                        <div class="tl-when">Apr 28</div>
+                        <div class="tl-what">Draft generated &mdash; <b>Texas statutory</b> conditional-on-progress form, pre-filled: City Electric Co., JB-0012 Harbor School, $5,890, through May 8.</div>
+                      </div>
+                      <div class="tl-item done">
+                        <div class="tl-when">Apr 28 &middot; 9:02 AM</div>
+                        <div class="tl-what">Sent for e-signature to <b>billing@cityelectric.com</b> (signer on file in Directory).</div>
+                      </div>
+                      <div class="tl-item done">
+                        <div class="tl-when">May 1</div>
+                        <div class="tl-what">Follow-up 1 sent automatically &mdash; no response.</div>
+                      </div>
+                      <div class="tl-item done">
+                        <div class="tl-when">May 5</div>
+                        <div class="tl-what">Follow-up 2 sent automatically &mdash; no response.</div>
+                      </div>
+                      <div class="tl-item active">
+                        <div class="tl-when">Now</div>
+                        <div class="tl-what">Awaiting signature. Next: final chase May 8, then escalate to you.</div>
+                      </div>
+                    </div>
+                    <div class="doc-chip">&#128196; ConditionalProgress_CityElectric_BL-1141.pdf <span class="muted">&middot; staged</span></div>
+                  </div>
+                  <div>
+                    <div class="detail-title">GATED PAYMENT</div>
+                    <div class="gate-box">
+                      <div class="gh">&#9888; Payment held by agent</div>
+                      <div class="grow"><span class="k">Bill</span><span class="v">BL-1141</span></div>
+                      <div class="grow"><span class="k">Vendor</span><span class="v">City Electric Co.</span></div>
+                      <div class="grow"><span class="k">Net due</span><span class="v">$5,890</span></div>
+                      <div class="grow"><span class="k">Due date</span><span class="v">Apr 30 &middot; past due</span></div>
+                      <div class="gnote">This bill will not release in the next batch payment run until the conditional waiver is signed and validated. After it clears the bank, the agent will auto-request the matching unconditional waiver.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td class="ent">Apex Steel</td>
+            <td class="muted">JB-0001 Metro Tower</td>
+            <td>Conditional progress</td>
+            <td class="amt">$18,400</td>
+            <td class="muted">NY by contract</td>
+            <td><span class="tag t-blue">&#10022; In review &middot; 82%</span></td>
+            <td><span class="pay-held">&#9888; Held</span></td>
+            <td><button class="btn btn-sm">Review</button></td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td class="ent">Samuels Plumbing</td>
+            <td class="muted">JB-0009 Riverside</td>
+            <td>Conditional progress</td>
+            <td class="amt">$11,210</td>
+            <td class="muted">CA &sect;8132</td>
+            <td><span class="tag t-neutral">&#9679; Drafted</span></td>
+            <td><span class="pay-held">&#9888; Held</span></td>
+            <td><button class="btn btn-sm btn-primary">Send</button></td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td class="ent">Glassworks Inc.</td>
+            <td class="muted">JB-0001 Metro Tower</td>
+            <td>Conditional progress</td>
+            <td class="amt">$60,000</td>
+            <td class="muted">NY by contract</td>
+            <td><span class="tag t-amber">&#9679; Sent &middot; awaiting signature</span></td>
+            <td><span class="pay-held">&#9888; Held</span></td>
+            <td><button class="btn btn-sm">Resend</button></td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td class="ent">Steel Fab Inc.</td>
+            <td class="muted">JB-0001 Metro Tower</td>
+            <td>Final &middot; cond. + uncond.</td>
+            <td class="amt">$22,000</td>
+            <td class="muted">CA &sect;8136</td>
+            <td><span class="tag t-red">&#128680; Rejected &middot; amount mismatch</span></td>
+            <td><span class="pay-block">&#128680; Blocked</span></td>
+            <td><button class="btn btn-sm">View</button></td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td class="ent">FastConcrete LLC</td>
+            <td class="muted">JB-0009 Riverside</td>
+            <td>Unconditional progress</td>
+            <td class="amt">$48,200</td>
+            <td class="muted">CA &sect;8134</td>
+            <td><span class="tag t-green">&#10003; Validated &middot; auto</span></td>
+            <td><span class="pay-clear">Cleared</span></td>
+            <td><span class="muted">&mdash;</span></td>
+          </tr>
+
+          <tr>
+            <td></td>
+            <td class="ent">MEP Solutions</td>
+            <td class="muted">JB-0001 Metro Tower</td>
+            <td>Unconditional progress</td>
+            <td class="amt">$120,000</td>
+            <td class="muted">NY by contract</td>
+            <td><span class="tag t-green">&#10003; Cycle closed</span></td>
+            <td><span class="pay-clear">Cleared</span></td>
+            <td><span class="muted">&mdash;</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============ DOWN-TIER EXPOSURE ============ -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Down-tier Exposure</h3>
+        <span class="sub">&mdash; lien risk flows up the chain from your subs' suppliers</span>
+        <div class="actions">
+          <button class="btn">Configure threshold</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>SUBCONTRACTOR</th>
+            <th>JOB</th>
+            <th>SUBCONTRACT</th>
+            <th>LOWER-TIER WAIVERS</th>
+            <th>EXPOSURE</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="ent">Steel Fab Inc.</td>
+            <td class="muted">JB-0001 Metro Tower</td>
+            <td class="amt">$220,000</td>
+            <td>3 of 5 suppliers waived</td>
+            <td class="amt">$14,200</td>
+            <td><span class="tag t-amber">&#9888; 2 missing</span></td>
+            <td><button class="btn btn-sm">Request from sub</button></td>
+          </tr>
+          <tr>
+            <td class="ent">MEP Solutions</td>
+            <td class="muted">JB-0001 Metro Tower</td>
+            <td class="amt">$184,000</td>
+            <td>6 of 6 suppliers waived</td>
+            <td class="amt">$0</td>
+            <td><span class="tag t-green">&#10003; Covered</span></td>
+            <td><span class="muted">&mdash;</span></td>
+          </tr>
+          <tr>
+            <td class="ent">Glassworks Inc.</td>
+            <td class="muted">JB-0001 Metro Tower</td>
+            <td class="amt">$180,200</td>
+            <td>1 of 4 suppliers waived</td>
+            <td class="amt">$96,000</td>
+            <td><span class="tag t-red">&#128680; High exposure</span></td>
+            <td><button class="btn btn-sm">Request from sub</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============ AGENT ACTIVITY ============ -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Agent Activity</h3>
+        <span class="sub">&mdash; last 48 hours</span>
+        <div class="actions"><button class="btn">Export</button></div>
+      </div>
+      <div>
+        <div class="log-row">
+          <div class="log-time">Today &middot; 8:14 AM</div>
+          <div class="log-icon">&#10003;</div>
+          <div class="log-text">Auto-validated <b>FastConcrete LLC</b> unconditional progress waiver ($48,200, CA &sect;8134) at 96% confidence. <b>Cycle closed.</b></div>
+          <div class="log-auto"><span class="mini mini-auto">AGENT</span></div>
+        </div>
+        <div class="log-row">
+          <div class="log-time">Today &middot; 7:50 AM</div>
+          <div class="log-icon">&#10022;</div>
+          <div class="log-text">Routed <b>Apex Steel</b> conditional waiver to the <b>AI Review Queue</b> &mdash; through-date unclear (82% confidence).</div>
+          <div class="log-auto"><span class="mini mini-auto">AGENT</span></div>
+        </div>
+        <div class="log-row">
+          <div class="log-time">Yesterday &middot; 4:32 PM</div>
+          <div class="log-icon">&#128680;</div>
+          <div class="log-text">Rejected <b>Steel Fab Inc.</b> final waiver &mdash; amount on form ($19,800) does not match retainage release ($22,000). Corrected request re-sent. Payment <b>blocked</b>.</div>
+          <div class="log-auto"><span class="mini mini-auto">AGENT</span></div>
+        </div>
+        <div class="log-row">
+          <div class="log-time">Yesterday &middot; 2:11 PM</div>
+          <div class="log-icon">&#9993;</div>
+          <div class="log-text">Sent follow-up 2 to <b>City Electric Co.</b> for conditional progress waiver on BL-1141.</div>
+          <div class="log-auto"><span class="mini mini-auto">AGENT</span></div>
+        </div>
+        <div class="log-row">
+          <div class="log-time">Yesterday &middot; 11:05 AM</div>
+          <div class="log-icon">&#9636;</div>
+          <div class="log-text"><b>Ralph M.</b> approved the <b>MEP Solutions</b> unconditional waiver from the review queue. Payment released.</div>
+          <div class="log-auto"><span class="mini mini-you">YOU</span></div>
+        </div>
+        <div class="log-row">
+          <div class="log-time">Yesterday &middot; 9:40 AM</div>
+          <div class="log-icon">&#167;</div>
+          <div class="log-text">Generated conditional progress waiver for <b>Samuels Plumbing</b> (CA &sect;8132) &mdash; staged, awaiting your send or auto-send window.</div>
+          <div class="log-auto"><span class="mini mini-auto">AGENT</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="footnote">
+      Mockup &mdash; Lien Waiver Collection Agent layered into Constrafor Ledger. Click the <b>City Electric Co.</b> row to expand the waiver lifecycle and gated-payment detail.
+      Sample data only. Figures and form references are illustrative.
+    </p>
+  </div>
+</div>
+
+<script>
+  function toggleRow(row){
+    row.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
