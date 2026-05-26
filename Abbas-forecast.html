@@ -136,7 +136,7 @@
         <div class="chart-title">Cash balance forecast · weekly</div>
         <div class="chart-legend">
           <span class="legend-dot" style="--legend-color:#34a853">Forecast</span>
-          <span class="legend-dot" style="--legend-color:rgba(52,168,83,0.18)">67% confidence band</span>
+          <span class="legend-dot" style="--legend-color:rgba(52,168,83,0.18)">50% confidence band</span>
         </div>
       </div>
       <div class="chart-body"><canvas id="forecastChart"></canvas></div>
@@ -184,6 +184,10 @@ const wk = DATA.weekly;
 const anchorDate = DATA.forecast_start_date;
 const xlabels = [anchorDate, ...wk.end_dates];
 
+// Confidence band level. Model outputs a 67% (~±1σ) band; scale to a tighter 50% (~±0.674σ).
+const CI_SCALE = 0.674;        // 50% CI as a fraction of the 67% band
+const CI_LABEL = "50%";
+
 function weeklyClosings(opening){
   const c=[]; let run=opening;
   for(const n of wk.net){ run+=n; c.push(run); }
@@ -192,8 +196,8 @@ function weeklyClosings(opening){
 function buildSeries(opening){
   const closings = weeklyClosings(opening);
   const fc = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c}))];
-  const up = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c+wk.upper_off[i]}))];
-  const lo = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c-wk.lower_off[i]}))];
+  const up = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c+wk.upper_off[i]*CI_SCALE}))];
+  const lo = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c-wk.lower_off[i]*CI_SCALE}))];
   return {fc,up,lo,closings};
 }
 let S = buildSeries(DATA.opening_balance);
@@ -213,7 +217,7 @@ const chart=new Chart(ctx,{
         label:c=>{ if(c.dataset.label==="Upper"||c.dataset.label==="Lower") return null; return "Forecast: "+fmtMoney(c.parsed.y); },
         afterbody:items=>{
           const i=items[0].dataIndex; if(i===0) return "Opening balance";
-          const wi=i-1; return ["67% CI: "+fmtMoney(S.lo[i].y)+" – "+fmtMoney(S.up[i].y)];
+          const wi=i-1; return [CI_LABEL+" CI: "+fmtMoney(S.lo[i].y)+" – "+fmtMoney(S.up[i].y)];
         }
       }}},
     scales:{
