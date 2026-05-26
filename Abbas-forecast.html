@@ -6,29 +6,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#f7f8fa;
-    --card:#ffffff;
-    --border:#e6e8ec;
-    --text:#1a1d23;
-    --muted:#6b7280;
-    --muted-2:#9aa0a6;
-    --accent:#3478f6;
-    --accent-soft:#e8f0fe;
-    --accent-2:#34a853;
-    --warn:#f59e0b;
-    --danger:#dc2626;
-    --shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
-    --shadow-lg:0 4px 14px rgba(16,24,40,.08);
-    --radius:10px;
-    --sidebar-w:228px;
+    --bg:#f7f8fa;--card:#ffffff;--border:#e6e8ec;--text:#1a1d23;--muted:#6b7280;--muted-2:#9aa0a6;
+    --accent:#3478f6;--accent-soft:#e8f0fe;--accent-2:#34a853;--warn:#f59e0b;--danger:#dc2626;
+    --shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);--radius:10px;--sidebar-w:228px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
-    background:var(--bg);color:var(--text);font-size:14px;line-height:1.45;
-    -webkit-font-smoothing:antialiased;
-  }
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
   .layout{display:flex;min-height:100vh}
   .sidebar{width:var(--sidebar-w);background:#fff;border-right:1px solid var(--border);padding:20px 14px;flex-shrink:0}
   .brand{display:flex;align-items:center;gap:10px;padding:6px 8px;margin-bottom:24px;font-weight:600;font-size:15px}
@@ -42,62 +26,23 @@
   .nav-item:hover{background:#f1f3f5;color:var(--text)}
   .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
   .nav-icon{width:16px;height:16px;display:inline-block;background:currentColor;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;opacity:.85}
-  .icon-home{-webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2v-9z'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2v-9z'/></svg>")}
   .icon-chart{-webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><line x1='4' y1='20' x2='20' y2='20'/><polyline points='4,16 9,11 13,14 20,7'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><line x1='4' y1='20' x2='20' y2='20'/><polyline points='4,16 9,11 13,14 20,7'/></svg>")}
   .icon-list{-webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><line x1='8' y1='6' x2='21' y2='6'/><line x1='8' y1='12' x2='21' y2='12'/><line x1='8' y1='18' x2='21' y2='18'/><circle cx='4' cy='6' r='1.2'/><circle cx='4' cy='12' r='1.2'/><circle cx='4' cy='18' r='1.2'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><line x1='8' y1='6' x2='21' y2='6'/><line x1='8' y1='12' x2='21' y2='12'/><line x1='8' y1='18' x2='21' y2='18'/><circle cx='4' cy='6' r='1.2'/><circle cx='4' cy='12' r='1.2'/><circle cx='4' cy='18' r='1.2'/></svg>")}
-  .icon-bill{-webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><rect x='3' y='4' width='18' height='16' rx='2'/><line x1='7' y1='9' x2='17' y2='9'/><line x1='7' y1='13' x2='17' y2='13'/><line x1='7' y1='17' x2='13' y2='17'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><rect x='3' y='4' width='18' height='16' rx='2'/><line x1='7' y1='9' x2='17' y2='9'/><line x1='7' y1='13' x2='17' y2='13'/><line x1='7' y1='17' x2='13' y2='17'/></svg>")}
-  .icon-folder{-webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z'/></svg>")}
-  .icon-cube{-webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M12 2L3 7l9 5 9-5-9-5zM3 7v10l9 5V12M21 7v10l-9 5'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M12 2L3 7l9 5 9-5-9-5zM3 7v10l9 5V12M21 7v10l-9 5'/></svg>")}
-  .icon-users{-webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'/></svg>")}
   .main{flex:1;padding:28px 36px 60px;max-width:1340px}
   .topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:24px;flex-wrap:wrap}
   .topbar-left h1{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
   .opening-balance{font-size:30px;font-weight:600;color:var(--text);letter-spacing:-.01em;display:flex;align-items:center;gap:6px}
-  .editable-wrap{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:4px 10px 4px 8px;border-radius:8px;
-    background:#f6f8fb;
-    border:1px dashed #c5cad3;
-    cursor:text;
-    transition:background .15s,border-color .15s,box-shadow .15s;
-    position:relative;
-  }
-  .editable-wrap:hover{background:#eef2f8;border-color:var(--accent);}
+  .editable-wrap{display:inline-flex;align-items:center;gap:8px;padding:4px 10px 4px 8px;border-radius:8px;background:#f6f8fb;border:1px dashed #c5cad3;cursor:text;transition:background .15s,border-color .15s,box-shadow .15s;position:relative}
+  .editable-wrap:hover{background:#eef2f8;border-color:var(--accent)}
   .editable-wrap:focus-within{background:#fff;border-style:solid;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .opening-balance .currency{color:var(--muted);font-weight:500}
-  .opening-balance input{
-    font:inherit;color:inherit;letter-spacing:inherit;
-    border:none;outline:none;background:transparent;padding:0;margin:0;
-    width:auto;min-width:200px;
-    font-variant-numeric:tabular-nums;
-  }
-  .edit-pencil{
-    width:18px;height:18px;color:var(--muted);
-    flex-shrink:0;transition:color .15s;
-  }
-  .editable-wrap:hover .edit-pencil,
-  .editable-wrap:focus-within .edit-pencil{color:var(--accent)}
-  .edit-tooltip{
-    position:absolute;top:100%;left:0;margin-top:6px;
-    font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0;
-    background:#1a1d23;color:#fff;
-    padding:4px 8px;border-radius:5px;
-    white-space:nowrap;opacity:0;pointer-events:none;
-    transform:translateY(-4px);
-    transition:opacity .2s,transform .2s;
-  }
+  .opening-balance input{font:inherit;color:inherit;letter-spacing:inherit;border:none;outline:none;background:transparent;padding:0;margin:0;width:auto;min-width:200px;font-variant-numeric:tabular-nums}
+  .edit-pencil{width:18px;height:18px;color:var(--muted);flex-shrink:0;transition:color .15s}
+  .editable-wrap:hover .edit-pencil,.editable-wrap:focus-within .edit-pencil{color:var(--accent)}
+  .edit-tooltip{position:absolute;top:100%;left:0;margin-top:6px;font-size:11px;font-weight:500;letter-spacing:0;background:#1a1d23;color:#fff;padding:4px 8px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transform:translateY(-4px);transition:opacity .2s,transform .2s}
   .editable-wrap:hover .edit-tooltip{opacity:1;transform:translateY(0)}
   .editable-wrap:focus-within .edit-tooltip{opacity:0}
-  .edit-tooltip::before{
-    content:"";position:absolute;bottom:100%;left:14px;
-    border:4px solid transparent;border-bottom-color:#1a1d23;
-  }
-  .topbar-right{display:flex;gap:8px;align-items:center}
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s}
-  .btn:hover{background:#f6f7f9}
-  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .btn-primary:hover{background:#2a64d4}
-  .section-title{font-size:20px;font-weight:600;margin-bottom:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  .section-title{font-size:20px;font-weight:600;margin-bottom:16px;letter-spacing:-.01em}
   .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px}
   .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
   .kpi-label{font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
@@ -111,7 +56,7 @@
   .filter-input{padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#fff;color:var(--text);min-width:180px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'><polyline points='6,9 12,15 18,9'/></svg>");background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:32px}
   .chart-card{padding:0;overflow:hidden}
   .chart-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
-  .chart-title{font-size:16px;font-weight:600;letter-spacing:-.005em}
+  .chart-title{font-size:16px;font-weight:600}
   .chart-legend{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--muted)}
   .legend-dot{display:inline-flex;align-items:center;gap:6px}
   .legend-dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--legend-color)}
@@ -130,8 +75,7 @@
   tr.closing td{font-weight:700;background:#eaf2fe;color:#1c4ec1;font-size:14px}
   tr.opening td{font-weight:600;background:#f8f9fb;color:var(--muted)}
   tr.net td{font-weight:600}
-  .pos{color:var(--accent-2)}
-  .neg{color:var(--danger)}
+  .pos{color:var(--accent-2)}.neg{color:var(--danger)}
   .entity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
   .entity-card{padding:18px}
   .entity-card h3{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
@@ -140,32 +84,25 @@
   .entity-bars{display:flex;flex-direction:column;gap:6px}
   .entity-bar-row{display:grid;grid-template-columns:60px 1fr 80px;align-items:center;gap:10px;font-size:12px}
   .entity-bar-row .label{color:var(--muted)}
-  .entity-bar-row .value{text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
-  .entity-bar{height:6px;background:#eef0f3;border-radius:3px;overflow:hidden;position:relative}
-  .entity-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+  .entity-bar-row .value{text-align:right;font-variant-numeric:tabular-nums}
+  .entity-bar{height:6px;background:#eef0f3;border-radius:3px;overflow:hidden}
+  .entity-bar-fill{height:100%;border-radius:3px}
   @media(max-width:880px){.sidebar{display:none}.main{padding:18px}}
 </style>
 </head>
 <body>
-
 <div class="layout">
-
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">EJ</div>
-      <div class="brand-text">
-        <div class="brand-name">E-J Electric</div>
-        <div class="brand-platform">on Cru.ai</div>
-      </div>
+      <div class="brand-text"><div class="brand-name">E-J Electric</div><div class="brand-platform">on Cru.ai</div></div>
     </div>
     <nav class="nav">
       <a class="nav-item active"><span class="nav-icon icon-chart"></span>Cash Forecast Report</a>
       <a class="nav-item"><span class="nav-icon icon-list"></span>Transactions</a>
     </nav>
   </aside>
-
   <main class="main">
-
     <div class="topbar">
       <div class="topbar-left">
         <h1>Opening Cash balance</h1>
@@ -173,856 +110,184 @@
           <label class="editable-wrap" for="opening-balance-input">
             <span class="currency">$</span>
             <input id="opening-balance-input" type="text" value="15,000,000" inputmode="numeric" />
-            <svg class="edit-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 20h9"/>
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
+            <svg class="edit-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <span class="edit-tooltip">Click to edit · try 14M, 18.5M, etc.</span>
           </label>
         </div>
       </div>
     </div>
 
-    <!-- KPI cards -->
     <div class="row">
-      <div class="card">
-        <div class="kpi-label">4-BW Net Change</div>
-        <div class="kpi-value kpi-pos" id="kpi-net">+$17.47M</div>
-        <div class="kpi-sub">Operating cash flow</div>
-      </div>
-      <div class="card">
-        <div class="kpi-label">Closing Balance · BW 4</div>
-        <div class="kpi-value" id="kpi-bal">$32.47M</div>
-        <div class="kpi-sub" id="kpi-bal-sub">Projected end of Jul 12</div>
-      </div>
-      <div class="card">
-        <div class="kpi-label">AR Inflow (4-BW)</div>
-        <div class="kpi-value" id="kpi-ar">$152.27M</div>
-        <div class="kpi-sub">EXANTR + model blend (70/30)</div>
-      </div>
-      <div class="card">
-        <div class="kpi-label">Outflows (4-BW)</div>
-        <div class="kpi-value kpi-neg" id="kpi-out">−$134.80M</div>
-        <div class="kpi-sub">AP + Tax + Payroll + Other</div>
-      </div>
+      <div class="card"><div class="kpi-label">8-Week Net Change</div><div class="kpi-value kpi-pos" id="kpi-net">+$9.5M</div><div class="kpi-sub">Operating cash flow</div></div>
+      <div class="card"><div class="kpi-label">Closing Balance · Wk 8</div><div class="kpi-value" id="kpi-bal">$24.5M</div><div class="kpi-sub" id="kpi-bal-sub">Projected end of Jul 19</div></div>
+      <div class="card"><div class="kpi-label">AR Inflow (8-Week)</div><div class="kpi-value" id="kpi-ar">$149.3M</div><div class="kpi-sub">80% AR report + 20% model</div></div>
+      <div class="card"><div class="kpi-label">Outflows (8-Week)</div><div class="kpi-value kpi-neg" id="kpi-out">−$139.7M</div><div class="kpi-sub">AP + Tax + Payroll + Other</div></div>
     </div>
 
     <h2 class="section-title">Cash flow</h2>
-
     <div class="filter-bar">
-      <div class="filter-group">
-        <label class="filter-label">Account</label>
-        <select class="filter-input"><option>E-J Parent</option><option>EE</option><option>EJ</option><option>EN</option><option>NE</option><option>RI</option><option>TD</option></select>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">Date range</label>
-        <select class="filter-input">
-          <option id="date-range-default" selected>05/18/2026 - 07/12/2026</option>
-        </select>
-      </div>
+      <div class="filter-group"><label class="filter-label">Account</label><select class="filter-input"><option>E-J Parent</option><option>EE</option><option>EJ</option><option>EN</option><option>NE</option><option>RI</option><option>TD</option></select></div>
+      <div class="filter-group"><label class="filter-label">Date range</label><select class="filter-input"><option id="date-range-default" selected>05/25/2026 - 07/19/2026</option></select></div>
+      <div class="filter-group"><label class="filter-label">Cadence</label><select class="filter-input"><option>Weekly</option></select></div>
     </div>
 
-    <!-- Chart -->
     <div class="card chart-card" style="margin-bottom:24px">
       <div class="chart-header">
-        <div class="chart-title">Cash balance forecast</div>
+        <div class="chart-title">Cash balance forecast · weekly</div>
         <div class="chart-legend">
           <span class="legend-dot" style="--legend-color:#34a853">Forecast</span>
-          <span class="legend-dot" style="--legend-color:rgba(52,168,83,0.18)">Confidence band</span>
+          <span class="legend-dot" style="--legend-color:rgba(52,168,83,0.18)">67% confidence band</span>
         </div>
       </div>
       <div class="chart-body"><canvas id="forecastChart"></canvas></div>
-      <div class="last-updated">
-        <span><span class="pulse"></span>Last updated: just now</span>
-        <span id="hover-detail">Hover the chart for biweek detail</span>
-      </div>
+      <div class="last-updated"><span><span class="pulse"></span>Last updated: just now</span><span id="hover-detail">8 weekly periods · May 25 - Jul 19, 2026</span></div>
     </div>
 
-    <!-- Component breakdown table -->
     <div class="card" style="margin-bottom:24px">
-      <div class="chart-header">
-        <div class="chart-title">Forecast breakdown</div>
-        <div style="font-size:12px;color:var(--muted)">By biweek · 4 components</div>
-      </div>
+      <div class="chart-header"><div class="chart-title">Forecast breakdown</div><div style="font-size:12px;color:var(--muted)">By biweek · 4 components</div></div>
       <div id="table-bu"></div>
     </div>
 
-    <!-- Per-entity breakdown -->
     <h2 class="section-title">Per-entity breakdown</h2>
     <div class="entity-grid" id="entity-grid"></div>
 
-    <!-- Backtest section (model accuracy) -->
     <h2 class="section-title" style="margin-top:32px">Model accuracy</h2>
     <div class="row" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:14px">
-      <div class="card">
-        <div class="kpi-label">MASE Score</div>
-        <div class="kpi-value kpi-pos" id="bt-mase">0.19</div>
-        <div class="kpi-sub">vs naive forecast (lower = better; <1.0 means better than naive)</div>
-      </div>
-      <div class="card">
-        <div class="kpi-label">Test Period</div>
-        <div class="kpi-value" style="font-size:18px">5 biweeks</div>
-        <div class="kpi-sub">Jan 11 - Mar 21, 2026 (holdout)</div>
-      </div>
+      <div class="card"><div class="kpi-label">MASE Score</div><div class="kpi-value kpi-pos" id="bt-mase">0.34</div><div class="kpi-sub">vs naive forecast (lower = better; &lt;1.0 beats naive)</div></div>
+      <div class="card"><div class="kpi-label">Test Period</div><div class="kpi-value" style="font-size:18px">5 biweeks</div><div class="kpi-sub">Holdout where actuals are known</div></div>
     </div>
-
     <div class="card chart-card" style="margin-bottom:24px">
-      <div class="chart-header">
-        <div class="chart-title">Backtest · Actual vs Forecast</div>
-        <div class="chart-legend">
-          <span class="legend-dot" style="--legend-color:#1a1d23">Actual</span>
-          <span class="legend-dot" style="--legend-color:#34a853">Forecast</span>
-        </div>
-      </div>
+      <div class="chart-header"><div class="chart-title">Backtest · Actual vs Forecast</div><div class="chart-legend"><span class="legend-dot" style="--legend-color:#1a1d23">Actual</span><span class="legend-dot" style="--legend-color:#34a853">Forecast</span></div></div>
       <div class="chart-body" style="height:300px"><canvas id="backtestChart"></canvas></div>
     </div>
-
   </main>
-
 </div>
 
 <script>
-const DATA = {
-  "opening_balance": 15000000,
-  "forecast_start_date": "2026-05-18",
-  "fc_dates": [
-    "2026-05-18",
-    "2026-05-31",
-    "2026-06-14",
-    "2026-06-28",
-    "2026-07-12"
-  ],
-  "biweeks": [
-    {
-      "label": "BW 1",
-      "range": "May 18 - May 31",
-      "short": "May 18"
-    },
-    {
-      "label": "BW 2",
-      "range": "Jun 01 - Jun 14",
-      "short": "Jun 01"
-    },
-    {
-      "label": "BW 3",
-      "range": "Jun 15 - Jun 28",
-      "short": "Jun 15"
-    },
-    {
-      "label": "BW 4",
-      "range": "Jun 29 - Jul 12",
-      "short": "Jun 29"
-    }
-  ],
-  "td": {
-    "ar": [
-      46159025.49422695,
-      35685710.24516419,
-      32911459.31384005,
-      37514663.36449298
-    ],
-    "ap": [
-      20071083.56895225,
-      18652251.5227749,
-      18358023.05884252,
-      15997972.54011702
-    ],
-    "tax": [
-      5579516.27806301,
-      5262035.208622193,
-      14054992.23376677,
-      3594721.342937384
-    ],
-    "payroll": [
-      10497623.03824987,
-      6319804.750382191,
-      7471149.371171826,
-      6751304.901725302
-    ],
-    "other_oh": [
-      674405.4436015493,
-      2499908.551095798,
-      674924.4099485053,
-      2500063.298545737
-    ],
-    "net": [
-      9336397.165360266,
-      2951710.2122891103,
-      -7647629.759889572,
-      8670601.28116754
-    ],
-    "balance": [
-      15000000,
-      24336397.165360264,
-      27288107.377649374,
-      19640477.6177598,
-      28311078.898927342
-    ]
-  },
-  "bu": {
-    "ar": [
-      46159025.49422695,
-      35685710.24516419,
-      32911459.31384005,
-      37514663.36449298
-    ],
-    "ap": [
-      18827112.09959128,
-      17526892.60895691,
-      17045998.29943341,
-      15385938.40125733
-    ],
-    "tax": [
-      5595008.257959601,
-      5212018.524839266,
-      13790775.60541273,
-      3662575.490479547
-    ],
-    "payroll": [
-      9635513.687029524,
-      6959614.744766942,
-      7652617.397065957,
-      7160521.551771669
-    ],
-    "other_oh": [
-      945253.3964041088,
-      2258261.409022036,
-      875944.9079189801,
-      2261977.781352631
-    ],
-    "net": [
-      11156138.053242434,
-      3728922.957579037,
-      -6453876.895991026,
-      9043650.139631808
-    ],
-    "balance": [
-      15000000,
-      26156138.053242434,
-      29885061.01082147,
-      23431184.11483044,
-      32474834.25446225
-    ]
-  },
-  "entities": {
-    "EE": {
-      "ar": [
-        2096948.350267741,
-        1621158.385072248,
-        1495127.541669878,
-        1704245.499352275
-      ],
-      "ap": [
-        442658.5039954413,
-        427583.5349380208,
-        411100.9068126891,
-        362538.2580057253
-      ],
-      "tax": [
-        235231.6967784607,
-        221578.3756039901,
-        578829.3769001074,
-        156076.177233379
-      ],
-      "payroll": [
-        562379.3421560351,
-        405780.1750108614,
-        430796.0174652238,
-        425448.8674751719
-      ],
-      "other_oh": [
-        23898.16681401736,
-        57638.00605796236,
-        20287.58106282203,
-        58692.29186373595
-      ]
-    },
-    "EJ": {
-      "ar": [
-        32690077.55953228,
-        25272817.68171892,
-        23308077.80379551,
-        26568092.41257484
-      ],
-      "ap": [
-        16149782.7639646,
-        14776723.59662204,
-        14590438.70105032,
-        13013710.2167595
-      ],
-      "tax": [
-        4001903.290054379,
-        3718218.326683567,
-        9890005.320606058,
-        2605311.851128621
-      ],
-      "payroll": [
-        6122724.447559306,
-        4487994.901017301,
-        4833496.523466758,
-        4458863.542035209
-      ],
-      "other_oh": [
-        556583.7750455075,
-        1415168.557779438,
-        538903.2162770521,
-        1408152.541963363
-      ]
-    },
-    "EN": {
-      "ar": [
-        2885835.793312704,
-        2231050.132290177,
-        2057605.555600671,
-        2345395.232073752
-      ],
-      "ap": [
-        220511.582509751,
-        201178.8860794595,
-        195673.8722406464,
-        169891.095046513
-      ],
-      "tax": [
-        305196.2834217233,
-        285456.7388139571,
-        762677.6284304211,
-        201801.9120982707
-      ],
-      "payroll": [
-        507500.5246882389,
-        333859.4968603483,
-        395073.1780497804,
-        365327.6107934264
-      ],
-      "other_oh": [
-        56563.26985643187,
-        137486.1888047723,
-        49438.4143951336,
-        140012.5372307965
-      ]
-    },
-    "NE": {
-      "ar": [
-        1210473.947949303,
-        935821.8052337638,
-        863069.8690417408,
-        983784.2584975356
-      ],
-      "ap": [
-        238241.4654623449,
-        227777.4641462922,
-        215910.0074568482,
-        188673.4398375613
-      ],
-      "tax": [
-        158960.6214102288,
-        147889.8045768157,
-        379805.8809269896,
-        105243.1843673623
-      ],
-      "payroll": [
-        288126.157596093,
-        211370.5630693069,
-        248016.3097872026,
-        246185.4687841461
-      ],
-      "other_oh": [
-        45653.62735985636,
-        88199.94297084447,
-        49129.281224393,
-        88186.13745160903
-      ]
-    },
-    "RI": {
-      "ar": [
-        3366297.016155421,
-        2602496.448559285,
-        2400175.179160934,
-        2735878.801465645
-      ],
-      "ap": [
-        631527.7788066072,
-        588261.7839969522,
-        578798.6484844737,
-        502864.197255956
-      ],
-      "tax": [
-        390651.9057525282,
-        369382.8331550166,
-        959083.4624953193,
-        260260.1770080431
-      ],
-      "payroll": [
-        855497.0423023883,
-        575695.9357578773,
-        670475.201317727,
-        648855.9777782254
-      ],
-      "other_oh": [
-        90721.68470574295,
-        215268.1217490315,
-        66963.86516695253,
-        213868.2091730016
-      ]
-    },
-    "TD": {
-      "ar": [
-        3909392.827009499,
-        3022365.792289799,
-        2787403.364571314,
-        3177267.160528929
-      ],
-      "ap": [
-        1144390.00485253,
-        1305367.343174151,
-        1054076.163388429,
-        1148261.194352071
-      ],
-      "tax": [
-        503064.46054228,
-        469492.4460059187,
-        1220373.936053837,
-        333882.1886438699
-      ],
-      "payroll": [
-        1299286.172727461,
-        944913.6730512462,
-        1074760.166979265,
-        1015840.084905491
-      ],
-      "other_oh": [
-        171832.8726225528,
-        344500.5916599875,
-        151222.5497926268,
-        353066.063670125
-      ]
-    }
-  },
-  "history": [
-    {
-      "date": "2025-12-14",
-      "delta": 3333660.78,
-      "ar": 43468511.3,
-      "ap": 20202872.7,
-      "payroll": 7239120.36,
-      "tax": 9860721.2,
-      "other_oh": 2832136.26
-    },
-    {
-      "date": "2025-12-28",
-      "delta": -11124227.25,
-      "ar": 30869516.14,
-      "ap": 32662434.28,
-      "payroll": 5052308.76,
-      "tax": 3080860.87,
-      "other_oh": 1198139.48
-    },
-    {
-      "date": "2026-01-11",
-      "delta": 22008930.83,
-      "ar": 67430572.19,
-      "ap": 29660076.22,
-      "payroll": 11539291.74,
-      "tax": 4128509.46,
-      "other_oh": 93763.94
-    },
-    {
-      "date": "2026-01-25",
-      "delta": -3244052.5,
-      "ar": 46490589.69,
-      "ap": 34722103.59,
-      "payroll": 6698174.34,
-      "tax": 4784585.72,
-      "other_oh": 3529778.54
-    },
-    {
-      "date": "2026-02-08",
-      "delta": 4911903.62,
-      "ar": 51118539.76,
-      "ap": 32640898.81,
-      "payroll": 7663203.29,
-      "tax": 5022084.95,
-      "other_oh": 880449.09
-    },
-    {
-      "date": "2026-02-22",
-      "delta": 19924568.65,
-      "ar": 59336523.9,
-      "ap": 25161146.36,
-      "payroll": 7171755.78,
-      "tax": 4288311.26,
-      "other_oh": 2790741.85
-    },
-    {
-      "date": "2026-03-08",
-      "delta": -28198711.81,
-      "ar": 34834117.37,
-      "ap": 25620721.77,
-      "payroll": 18320079.08,
-      "tax": 18987757.89,
-      "other_oh": 104270.44
-    },
-    {
-      "date": "2026-03-22",
-      "delta": 6146445.63,
-      "ar": 30714848.96,
-      "ap": 15345640.09,
-      "payroll": 4224262.35,
-      "tax": 2487145.29,
-      "other_oh": 2511355.6
-    }
-  ],
-  "backtest": {
-    "labels": [
-      "BW 1\nJan 11 - Jan 24",
-      "BW 2\nJan 25 - Feb 07",
-      "BW 3\nFeb 08 - Feb 21",
-      "BW 4\nFeb 22 - Mar 07",
-      "BW 5\nMar 08 - Mar 21 *"
-    ],
-    "actual_net": [
-      22008930.83,
-      -3244052.5,
-      4911903.62,
-      19924568.65,
-      -28198711.81
-    ],
-    "forecast_net": [
-      20985796.37661802,
-      124604.61755948188,
-      4756382.895274218,
-      12202101.238644019,
-      -12817242.456428297
-    ],
-    "mae": 5530249.812118988,
-    "mase": 0.2291265794373627
-  }
-};
-
-// Currency formatters
+const DATA = {"opening_balance": 15000000, "forecast_start_date": "2026-05-25", "weekly": {"labels": ["Wk 1 May 25 - May 31", "Wk 2 Jun 01 - Jun 07", "Wk 3 Jun 08 - Jun 14", "Wk 4 Jun 15 - Jun 21", "Wk 5 Jun 22 - Jun 28", "Wk 6 Jun 29 - Jul 05", "Wk 7 Jul 06 - Jul 12", "Wk 8 Jul 13 - Jul 19"], "end_dates": ["2026-05-31", "2026-06-07", "2026-06-14", "2026-06-21", "2026-06-28", "2026-07-05", "2026-07-12", "2026-07-19"], "short": ["May 25", "Jun 01", "Jun 08", "Jun 15", "Jun 22", "Jun 29", "Jul 06", "Jul 13"], "net": [-260529.0, 4848017.0, 315669.0, 596908.0, -2162549.0, -2468878.0, 3571857.0, 5072511.0], "upper_off": [12924254.0, 18277656.0, 19386381.0, 19386381.0, 19386381.0, 19386381.0, 19386381.0, 19386381.0], "lower_off": [12924254.0, 18277655.0, 19386381.0, 19386381.0, 19386381.0, 19386381.0, 19386381.0, 19386381.0]}, "biweeks": [{"label": "BW 1", "range": "May 25 - Jun 07", "short": "May 25"}, {"label": "BW 2", "range": "Jun 08 - Jun 21", "short": "Jun 08"}, {"label": "BW 3", "range": "Jun 22 - Jul 05", "short": "Jun 22"}, {"label": "BW 4", "range": "Jul 06 - Jul 19", "short": "Jul 06"}], "bu": {"ar": [41402236.83482598, 34283129.10629459, 35963937.09263252, 37602884.047959], "ap": [20063204.63503585, 18908954.42755162, 18394298.09417913, 16112426.21668896], "tax": [5579516.27806301, 5641884.855998595, 14054992.23376678, 3594721.342937383], "payroll": [10497623.03824987, 6319804.750382191, 7471149.371171825, 6751304.901725303], "other_oh": [674405.4436015491, 2499908.551095798, 674924.4099485053, 2500063.298545737], "net": [4587487.439875698, 912576.5212663845, -4631427.016433723, 8644368.288061615]}, "entities": {"EE": {"ar": [1890392.789456429, 1565340.064139448, 1642084.40311104, 1716917.401120573], "ap": [538554.292334225, 505264.3786453578, 491439.2855409792, 431650.9729336884], "tax": [238492.286622833, 243771.1285591582, 609232.7260567548, 158736.2989056019], "payroll": [610374.3390768596, 369817.5167460308, 453629.2957701827, 414702.6490290176], "other_oh": [17803.60404656782, 71049.17374736912, 16943.99012201763, 70983.6985621078]}, "EJ": {"ar": [29301999.7910833, 24263525.80702415, 25453100.06749255, 26613047.62139322], "ap": [16956623.93786656, 16049222.32993589, 15554274.22933953, 13671762.97681019], "tax": [3964099.820483413, 4019240.258294303, 9994176.024632735, 2538502.727983036], "payroll": [6782482.14309399, 3925273.223275208, 4672726.733057348, 4272086.043073674], "other_oh": [380690.348015586, 1479730.567653537, 371138.5960654514, 1478265.346245191]}, "EN": {"ar": [2565526.998475177, 2124385.058355716, 2228537.843274222, 2330096.671598731], "ap": [256652.9113882239, 241559.2677391249, 234505.9666018597, 205922.119203147], "tax": [309259.1852993077, 315975.8195184895, 789975.7564319613, 203693.2992984276], "payroll": [525405.7592552681, 327316.0527598577, 384648.6370628829, 347908.285953649], "other_oh": [42954.3821007864, 167661.7861641079, 42015.48950132579, 168186.518147677]}, "NE": {"ar": [1100317.484568678, 911118.0763463177, 955787.7018776283, 999344.8168813614], "ap": [282069.3401424759, 263821.2718851325, 256085.8988064742, 225140.2989954556], "tax": [159871.28225142, 156833.8050127181, 395283.4904882147, 104554.6241466404], "payroll": [314924.5133814812, 181570.0268368668, 216066.3530237189, 216154.8436893335], "other_oh": [42490.40557529459, 109679.9674489211, 60909.33154993761, 108270.7510678043]}, "RI": {"ar": [2997287.385041385, 2481904.318358161, 2603585.294055828, 2722235.768269334], "ap": [758258.2313271725, 714884.325037742, 693435.8147802969, 609619.8467031892], "tax": [401561.1997339141, 399471.7908416002, 1000143.189298611, 256146.3356167228], "payroll": [893646.5419067818, 581492.190326217, 676977.7886089907, 623752.0731414217], "other_oh": [61947.98488688084, 241941.666597858, 60265.90746056726, 241902.7508891197]}, "TD": {"ar": [3546712.386201001, 2936855.782070794, 3080841.782821262, 3221241.768695776], "ap": [1271045.921977195, 1134202.85430837, 1164556.899109989, 968330.0020432891], "tax": [506232.5036721216, 506592.0537723266, 1266181.046858498, 333088.0569869548], "payroll": [1370789.741535493, 934335.7404380101, 1067100.563648702, 876701.0068382076], "other_oh": [128518.7189764336, 429845.3894840056, 123651.0952492056, 432454.233633837]}}, "backtest": {"labels": ["BW 1\nJan 11 - Jan 24", "BW 2\nJan 25 - Feb 07", "BW 3\nFeb 08 - Feb 21", "BW 4\nFeb 22 - Mar 07", "BW 5\nMar 08 - Mar 21 *"], "actual_net": [22008930.83, -3244052.5, 4911903.62, 19924568.65, -28198711.81], "forecast_net": [20502838.651838075, 3941212.264648143, 10963093.885182908, 19118309.37378428, -3222210.7948175366], "mae": 8105061.499878231, "mase": 0.3358049058700647}};
 const fmtMoney = n => "$" + Math.round(n).toLocaleString();
-const fmtMoneyM = n => {
-  const sign = n < 0 ? "−" : "";
-  const abs = Math.abs(n);
-  if (abs >= 1e6) return sign + "$" + (abs/1e6).toFixed(2) + "M";
-  if (abs >= 1e3) return sign + "$" + (abs/1e3).toFixed(0) + "K";
-  return sign + "$" + abs.toFixed(0);
-};
-const fmtSigned = n => (n >= 0 ? "+" : "−") + "$" + Math.abs(Math.round(n)).toLocaleString();
+const fmtM = n => { const s=n<0?"−":""; const a=Math.abs(n); if(a>=1e6) return s+"$"+(a/1e6).toFixed(2)+"M"; if(a>=1e3) return s+"$"+(a/1e3).toFixed(0)+"K"; return s+"$"+a.toFixed(0); };
+const fmtSigned = n => (n>=0?"+":"−")+"$"+Math.abs(Math.round(n)).toLocaleString();
 
-// ── Net flow stays constant; balances depend on opening ──────────
+// ---- static KPIs (independent of opening) ----
 const arTotal = DATA.bu.ar.reduce((a,b)=>a+b,0);
-const outTotal =
-  DATA.bu.ap.reduce((a,b)=>a+b,0) +
-  DATA.bu.tax.reduce((a,b)=>a+b,0) +
-  DATA.bu.payroll.reduce((a,b)=>a+b,0) +
-  DATA.bu.other_oh.reduce((a,b)=>a+b,0);
-const buNetTotal = DATA.bu.net.reduce((a,b)=>a+b,0);
+const outTotal = DATA.bu.ap.reduce((a,b)=>a+b,0)+DATA.bu.tax.reduce((a,b)=>a+b,0)+DATA.bu.payroll.reduce((a,b)=>a+b,0)+DATA.bu.other_oh.reduce((a,b)=>a+b,0);
+const netTotal = DATA.weekly.net.reduce((a,b)=>a+b,0);
+document.getElementById("kpi-net").textContent = fmtSigned(netTotal);
+document.getElementById("kpi-ar").textContent = fmtM(arTotal);
+document.getElementById("kpi-out").textContent = "−"+fmtM(outTotal).replace("−","");
+document.getElementById("kpi-bal-sub").textContent = "Projected end of " + DATA.weekly.short[7];
 
-// Static KPIs (don't change with opening balance)
-document.getElementById("kpi-net").textContent = fmtSigned(buNetTotal);
-document.getElementById("kpi-ar").textContent = fmtMoneyM(arTotal);
-document.getElementById("kpi-out").textContent = "−" + fmtMoneyM(outTotal).replace("−","");
+// ---- weekly chart ----
+const wk = DATA.weekly;
+// anchor point: forecast start (opening). x label = forecast_start_date
+const anchorDate = DATA.forecast_start_date;
+const xlabels = [anchorDate, ...wk.end_dates];
 
-// Closing balance subtitle - reflect last biweek's end date dynamically
-if (DATA.biweeks && DATA.biweeks.length){
-  const lastBW = DATA.biweeks[DATA.biweeks.length-1];
-  const endStr = (lastBW.range || "").split(" - ")[1] || "BW 4";
-  const subEl = document.getElementById("kpi-bal-sub");
-  if (subEl) subEl.textContent = "Projected end of " + endStr;
+function weeklyClosings(opening){
+  const c=[]; let run=opening;
+  for(const n of wk.net){ run+=n; c.push(run); }
+  return c;
 }
-
-// Recompute balance series from a given opening
-function recomputeBalances(opening){
-  const bal = [opening];
-  for (const n of DATA.bu.net) bal.push(bal[bal.length-1] + n);
-  return bal;
+function buildSeries(opening){
+  const closings = weeklyClosings(opening);
+  const fc = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c}))];
+  const up = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c+wk.upper_off[i]}))];
+  const lo = [{x:anchorDate,y:opening}, ...closings.map((c,i)=>({x:wk.end_dates[i],y:c-wk.lower_off[i]}))];
+  return {fc,up,lo,closings};
 }
+let S = buildSeries(DATA.opening_balance);
 
-// ── Build chart data (forecast period only) ───────────────────────
-const fcDates = ["2026-05-18","2026-05-31","2026-06-14","2026-06-28","2026-07-12"];
-
-function confBand(balances){
-  let upper=[], lower=[];
-  let cumStd = 0;
-  for (let i=0;i<balances.length;i++){
-    if (i===0){upper.push(balances[i]); lower.push(balances[i]); continue}
-    const change = balances[i] - balances[i-1];
-    cumStd += Math.abs(change) * 0.15;
-    upper.push(balances[i] + cumStd);
-    lower.push(balances[i] - cumStd);
-  }
-  return {upper, lower};
-}
-
-function buildChartSeries(balances){
-  const band = confBand(balances);
-  return {
-    points: balances.map((b,i)=>({x: fcDates[i], y: b})),
-    upper: band.upper.map((y,i)=>({x: fcDates[i], y})),
-    lower: band.lower.map((y,i)=>({x: fcDates[i], y})),
-  };
-}
-let series = buildChartSeries(DATA.bu.balance);
-const allLabels = fcDates;
-
-// Set the date-range dropdown to the forecast window
-function fmtUS(s){
-  const [y,m,d] = s.split("-");
-  return `${m}/${d}/${y}`;
-}
-document.getElementById("date-range-default").textContent =
-  `${fmtUS(fcDates[0])} - ${fmtUS(fcDates[fcDates.length-1])}`;
-
-// ── Render chart ───────────────────────────────────────────────────
-const ctx = document.getElementById("forecastChart").getContext("2d");
-const chart = new Chart(ctx, {
+const ctx=document.getElementById("forecastChart").getContext("2d");
+const chart=new Chart(ctx,{
   type:"line",
-  data:{
-    labels: allLabels,
-    datasets:[
-      {label:"Confidence-upper", data: series.upper, borderColor:"transparent", backgroundColor:"rgba(52,168,83,0.14)", pointRadius:0, fill:"+1", tension:0.25, order:5},
-      {label:"Confidence-lower", data: series.lower, borderColor:"transparent", backgroundColor:"transparent", pointRadius:0, fill:false, tension:0.25, order:5},
-      {label:"Forecast", data: series.points, borderColor:"#34a853", backgroundColor:"#34a853", borderDash:[6,4], pointRadius:4, pointHoverRadius:6, tension:0.25, order:1},
-    ],
-  },
-  options:{
-    responsive:true,
-    maintainAspectRatio:false,
-    interaction:{intersect:false,mode:"nearest",axis:"x"},
-    plugins:{
-      legend:{display:false},
-      tooltip:{
-        backgroundColor:"#1a1d23",
-        titleFont:{size:12,weight:"600"},
-        bodyFont:{size:13},
-        padding:12,
-        cornerRadius:8,
-        displayColors:true,
-        boxPadding:4,
-        callbacks:{
-          title: items => {
-            const d = new Date(items[0].label + "T00:00:00");
-            return d.toLocaleDateString("en-US",{month:"short",day:"2-digit",year:"numeric"});
-          },
-          label: ctx => {
-            if (ctx.dataset.label.startsWith("Confidence")) return null;
-            return `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}`;
-          }
+  data:{labels:xlabels,datasets:[
+    {label:"Upper",data:S.up,borderColor:"transparent",backgroundColor:"rgba(52,168,83,0.16)",pointRadius:0,fill:"+1",tension:0.3,order:5},
+    {label:"Lower",data:S.lo,borderColor:"transparent",backgroundColor:"transparent",pointRadius:0,fill:false,tension:0.3,order:5},
+    {label:"Forecast",data:S.fc,borderColor:"#34a853",backgroundColor:"#34a853",borderDash:[6,4],pointRadius:4,pointHoverRadius:6,tension:0.3,order:1},
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:"nearest",axis:"x"},
+    plugins:{legend:{display:false},tooltip:{backgroundColor:"#1a1d23",padding:12,cornerRadius:8,
+      callbacks:{
+        title:items=>{const d=new Date(items[0].label+"T00:00:00");return d.toLocaleDateString("en-US",{month:"short",day:"2-digit",year:"numeric"});},
+        label:c=>{ if(c.dataset.label==="Upper"||c.dataset.label==="Lower") return null; return "Forecast: "+fmtMoney(c.parsed.y); },
+        afterbody:items=>{
+          const i=items[0].dataIndex; if(i===0) return "Opening balance";
+          const wi=i-1; return ["67% CI: "+fmtMoney(S.lo[i].y)+" – "+fmtMoney(S.up[i].y)];
         }
-      },
-    },
+      }}},
     scales:{
-      x:{
-        type:"category",
-        grid:{display:false},
-        ticks:{
-          color:"#9aa0a6",
-          font:{size:11},
-          maxRotation:0,
-          callback:function(v){
-            const d = new Date(this.getLabelForValue(v) + "T00:00:00");
-            return d.toLocaleDateString("en-US",{month:"short",day:"2-digit"});
-          }
-        },
-      },
-      y:{
-        grid:{color:"#eef0f3"},
-        ticks:{
-          color:"#9aa0a6",
-          font:{size:11},
-          callback:v => "$"+(v/1e6).toFixed(0)+"M",
-        },
-      },
-    },
-  }
+      x:{type:"category",grid:{display:false},ticks:{color:"#9aa0a6",font:{size:11},maxRotation:0,callback:function(v){const d=new Date(this.getLabelForValue(v)+"T00:00:00");return d.toLocaleDateString("en-US",{month:"short",day:"2-digit"});}}},
+      y:{grid:{color:"#eef0f3"},ticks:{color:"#9aa0a6",font:{size:11},callback:v=>(v<0?"−":"")+"$"+Math.abs(v/1e6).toFixed(0)+"M"}}
+    }}
 });
 
-// ── Forecast breakdown table (Bottom Up) ──────────────────────────
-function renderTable(data, container){
-  const labels = DATA.biweeks.map(b => `${b.label}<div style="font-weight:400;color:var(--muted);font-size:11px">${b.range}</div>`);
-  const total = arr => arr.reduce((a,b)=>a+b,0);
-  const outflows = data.ar.map((_,i) => data.ap[i]+data.tax[i]+data.payroll[i]+data.other_oh[i]);
-  const nets = data.ar.map((_,i) => data.ar[i] - outflows[i]);
-  const balance = [DATA.opening_balance];
-  for (const n of nets) balance.push(balance[balance.length-1] + n);
-
-  const rows = [];
+// ---- breakdown table (biweekly) ----
+function renderTable(d,container){
+  const labels=DATA.biweeks.map(b=>`${b.label}<div style="font-weight:400;color:var(--muted);font-size:11px">${b.range}</div>`);
+  const tot=a=>a.reduce((x,y)=>x+y,0);
+  const out=d.ar.map((_,i)=>d.ap[i]+d.tax[i]+d.payroll[i]+d.other_oh[i]);
+  const nets=d.ar.map((_,i)=>d.ar[i]-out[i]);
+  const bal=[DATA.opening_balance]; for(const n of nets) bal.push(bal[bal.length-1]+n);
+  const rows=[];
   rows.push(`<tr class="opening"><td>Opening Cash Balance</td><td>${fmtMoney(DATA.opening_balance)}</td><td></td><td></td><td></td><td>${fmtMoney(DATA.opening_balance)}</td></tr>`);
   rows.push(`<tr class="section-row"><td colspan="6">Inflows</td></tr>`);
-  rows.push(`<tr class="indent"><td>AR</td>${data.ar.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(total(data.ar))}</td></tr>`);
-  rows.push(`<tr class="total"><td>Total Inflows</td>${data.ar.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(total(data.ar))}</td></tr>`);
+  rows.push(`<tr class="indent"><td>AR</td>${d.ar.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(tot(d.ar))}</td></tr>`);
+  rows.push(`<tr class="total"><td>Total Inflows</td>${d.ar.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(tot(d.ar))}</td></tr>`);
   rows.push(`<tr class="section-row"><td colspan="6">Outflows</td></tr>`);
-  rows.push(`<tr class="indent"><td>AP</td>${data.ap.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(total(data.ap))}</td></tr>`);
-  rows.push(`<tr class="indent"><td>Tax Payment</td>${data.tax.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(total(data.tax))}</td></tr>`);
-  rows.push(`<tr class="indent"><td>Payroll</td>${data.payroll.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(total(data.payroll))}</td></tr>`);
-  rows.push(`<tr class="indent"><td>Other OH</td>${data.other_oh.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(total(data.other_oh))}</td></tr>`);
-  rows.push(`<tr class="total"><td>Total Outflows</td>${outflows.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(total(outflows))}</td></tr>`);
-  rows.push(`<tr class="net"><td>Net Change in Operating Cash</td>${nets.map(v=>`<td class="${v>=0?'pos':'neg'}">${fmtSigned(v)}</td>`).join("")}<td class="${total(nets)>=0?'pos':'neg'}">${fmtSigned(total(nets))}</td></tr>`);
-  rows.push(`<tr class="closing"><td>Closing Cash Balance</td>${balance.slice(1).map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(balance[balance.length-1])}</td></tr>`);
-
-  container.innerHTML = `<table>
-    <thead><tr><th>Component</th>${labels.map(l=>`<th>${l}</th>`).join("")}<th>4-BW Total</th></tr></thead>
-    <tbody>${rows.join("")}</tbody></table>`;
+  rows.push(`<tr class="indent"><td>AP</td>${d.ap.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(tot(d.ap))}</td></tr>`);
+  rows.push(`<tr class="indent"><td>Tax Payment</td>${d.tax.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(tot(d.tax))}</td></tr>`);
+  rows.push(`<tr class="indent"><td>Payroll</td>${d.payroll.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(tot(d.payroll))}</td></tr>`);
+  rows.push(`<tr class="indent"><td>Other OH</td>${d.other_oh.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(tot(d.other_oh))}</td></tr>`);
+  rows.push(`<tr class="total"><td>Total Outflows</td>${out.map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(tot(out))}</td></tr>`);
+  rows.push(`<tr class="net"><td>Net Change</td>${nets.map(v=>`<td class="${v>=0?'pos':'neg'}">${fmtSigned(v)}</td>`).join("")}<td class="${tot(nets)>=0?'pos':'neg'}">${fmtSigned(tot(nets))}</td></tr>`);
+  rows.push(`<tr class="closing"><td>Closing Cash Balance</td>${bal.slice(1).map(v=>`<td>${fmtMoney(v)}</td>`).join("")}<td>${fmtMoney(bal[bal.length-1])}</td></tr>`);
+  container.innerHTML=`<table><thead><tr><th>Component</th>${labels.map(l=>`<th>${l}</th>`).join("")}<th>8-Wk Total</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
 }
 renderTable(DATA.bu, document.getElementById("table-bu"));
 
-// ── Editable opening balance: recompute everything on change ──────
-function updateForOpening(newOpening){
-  DATA.opening_balance = newOpening;
-  const balances = recomputeBalances(newOpening);
-  DATA.bu.balance = balances;
-
-  // KPI: closing balance
-  document.getElementById("kpi-bal").textContent = fmtMoneyM(balances[4]);
-
-  // Chart: rebuild series
-  series = buildChartSeries(balances);
-  chart.data.datasets[0].data = series.upper;
-  chart.data.datasets[1].data = series.lower;
-  chart.data.datasets[2].data = series.points;
-  chart.update();
-
-  // Forecast breakdown table
-  renderTable(DATA.bu, document.getElementById("table-bu"));
-}
-
-// Parse string like "15,000,000" or "$15M" or "14250000" -> number
-function parseMoney(s){
-  if (typeof s === "number") return s;
-  s = String(s).trim().replace(/[$,\s]/g,"");
-  if (!s) return NaN;
-  let mult = 1;
-  if (/m$/i.test(s)){mult = 1e6; s = s.replace(/m$/i,"");}
-  else if (/k$/i.test(s)){mult = 1e3; s = s.replace(/k$/i,"");}
-  const n = parseFloat(s);
-  return isNaN(n) ? NaN : n * mult;
-}
-
-const oInput = document.getElementById("opening-balance-input");
-function commitOpening(){
-  const n = parseMoney(oInput.value);
-  if (!isNaN(n) && n >= 0) {
-    updateForOpening(n);
-    oInput.value = Math.round(n).toLocaleString("en-US");
-  } else {
-    oInput.value = Math.round(DATA.opening_balance).toLocaleString("en-US");
-  }
-}
-oInput.addEventListener("blur", commitOpening);
-oInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") {e.preventDefault(); oInput.blur();}
-  if (e.key === "Escape"){oInput.value = Math.round(DATA.opening_balance).toLocaleString("en-US"); oInput.blur();}
+// ---- per-entity cards ----
+const enames={EE:"E-J Engineering",EJ:"E-J Electric",EN:"E-J Energy",NE:"NE",RI:"Rossi",TD:"TD"};
+const grid=document.getElementById("entity-grid");
+Object.entries(DATA.entities).forEach(([code,e])=>{
+  const tAR=e.ar.reduce((a,b)=>a+b,0),tAP=e.ap.reduce((a,b)=>a+b,0),tTax=e.tax.reduce((a,b)=>a+b,0),tPay=e.payroll.reduce((a,b)=>a+b,0),tOth=e.other_oh.reduce((a,b)=>a+b,0);
+  const net=tAR-(tAP+tTax+tPay+tOth); const mx=Math.max(tAR,tAP+tTax+tPay+tOth);
+  const comps=[{l:"AR (in)",v:tAR,c:"#34a853"},{l:"AP",v:tAP,c:"#dc2626"},{l:"Tax",v:tTax,c:"#f59e0b"},{l:"Payroll",v:tPay,c:"#9333ea"},{l:"Other",v:tOth,c:"#6b7280"}];
+  const card=document.createElement("div");card.className="card entity-card";
+  card.innerHTML=`<h3>${code} · ${enames[code]||code}</h3><div class="entity-net ${net>=0?'kpi-pos':'kpi-neg'}">${fmtSigned(net)}</div><div class="entity-sub">8-week net change</div><div class="entity-bars">${comps.map(c=>`<div class="entity-bar-row"><span class="label">${c.l}</span><div class="entity-bar"><div class="entity-bar-fill" style="width:${(c.v/mx*100).toFixed(0)}%;background:${c.c}"></div></div><span class="value">${fmtM(c.v)}</span></div>`).join("")}</div>`;
+  grid.appendChild(card);
 });
-oInput.addEventListener("focus", () => oInput.select());
 
-// ── Backtest chart ────────────────────────────────────────────────
-if (DATA.backtest) {
-  document.getElementById("bt-mase").textContent = DATA.backtest.mase.toFixed(2);
-
-  const btCtx = document.getElementById("backtestChart").getContext("2d");
-  const btLabels = DATA.backtest.labels;
-  new Chart(btCtx, {
+// ---- backtest chart ----
+if(DATA.backtest){
+  document.getElementById("bt-mase").textContent=DATA.backtest.mase.toFixed(2);
+  new Chart(document.getElementById("backtestChart").getContext("2d"),{
     type:"line",
-    data:{
-      labels: btLabels,
-      datasets:[
-        {
-          label:"Actual",
-          data: DATA.backtest.actual_net,
-          borderColor:"#1a1d23",
-          backgroundColor:"#1a1d23",
-          pointRadius:5,
-          pointHoverRadius:7,
-          tension:0.25,
-          borderWidth:2.5,
-        },
-        {
-          label:"Forecast",
-          data: DATA.backtest.forecast_net,
-          borderColor:"#34a853",
-          backgroundColor:"#34a853",
-          borderDash:[6,4],
-          pointRadius:5,
-          pointHoverRadius:7,
-          tension:0.25,
-          borderWidth:2.5,
-        },
-      ],
-    },
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      interaction:{intersect:false,mode:"nearest",axis:"x"},
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:"#1a1d23",
-          titleFont:{size:12,weight:"600"},
-          bodyFont:{size:13},
-          padding:12,
-          cornerRadius:8,
-          callbacks:{
-            label: ctx => `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}`
-          }
-        },
-      },
-      scales:{
-        x:{
-          type:"category",
-          grid:{display:false},
-          ticks:{color:"#9aa0a6",font:{size:11},maxRotation:0,
-            callback:function(v){
-              const lbl = this.getLabelForValue(v);
-              return lbl.split("\n")[1] || lbl;
-            }},
-        },
-        y:{
-          grid:{color:"#eef0f3"},
-          ticks:{color:"#9aa0a6",font:{size:11},
-            callback:v => (v>=0?"+":"−") + "$" + Math.abs(v/1e6).toFixed(0)+"M"},
-        },
-      },
-    }
+    data:{labels:DATA.backtest.labels.map(l=>(l||"").split("\n").join(" ")),datasets:[
+      {label:"Actual",data:DATA.backtest.actual_net,borderColor:"#1a1d23",backgroundColor:"#1a1d23",pointRadius:5,pointHoverRadius:7,tension:0.25,borderWidth:2.5},
+      {label:"Forecast",data:DATA.backtest.forecast_net,borderColor:"#34a853",backgroundColor:"#34a853",borderDash:[6,4],pointRadius:5,pointHoverRadius:7,tension:0.25,borderWidth:2.5},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:"nearest",axis:"x"},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:"#1a1d23",padding:12,cornerRadius:8,callbacks:{label:c=>`${c.dataset.label}: ${fmtMoney(c.parsed.y)}`}}},
+      scales:{x:{grid:{display:false},ticks:{color:"#9aa0a6",font:{size:11},maxRotation:0,callback:function(v){const l=this.getLabelForValue(v);const p=l.split(" ");return p.slice(0,2).join(" ");}}},
+        y:{grid:{color:"#eef0f3"},ticks:{color:"#9aa0a6",font:{size:11},callback:v=>(v>=0?"+":"−")+"$"+Math.abs(v/1e6).toFixed(0)+"M"}}}}
   });
 }
 
-// ── Per-entity cards ──────────────────────────────────────────────
-const entityNames = {EE:"E-J Engineering",EJ:"E-J Electric",EN:"E-J Energy",NE:"NE",RI:"Rossi",TD:"TD"};
-const grid = document.getElementById("entity-grid");
-Object.entries(DATA.entities).forEach(([code, e]) => {
-  const totalAR = e.ar.reduce((a,b)=>a+b,0);
-  const totalAP = e.ap.reduce((a,b)=>a+b,0);
-  const totalTax = e.tax.reduce((a,b)=>a+b,0);
-  const totalPay = e.payroll.reduce((a,b)=>a+b,0);
-  const totalOther = e.other_oh.reduce((a,b)=>a+b,0);
-  const totalOut = totalAP + totalTax + totalPay + totalOther;
-  const net = totalAR - totalOut;
-  const maxVal = Math.max(totalAR, totalOut);
-  const components = [
-    {label:"AR (in)",v:totalAR,color:"#34a853"},
-    {label:"AP",v:totalAP,color:"#dc2626"},
-    {label:"Tax",v:totalTax,color:"#f59e0b"},
-    {label:"Payroll",v:totalPay,color:"#9333ea"},
-    {label:"Other",v:totalOther,color:"#6b7280"},
-  ];
-  const card = document.createElement("div");
-  card.className = "card entity-card";
-  card.innerHTML = `
-    <h3>${code} · ${entityNames[code]||code}</h3>
-    <div class="entity-net ${net>=0?'kpi-pos':'kpi-neg'}">${fmtSigned(net)}</div>
-    <div class="entity-sub">4-biweek net change</div>
-    <div class="entity-bars">
-      ${components.map(c => `
-        <div class="entity-bar-row">
-          <span class="label">${c.label}</span>
-          <div class="entity-bar"><div class="entity-bar-fill" style="width:${(c.v/maxVal*100).toFixed(0)}%;background:${c.color}"></div></div>
-          <span class="value">${fmtMoneyM(c.v)}</span>
-        </div>`).join("")}
-    </div>
-  `;
-  grid.appendChild(card);
-});
+// ---- editable opening balance ----
+function parseMoney(s){ if(typeof s==="number") return s; s=String(s).trim().replace(/[$,\s]/g,""); if(!s) return NaN; let m=1; if(/m$/i.test(s)){m=1e6;s=s.replace(/m$/i,"");}else if(/k$/i.test(s)){m=1e3;s=s.replace(/k$/i,"");} const n=parseFloat(s); return isNaN(n)?NaN:n*m; }
+function update(opening){
+  DATA.opening_balance=opening;
+  S=buildSeries(opening);
+  chart.data.datasets[0].data=S.up; chart.data.datasets[1].data=S.lo; chart.data.datasets[2].data=S.fc; chart.update();
+  document.getElementById("kpi-bal").textContent=fmtM(S.closings[7]);
+  renderTable(DATA.bu, document.getElementById("table-bu"));
+}
+const oi=document.getElementById("opening-balance-input");
+function commit(){ const n=parseMoney(oi.value); if(!isNaN(n)&&n>=0){ update(n); oi.value=Math.round(n).toLocaleString("en-US"); } else { oi.value=Math.round(DATA.opening_balance).toLocaleString("en-US"); } }
+oi.addEventListener("blur",commit);
+oi.addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault();oi.blur();} if(e.key==="Escape"){oi.value=Math.round(DATA.opening_balance).toLocaleString("en-US");oi.blur();} });
+oi.addEventListener("focus",()=>oi.select());
 </script>
 </body>
 </html>
