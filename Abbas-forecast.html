@@ -184,8 +184,9 @@ const wk = DATA.weekly;
 const anchorDate = DATA.forecast_start_date;
 const xlabels = [anchorDate, ...wk.end_dates];
 
-// Confidence band level. Model outputs a 67% (~±1σ) band; scale to a tighter 50% (~±0.674σ).
-const CI_SCALE = 0.674;        // 50% CI as a fraction of the 67% band
+// Confidence band level. Model outputs a 67% (±0.974σ) band; rescale to a true 50% PI (±0.674σ).
+// Factor = z(50%)/z(67%) = 0.6745 / 0.9741 = 0.69241.
+const CI_SCALE = 0.69241;      // true 50% PI as a fraction of the stored 67% band
 const CI_LABEL = "50%";
 
 function weeklyClosings(opening){
