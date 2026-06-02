@@ -214,7 +214,7 @@ document.getElementById("openingCard").addEventListener("click",function(){
   if(this.querySelector("input")) return; const cur=opening;
   this.querySelector(".v").innerHTML='<input id="oin" type="text" value="'+cur+'"/>';
   const inp=document.getElementById("oin"); inp.focus(); inp.select();
-  const commit=()=>{let raw=inp.value.replace(/[^0-9.]/g,""); let val=parseFloat(raw); if(!isNaN(val)&&val>0){ if(val<100000) val=val*1e6; opening=Math.round(val);} render();};
+  const commit=()=>{let raw=inp.value.replace(/[^0-9.]/g,""); let val=parseFloat(raw); if(!isNaN(val)&&val>=0){ if(val>0&&val<100000) val=val*1e6; opening=Math.round(val);} render();};
   inp.addEventListener("blur",commit); inp.addEventListener("keydown",e=>{ if(e.key==="Enter") inp.blur(); if(e.key==="Escape") render();});
 });
 render(); drawBt();
