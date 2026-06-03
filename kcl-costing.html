@@ -169,6 +169,29 @@
   .var-pos{color:var(--green);font-weight:700}
   .var-neg{color:var(--red);font-weight:700}
 
+  /* expandable category row */
+  .cat-cell{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+  .caret{width:16px;height:16px;color:var(--n50);transition:transform .15s;flex-shrink:0}
+  .caret.open{transform:rotate(90deg)}
+  tr.cat-row:hover{background:var(--gray50)}
+  tr.detail-row>td{padding:0;background:var(--gray50);border-bottom:1px solid var(--border)}
+  .detail-wrap{padding:6px 14px 14px 39px}
+  .detail-wrap table{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .detail-wrap thead th{background:#fff;font-size:11px;padding:8px 12px}
+  .detail-wrap tbody td{padding:9px 12px;font-size:13px}
+  .detail-wrap tbody tr:last-child td{border-bottom:none}
+  .detail-empty{padding:10px 0;color:var(--n50);font-style:italic;font-size:13px}
+  .src-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--n50);font-weight:700;margin-left:6px}
+  .li-meta{display:block;font-size:11px;color:var(--gray400);font-weight:700;margin-top:3px}
+  .li-input{font-family:inherit;font-size:13px;color:var(--n100);border:1px solid var(--border);border-radius:6px;padding:5px 8px;outline:none;background:#fff}
+  .li-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,37,125,.10)}
+  .li-input::placeholder{color:var(--n40)}
+  .li-desc{width:100%;min-width:160px;font-weight:700}
+  .li-qty{width:60px;text-align:right}
+  .li-um{width:66px}
+  .detail-wrap .field{height:30px}
+  .detail-wrap .field input{width:84px}
+
   .chart-box{position:relative;height:280px}
   .legend{display:flex;flex-direction:column;gap:14px}
   .legend-item{display:flex;align-items:flex-start;gap:9px}
@@ -243,16 +266,17 @@
         <div class="prof-grid">
           <!-- left: cost stack -->
           <div class="prof-left">
-            <div class="prof-section-label">Cost to date (auto-captured)</div>
-            <div class="stat-row"><div class="lbl">Materials</div><div class="val" id="pMaterials"></div></div>
+            <div class="prof-section-label">Cost to date <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray400)">· auto-rolled up from line items below</span></div>
+            <div class="stat-row"><div class="lbl">Materials <small id="matNote"></small></div><div class="val" id="pMaterials"></div></div>
             <div class="stat-row"><div class="lbl">Labor <small>from payroll emails</small></div><div class="val" id="pLabor"></div></div>
             <div class="stat-row"><div class="lbl">Equipment</div><div class="val" id="pEquipment"></div></div>
-            <div class="stat-row"><div class="lbl">Subcontractor</div><div class="val" id="pSub"></div></div>
-            <div class="stat-row"><div class="lbl">Other <small>permits, vig</small></div><div class="val" id="pOther"></div></div>
+            <div class="stat-row"><div class="lbl">Subcontractor</div><div class="val" id="pSubcontractor"></div></div>
+            <div class="stat-row"><div class="lbl">Other <small>permits, fees</small></div><div class="val" id="pOther"></div></div>
             <div class="stat-row total"><div class="lbl">Total direct cost</div><div class="val" id="pDirect"></div></div>
             <div class="stat-row"><div class="lbl">Overhead applied <small id="ohSub"></small></div><div class="val" id="pOverhead"></div></div>
             <div class="stat-row total"><div class="lbl">Break-even price</div><div class="val" id="pBreakeven"></div></div>
-            <div class="stat-row"><div class="lbl">Contract value <small>awarded bid</small></div><div class="val" id="pContract"></div></div>
+            <div class="stat-row"><div class="lbl">Selling price <small id="sellNote"></small></div><div class="val" id="pSelling"></div></div>
+            <div class="stat-row total"><div class="lbl">Profit <small id="profitNote"></small></div><div class="val" id="pProfit"></div></div>
           </div>
           <!-- right: controls + headline -->
           <div class="prof-right">
@@ -282,13 +306,14 @@
               <input type="range" id="stRange" min="0" max="12" step="0.25" value="7" oninput="syncFromRange('st')">
             </div>
             <div class="control">
-              <label><span>Contract value <span style="font-weight:400;color:var(--gray400)">· awarded bid</span></span>
-                <span class="field cv"><span class="affix">$</span><input type="number" id="contractNum" min="0" step="100" oninput="setContract(this.value)"></span>
+              <label><span>Override selling price <span style="font-weight:400;color:var(--gray400)">· awarded bid</span></span>
+                <span class="field cv"><span class="affix">$</span><input type="number" id="overrideNum" min="0" step="100" placeholder="auto" oninput="render()"></span>
               </label>
+              <div class="info-pop">Leave blank to price for your target margin. Enter the bid you actually won to watch margin move as costs land.</div>
             </div>
             <div class="toggle-row">
               <label class="switch"><input type="checkbox" id="taxMat" checked onchange="render()"><span class="slider"></span></label>
-              Apply tax to material
+              Apply tax to material <span class="info-pop" style="margin:0;font-weight:400">(adds sales tax on top of material cost)</span>
             </div>
           </div>
         </div>
@@ -338,7 +363,7 @@
             <tbody id="trackerRows"></tbody>
           </table>
         </div>
-        <div class="card-body" style="padding-top:0"><div class="hint">Budget = the estimate Kevin priced. Cost to date = bills + payroll Cru captured automatically. Variance flags where the job is running hot before it eats the margin.</div></div>
+        <div class="card-body" style="padding-top:0"><div class="hint">Click any category to expand and edit its line items — description, qty, U/M and unit cost are editable; extended cost (qty × unit) and the roll-ups above recompute automatically. Budget = the original estimate; Cost to date = bills + payroll Cru captured automatically. Variance flags where the job is running hot before it eats the margin.</div></div>
       </div>
 
       <!-- COST DRIVER BREAKDOWN -->
@@ -360,64 +385,70 @@
 /* ---------------- DATA ---------------- */
 const CAT_ORDER = ["Materials","Labor","Equipment","Subcontractor","Other"];
 
-// Three KCL Plumbing projects. "14851 13th Lane N" is the one from Kevin's sheet.
+// Illustrative sample data only — not tied to any real customer, project, or estimate.
 const PROJECTS = {
   p1: {
-    name: "14851 13th Lane N",
-    sub: "KCL Plumbing · Residential rough-in + final",
-    contract: 6854.31,
+    name: "Sample Job · 142 Birch Lane",
+    sub: "Residential rough-in + final",
+    contract: 8200.00,
     months: ["Mar 2026","Apr 2026","May 2026","Jun 2026"],
-    budget: { Materials:1444.50, Labor:2052.00, Equipment:185.00, Subcontractor:0, Other:315.00 },
+    budget: { Materials:1900.00, Labor:2700.00, Equipment:200.00, Subcontractor:0, Other:250.00 },
     bills: [
-      {num:"INV-3021", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:321.00, billDate:"03/14/2026", paid:"03/20/2026", src:"email", age:-2, aging:46},
-      {num:"INV-3044", vendor:"Copper & Brass Wholesale", cat:"Materials", amt:909.50, billDate:"03/28/2026", paid:"04/04/2026", src:"email", age:-2, aging:44},
-      {num:"HD-88102", vendor:"Home Depot Pro", cat:"Materials", amt:214.00, billDate:"04/09/2026", paid:"", src:"email", age:12, aging:33},
-      {num:"PR-04A", vendor:"Payroll · Plumber (24 hrs)", cat:"Labor", amt:912.00, billDate:"04/12/2026", paid:"04/12/2026", src:"payroll", age:-2, aging:0},
-      {num:"PR-04B", vendor:"Payroll · Helper (24 hrs)", cat:"Labor", amt:960.00, billDate:"04/12/2026", paid:"04/12/2026", src:"payroll", age:-2, aging:0},
-      {num:"PR-05A", vendor:"Payroll · Extra work T&M (3 hrs)", cat:"Labor", amt:180.00, billDate:"04/26/2026", paid:"04/26/2026", src:"payroll", age:-2, aging:0},
-      {num:"PR-05B", vendor:"Payroll · Helper overtime (8 hrs)", cat:"Labor", amt:336.00, billDate:"05/02/2026", paid:"05/02/2026", src:"payroll", age:-2, aging:0},
-      {num:"RNT-771", vendor:"United Rentals · trencher", cat:"Equipment", amt:185.00, billDate:"03/30/2026", paid:"", src:"email", age:9, aging:31},
-      {num:"CITY-2210", vendor:"City of Bellevue · permit", cat:"Other", amt:265.00, billDate:"03/12/2026", paid:"03/12/2026", src:"email", age:-2, aging:50},
+      {num:"INV-1041", vendor:"ABC Plumbing Supply", cat:"Materials", desc:"PVC pipe & fittings", qty:1, um:"lot", unit:385.00, amt:385.00, billDate:"03/14/2026", paid:"03/20/2026", src:"email", age:-2, aging:46},
+      {num:"INV-1058", vendor:"Metro Pipe Wholesale", cat:"Materials", desc:"Type-L copper", qty:1, um:"lot", unit:940.00, amt:940.00, billDate:"04/06/2026", paid:"04/12/2026", src:"email", age:-2, aging:44},
+      {num:"HD-2210", vendor:"Hardware Warehouse", cat:"Materials", desc:"Fixtures & trim", qty:1, um:"lot", unit:520.00, amt:520.00, billDate:"05/09/2026", paid:"", src:"email", age:12, aging:24},
+      {num:"INV-1090", vendor:"ABC Plumbing Supply", cat:"Materials", desc:"Final fittings", qty:1, um:"lot", unit:180.00, amt:180.00, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1},
+      {num:"PR-031", vendor:"Payroll · Plumber", cat:"Labor", desc:"Plumber labor", qty:30, um:"hrs", unit:38.00, amt:1140.00, billDate:"03/15/2026", paid:"03/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-044", vendor:"Payroll · Helper", cat:"Labor", desc:"Helper labor", qty:24, um:"hrs", unit:40.00, amt:960.00, billDate:"04/15/2026", paid:"04/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-052", vendor:"Payroll · Plumber", cat:"Labor", desc:"Set & test", qty:12, um:"hrs", unit:42.00, amt:504.00, billDate:"05/15/2026", paid:"05/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-061", vendor:"Payroll · Extra work T&M", cat:"Labor", desc:"Punch list (T&M)", qty:4, um:"hrs", unit:60.00, amt:240.00, billDate:"06/01/2026", paid:"", src:"payroll", age:-2, aging:0},
+      {num:"RNT-118", vendor:"City Equipment Rental", cat:"Equipment", desc:"Trencher rental", qty:1, um:"week", unit:220.00, amt:220.00, billDate:"04/02/2026", paid:"04/09/2026", src:"email", age:-2, aging:42},
+      {num:"PMT-2026", vendor:"County Permit Office", cat:"Other", desc:"Permit fee", qty:1, um:"ea", unit:280.00, amt:280.00, billDate:"03/12/2026", paid:"03/12/2026", src:"email", age:-2, aging:50},
     ],
-    nextBill: {num:"INV-3098", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:128.75, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1, label:"final fittings"}
+    nextBill: {num:"RNT-140", vendor:"City Equipment Rental", cat:"Equipment", desc:"Core drill rental (unbudgeted)", qty:1, um:"day", unit:260.00, amt:260.00, billDate:"06/02/2026", paid:"", src:"email", age:30, aging:0, label:"unbudgeted core drill"}
   },
   p2: {
-    name: "Maple Court Renovation",
-    sub: "KCL Plumbing · Multi-unit repipe",
-    contract: 41200.00,
+    name: "Sample Job · Cedar Park Apartments",
+    sub: "Multi-unit repipe",
+    contract: 44000.00,
     months: ["Feb 2026","Mar 2026","Apr 2026","May 2026","Jun 2026"],
-    budget: { Materials:9850.00, Labor:14200.00, Equipment:1100.00, Subcontractor:2800.00, Other:950.00 },
+    budget: { Materials:10500.00, Labor:15000.00, Equipment:1200.00, Subcontractor:3000.00, Other:1000.00 },
     bills: [
-      {num:"INV-2890", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:4210.55, billDate:"02/18/2026", paid:"02/25/2026", src:"email", age:-2, aging:62},
-      {num:"INV-2955", vendor:"PEX Direct", cat:"Materials", amt:3180.00, billDate:"03/22/2026", paid:"03/29/2026", src:"email", age:-2, aging:51},
-      {num:"INV-3010", vendor:"Copper & Brass Wholesale", cat:"Materials", amt:2640.00, billDate:"04/15/2026", paid:"", src:"email", age:22, aging:30},
-      {num:"PR-M02", vendor:"Payroll · Crew (160 hrs)", cat:"Labor", amt:6080.00, billDate:"03/15/2026", paid:"03/15/2026", src:"payroll", age:-2, aging:0},
-      {num:"PR-M04", vendor:"Payroll · Crew (172 hrs)", cat:"Labor", amt:6536.00, billDate:"04/15/2026", paid:"04/15/2026", src:"payroll", age:-2, aging:0},
-      {num:"PR-M05", vendor:"Payroll · OT + extras", cat:"Labor", amt:2480.00, billDate:"05/01/2026", paid:"05/01/2026", src:"payroll", age:-2, aging:0},
-      {num:"SUB-440", vendor:"Apex Drain Specialists", cat:"Subcontractor", amt:2800.00, billDate:"04/20/2026", paid:"", src:"email", age:13, aging:28},
-      {num:"RNT-802", vendor:"United Rentals · lift", cat:"Equipment", amt:1240.00, billDate:"03/30/2026", paid:"04/06/2026", src:"email", age:-2, aging:45},
-      {num:"CITY-3301", vendor:"City permits + inspection", cat:"Other", amt:920.00, billDate:"02/20/2026", paid:"02/20/2026", src:"email", age:-2, aging:60},
+      {num:"INV-2102", vendor:"Regional PEX Supply", cat:"Materials", desc:"PEX manifold & lines", qty:1, um:"lot", unit:4300.00, amt:4300.00, billDate:"02/18/2026", paid:"02/25/2026", src:"email", age:-2, aging:62},
+      {num:"INV-2188", vendor:"Metro Pipe Wholesale", cat:"Materials", desc:"Copper & valves", qty:1, um:"lot", unit:3200.00, amt:3200.00, billDate:"03/22/2026", paid:"03/29/2026", src:"email", age:-2, aging:51},
+      {num:"INV-2240", vendor:"Hardware Warehouse", cat:"Materials", desc:"Fixtures (10 units)", qty:10, um:"ea", unit:210.00, amt:2100.00, billDate:"05/12/2026", paid:"", src:"email", age:22, aging:21},
+      {num:"INV-2301", vendor:"Regional PEX Supply", cat:"Materials", desc:"Trim & restock", qty:1, um:"lot", unit:900.00, amt:900.00, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1},
+      {num:"PR-201", vendor:"Payroll · Crew", cat:"Labor", desc:"Repipe crew", qty:160, um:"hrs", unit:38.00, amt:6080.00, billDate:"03/15/2026", paid:"03/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-204", vendor:"Payroll · Crew", cat:"Labor", desc:"Repipe crew", qty:172, um:"hrs", unit:38.00, amt:6536.00, billDate:"04/15/2026", paid:"04/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-205", vendor:"Payroll · OT + extras", cat:"Labor", desc:"Overtime", qty:54, um:"hrs", unit:46.00, amt:2484.00, billDate:"05/15/2026", paid:"05/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-206", vendor:"Payroll · Crew", cat:"Labor", desc:"Final connections", qty:32, um:"hrs", unit:38.00, amt:1216.00, billDate:"06/01/2026", paid:"", src:"payroll", age:-2, aging:0},
+      {num:"SUB-330", vendor:"Apex Drain Specialists", cat:"Subcontractor", desc:"Main drain tie-in", qty:1, um:"lot", unit:3000.00, amt:3000.00, billDate:"04/20/2026", paid:"", src:"email", age:13, aging:28},
+      {num:"RNT-260", vendor:"City Equipment Rental", cat:"Equipment", desc:"Scissor lift", qty:1, um:"week", unit:1250.00, amt:1250.00, billDate:"03/30/2026", paid:"04/06/2026", src:"email", age:-2, aging:45},
+      {num:"PMT-3301", vendor:"County Permit Office", cat:"Other", desc:"Permits + inspection", qty:1, um:"ea", unit:920.00, amt:920.00, billDate:"02/20/2026", paid:"02/20/2026", src:"email", age:-2, aging:60},
     ],
-    nextBill: {num:"INV-3120", vendor:"PEX Direct", cat:"Materials", amt:845.00, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1, label:"restock"}
+    nextBill: {num:"INV-2350", vendor:"Regional PEX Supply", cat:"Materials", desc:"Punch-list restock", qty:1, um:"lot", unit:845.00, amt:845.00, billDate:"06/02/2026", paid:"", src:"email", age:30, aging:0, label:"restock"}
   },
   p3: {
-    name: "Riverside Plaza TI",
-    sub: "KCL Plumbing · Commercial tenant improvement",
-    contract: 88500.00,
+    name: "Sample Job · Lakeside Commons",
+    sub: "Commercial tenant improvement",
+    contract: 94000.00,
     months: ["Jan 2026","Feb 2026","Mar 2026","Apr 2026","May 2026","Jun 2026"],
-    budget: { Materials:21500.00, Labor:31000.00, Equipment:3400.00, Subcontractor:9500.00, Other:2200.00 },
+    budget: { Materials:22000.00, Labor:32000.00, Equipment:3500.00, Subcontractor:9500.00, Other:2200.00 },
     bills: [
-      {num:"INV-2701", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:8420.00, billDate:"01/22/2026", paid:"01/29/2026", src:"email", age:-2, aging:90},
-      {num:"INV-2840", vendor:"Carrier Commercial", cat:"Materials", amt:7650.00, billDate:"02/28/2026", paid:"03/06/2026", src:"email", age:-2, aging:70},
-      {num:"INV-2999", vendor:"Copper & Brass Wholesale", cat:"Materials", amt:6120.00, billDate:"04/10/2026", paid:"", src:"email", age:48, aging:30},
-      {num:"PR-R01", vendor:"Payroll · Crew (320 hrs)", cat:"Labor", amt:12480.00, billDate:"02/15/2026", paid:"02/15/2026", src:"payroll", age:-2, aging:0},
-      {num:"PR-R03", vendor:"Payroll · Crew (340 hrs)", cat:"Labor", amt:13260.00, billDate:"04/15/2026", paid:"04/15/2026", src:"payroll", age:-2, aging:0},
-      {num:"PR-R05", vendor:"Payroll · OT surge", cat:"Labor", amt:6800.00, billDate:"05/15/2026", paid:"05/15/2026", src:"payroll", age:-2, aging:0},
-      {num:"SUB-610", vendor:"Apex Fire Protection", cat:"Subcontractor", amt:9500.00, billDate:"03/25/2026", paid:"04/01/2026", src:"email", age:-2, aging:55},
-      {num:"RNT-915", vendor:"Sunbelt Rentals · scissor lift", cat:"Equipment", amt:3400.00, billDate:"02/10/2026", paid:"02/17/2026", src:"email", age:-2, aging:78},
-      {num:"CITY-4400", vendor:"City permits + backflow test", cat:"Other", amt:2200.00, billDate:"01/18/2026", paid:"01/18/2026", src:"email", age:-2, aging:92},
+      {num:"INV-3401", vendor:"ABC Plumbing Supply", cat:"Materials", desc:"Cast iron & carrier", qty:1, um:"lot", unit:8400.00, amt:8400.00, billDate:"01/22/2026", paid:"01/29/2026", src:"email", age:-2, aging:90},
+      {num:"INV-3455", vendor:"Commercial Pipe Co.", cat:"Materials", desc:"Fixtures & flush valves", qty:1, um:"lot", unit:7600.00, amt:7600.00, billDate:"02/28/2026", paid:"03/06/2026", src:"email", age:-2, aging:70},
+      {num:"INV-3502", vendor:"Metro Pipe Wholesale", cat:"Materials", desc:"Copper risers", qty:1, um:"lot", unit:6100.00, amt:6100.00, billDate:"04/10/2026", paid:"", src:"email", age:48, aging:30},
+      {num:"INV-3560", vendor:"Commercial Pipe Co.", cat:"Materials", desc:"Punch-list parts", qty:1, um:"lot", unit:2400.00, amt:2400.00, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1},
+      {num:"PR-301", vendor:"Payroll · Crew", cat:"Labor", desc:"Rough-in crew", qty:320, um:"hrs", unit:38.75, amt:12400.00, billDate:"02/15/2026", paid:"02/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-303", vendor:"Payroll · Crew", cat:"Labor", desc:"Top-out crew", qty:330, um:"hrs", unit:40.00, amt:13200.00, billDate:"04/15/2026", paid:"04/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-305", vendor:"Payroll · OT surge", cat:"Labor", desc:"Schedule recovery OT", qty:136, um:"hrs", unit:50.00, amt:6800.00, billDate:"05/15/2026", paid:"05/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-306", vendor:"Payroll · Crew", cat:"Labor", desc:"Final fixtures", qty:80, um:"hrs", unit:40.00, amt:3200.00, billDate:"06/01/2026", paid:"", src:"payroll", age:-2, aging:0},
+      {num:"SUB-510", vendor:"Apex Fire Protection", cat:"Subcontractor", desc:"Fire sprinkler tie-in", qty:1, um:"lot", unit:9500.00, amt:9500.00, billDate:"03/25/2026", paid:"04/01/2026", src:"email", age:-2, aging:55},
+      {num:"RNT-415", vendor:"City Equipment Rental", cat:"Equipment", desc:"Scissor lift (month)", qty:1, um:"month", unit:3400.00, amt:3400.00, billDate:"02/10/2026", paid:"02/17/2026", src:"email", age:-2, aging:78},
+      {num:"RNT-460", vendor:"City Equipment Rental", cat:"Equipment", desc:"Pipe threader", qty:1, um:"week", unit:1500.00, amt:1500.00, billDate:"05/05/2026", paid:"", src:"email", age:18, aging:28},
+      {num:"PMT-4400", vendor:"County Permit Office", cat:"Other", desc:"Permits + backflow test", qty:1, um:"ea", unit:2200.00, amt:2200.00, billDate:"01/18/2026", paid:"01/18/2026", src:"email", age:-2, aging:92},
     ],
-    nextBill: {num:"INV-3140", vendor:"Carrier Commercial", cat:"Materials", amt:1980.00, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1, label:"punch-list parts"}
+    nextBill: {num:"INV-3600", vendor:"Commercial Pipe Co.", cat:"Materials", desc:"Closeout parts", qty:1, um:"lot", unit:1980.00, amt:1980.00, billDate:"06/02/2026", paid:"", src:"email", age:30, aging:0, label:"closeout"}
   }
 };
 
@@ -435,18 +466,19 @@ function actualsByCat(p){
   p.bills.forEach(b=>a[b.cat]+=b.amt);
   return a;
 }
+// cost-to-date is always derived from the captured line items (read-only in the panel)
+function syncOverride(){ const p=PROJECTS[currentKey]; $("overrideNum").value=(p.override!=null)?p.override:""; }
 
 /* ---------------- PROJECT SWITCH ---------------- */
 function initProjectFilter(){
   const sel=$("projectFilter");
   sel.innerHTML=Object.entries(PROJECTS).map(([k,p])=>`<option value="${k}">${p.name}</option>`).join("");
 }
-function switchProject(k){ currentKey=k; $("contractNum").value=PROJECTS[k].contract.toFixed(2); render(); buildCharts(); }
+function switchProject(k){ currentKey=k; syncOverride(); render(); buildCharts(); }
 
 /* keep slider + number field in sync */
 function syncFromNum(key){ const v=$(key+"Num").value; const r=$(key+"Range"); if(v!=="") r.value=Math.min(Math.max(v,r.min),r.max); render(); }
 function syncFromRange(key){ $(key+"Num").value=$(key+"Range").value; render(); }
-function setContract(v){ PROJECTS[currentKey].contract=parseFloat(v)||0; render(); }
 function setBudget(cat,v){ PROJECTS[currentKey].budget[cat]=parseFloat(v)||0; render(); }
 
 /* ---------------- RENDER ---------------- */
@@ -459,35 +491,44 @@ function render(){
   const taxMat=$("taxMat").checked;
 
   $("ohSub").textContent=(oh*100).toFixed(2)+"% of direct cost";
-
-  // chip + filter
+  $("matNote").textContent= taxMat ? `+${(st*100).toFixed(2)}% sales tax added in total` : "";
   $("projChip").innerHTML=`${p.name} <button onclick="void 0">✕</button>`;
 
-  // cost stack (apply sales tax to materials if enabled)
-  const matWithTax = taxMat ? a.Materials*(1+st) : a.Materials;
-  const direct = matWithTax + a.Labor + a.Equipment + a.Subcontractor + a.Other;
+  // cost stack
+  const matUsed = taxMat ? a.Materials*(1+st) : a.Materials;
+  const direct = matUsed + a.Labor + a.Equipment + a.Subcontractor + a.Other;
   const overhead = direct*oh;
   const breakeven = direct + overhead;
-  const contract = p.contract;
-  const profit = contract - breakeven;
-  const margin = profit/contract;
 
-  $("pMaterials").textContent=money(matWithTax);
+  // selling price: override (the awarded bid) OR price that yields the target margin
+  const ovRaw = parseFloat($("overrideNum").value);
+  const hasOverride = !isNaN(ovRaw) && ovRaw>0;
+  p.override = hasOverride ? ovRaw : null;
+  const selling = hasOverride ? ovRaw : (pt<1 ? breakeven/(1-pt) : breakeven);
+  const profit = selling - breakeven;
+  const margin = selling>0 ? profit/selling : 0;
+
+  $("pMaterials").textContent=money(matUsed);
   $("pLabor").textContent=money(a.Labor);
   $("pEquipment").textContent=money(a.Equipment);
-  $("pSub").textContent=money(a.Subcontractor);
+  $("pSubcontractor").textContent=money(a.Subcontractor);
   $("pOther").textContent=money(a.Other);
   $("pDirect").textContent=money(direct);
   $("pOverhead").textContent=money(overhead);
   $("pBreakeven").textContent=money(breakeven);
-  $("pContract").textContent=money(contract);
+  $("pSelling").textContent=money(selling);
+  $("sellNote").textContent= hasOverride ? "awarded bid (override)" : `priced for ${(pt*100).toFixed(1)}% margin`;
+  $("pProfit").textContent=(profit<0?"−":"")+money(Math.abs(profit));
+  $("pProfit").style.color = profit<0 ? "var(--red)" : "var(--green)";
+  $("profitNote").textContent=(margin*100).toFixed(1)+"% margin";
 
   // headline
+  const onTarget = margin>=pt-0.0005;
   const head=$("profHead");
-  head.className="profit-headline "+(margin>=pt?"good":margin>=0?"warn":"bad");
+  head.className="profit-headline "+(onTarget?"good":margin>=0?"warn":"bad");
   $("profMargin").textContent=(margin*100).toFixed(1)+"% margin";
-  const vsTarget = margin>=pt ? "on target" : margin>=0 ? `below ${ (pt*100).toFixed(0) }% target` : "underwater";
-  $("profDollars").textContent=`${profit>=0?"+":"−"}${money(Math.abs(profit))} projected profit · ${vsTarget}`;
+  const vsTarget = onTarget ? "on / above target" : margin>=0 ? `below ${(pt*100).toFixed(0)}% target` : "underwater";
+  $("profDollars").textContent=`${profit>=0?"+":"−"}${money(Math.abs(profit))} profit · ${vsTarget}`;
 
   renderBills();
   renderTracker(p,a);
@@ -524,7 +565,43 @@ function renderBills(){
   $("billFoot").textContent=`Showing ${rows.length} of ${p.bills.length}`;
 }
 
-/* ---------------- TRACKER ---------------- */
+/* ---------------- TRACKER (with expandable line items) ---------------- */
+const expandedCats=new Set();
+function toggleCat(c){ expandedCats.has(c)?expandedCats.delete(c):expandedCats.add(c); render(); }
+
+const CARET=`<svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>`;
+
+function setLineItem(num,field,v){
+  const b=PROJECTS[currentKey].bills.find(x=>x.num===num);
+  if(!b) return;
+  if(field==="qty"||field==="unit"){ b[field]=parseFloat(v)||0; b.amt=(b.qty||0)*(b.unit||0); }
+  else { b[field]=v; }
+  render();
+}
+
+function lineItemsHTML(p,c){
+  const items=p.bills.filter(b=>b.cat===c);
+  if(!items.length) return `<div class="detail-wrap"><div class="detail-empty">No bills or payroll captured for ${c} yet — items land here automatically as they arrive.</div></div>`;
+  const rows=items.map(b=>{
+    const qty=(b.qty!=null)?b.qty:1, um=b.um||"lot", unit=(b.unit!=null)?b.unit:b.amt;
+    const ext=qty*unit;
+    const src = b.src==="payroll" ? "payroll" : "email";
+    return `<tr>
+      <td>
+        <input class="li-input li-desc" value="${(b.desc||b.vendor).replace(/"/g,'&quot;')}" onchange="setLineItem('${b.num}','desc',this.value)">
+        <span class="li-meta">${b.num} · captured from ${src}</span>
+      </td>
+      <td class="num"><input class="li-input li-qty" type="number" min="0" step="1" value="${qty}" onchange="setLineItem('${b.num}','qty',this.value)"></td>
+      <td><input class="li-input li-um" value="${um}" onchange="setLineItem('${b.num}','um',this.value)"></td>
+      <td class="num"><span class="field"><span class="affix">$</span><input type="number" min="0" step="1" value="${unit.toFixed(2)}" onchange="setLineItem('${b.num}','unit',this.value)"></span></td>
+      <td class="num"><b>${money(ext)}</b></td>
+    </tr>`;
+  }).join("");
+  return `<div class="detail-wrap"><table>
+    <thead><tr><th>Description</th><th class="num">Qty</th><th>U/M</th><th class="num">Unit cost</th><th class="num">Extended cost</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
 function renderTracker(p,a){
   let tBudget=0,tActual=0;
   const rows=CAT_ORDER.map(c=>{
@@ -535,21 +612,25 @@ function renderTracker(p,a){
     const variance = bud-act; // positive = under budget (good)
     const varCls = variance>=0?"var-pos":"var-neg";
     const varTxt = (variance>=0?"+":"−")+money(Math.abs(variance));
-    return `<tr>
-      <td>${TAG(c)}</td>
+    const open=expandedCats.has(c);
+    const count=p.bills.filter(b=>b.cat===c).length;
+    const main=`<tr class="cat-row">
+      <td><span class="cat-cell" onclick="toggleCat('${c}')">${CARET.replace('caret','caret'+(open?' open':''))}${TAG(c)}<span class="muted" style="font-size:12px">${count} item${count!==1?'s':''}</span></span></td>
       <td class="num"><span class="field"><span class="affix">$</span><input type="number" min="0" step="10" value="${bud.toFixed(2)}" onchange="setBudget('${c}',this.value)"></span></td>
       <td class="num"><b>${money(act)}</b></td>
       <td class="num"><span class="${varCls}">${varTxt}</span></td>
       <td class="num"><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill ${over?'over':''}" style="width:${Math.min(pct*100,100)}%"></div></div>${Math.round(pct*100)}%</div></td>
     </tr>`;
+    const detail = open ? `<tr class="detail-row"><td colspan="5">${lineItemsHTML(p,c)}</td></tr>` : "";
+    return main+detail;
   }).join("");
   const tVar=tBudget-tActual, tVarCls=tVar>=0?"var-pos":"var-neg";
   const totalRow=`<tr style="font-weight:900;background:var(--n2)">
-      <td>Total</td>
+      <td style="padding-left:39px">Total</td>
       <td class="num">${money(tBudget)}</td>
       <td class="num">${money(tActual)}</td>
       <td class="num"><span class="${tVarCls}">${(tVar>=0?"+":"−")+money(Math.abs(tVar))}</span></td>
-      <td class="num">${Math.round((tActual/tBudget)*100)}%</td>
+      <td class="num">${tBudget>0?Math.round((tActual/tBudget)*100):0}%</td>
     </tr>`;
   $("trackerRows").innerHTML=rows+totalRow;
 }
@@ -632,7 +713,7 @@ function syncInbox(){
 
 /* ---------------- INIT ---------------- */
 initProjectFilter();
-$("contractNum").value=PROJECTS[currentKey].contract.toFixed(2);
+syncOverride();
 render();
 buildCharts();
 </script>
