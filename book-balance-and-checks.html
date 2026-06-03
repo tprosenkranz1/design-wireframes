@@ -173,7 +173,7 @@
       <div class="tile">
         <div class="lbl">Outstanding balance — start of week</div>
         <div class="val">$1.00M</div>
-        <div class="sub dim">Mon Jun 2 · 312 checks</div>
+        <div class="sub dim">Mon Jun 1 · 312 checks</div>
       </div>
       <div class="tile">
         <div class="lbl">Projected to clear this week (cash out)</div>
@@ -194,13 +194,13 @@
           <tr><th>Week of</th><th>Start outstanding</th><th>New cut</th><th>Cleared / released</th><th>End outstanding</th></tr>
         </thead>
         <tbody>
-          <tr><td>May 5 <span class="pill a">ACTUAL</span></td><td>$1,180,000</td><td>$640,000</td><td class="clr">$590,000</td><td>$1,230,000</td></tr>
-          <tr><td>May 12 <span class="pill a">ACTUAL</span></td><td>$1,230,000</td><td>$580,000</td><td class="clr">$710,000</td><td>$1,100,000</td></tr>
-          <tr><td>May 19 <span class="pill a">ACTUAL</span></td><td>$1,100,000</td><td>$720,000</td><td class="clr">$640,000</td><td>$1,180,000</td></tr>
-          <tr><td>May 26 <span class="pill a">ACTUAL</span></td><td>$1,180,000</td><td>$510,000</td><td class="clr">$690,000</td><td>$1,000,000</td></tr>
-          <tr class="now"><td>Jun 2 <span class="pill f">THIS WEEK</span></td><td>$1,000,000</td><td>$750,000</td><td class="clr">$690,000</td><td>$1,060,000</td></tr>
-          <tr class="fc"><td>Jun 9 — projected</td><td>$1,060,000</td><td>$600,000</td><td class="clr">$680,000</td><td>$980,000</td></tr>
-          <tr class="fc"><td>Jun 16 — projected</td><td>$980,000</td><td>$640,000</td><td class="clr">$600,000</td><td>$1,020,000</td></tr>
+          <tr><td>May 4 <span class="pill a">ACTUAL</span></td><td>$1,180,000</td><td>$640,000</td><td class="clr">$590,000</td><td>$1,230,000</td></tr>
+          <tr><td>May 11 <span class="pill a">ACTUAL</span></td><td>$1,230,000</td><td>$580,000</td><td class="clr">$710,000</td><td>$1,100,000</td></tr>
+          <tr><td>May 18 <span class="pill a">ACTUAL</span></td><td>$1,100,000</td><td>$720,000</td><td class="clr">$640,000</td><td>$1,180,000</td></tr>
+          <tr><td>May 25 <span class="pill a">ACTUAL</span></td><td>$1,180,000</td><td>$510,000</td><td class="clr">$690,000</td><td>$1,000,000</td></tr>
+          <tr class="now"><td>Jun 1 <span class="pill f">THIS WEEK</span></td><td>$1,000,000</td><td>$750,000</td><td class="clr">$690,000</td><td>$1,060,000</td></tr>
+          <tr class="fc"><td>Jun 8 — projected</td><td>$1,060,000</td><td>$600,000</td><td class="clr">$680,000</td><td>$980,000</td></tr>
+          <tr class="fc"><td>Jun 15 — projected</td><td>$980,000</td><td>$640,000</td><td class="clr">$600,000</td><td>$1,020,000</td></tr>
         </tbody>
       </table>
     </div>
@@ -242,10 +242,10 @@
       <h2>Book balance</h2>
       <div class="bar-actions"><a>Manage</a></div>
     </div>
-    <div class="brow"><span class="lbl">Operating cash balance</span><span class="amt">$2,462,000</span></div>
+    <div class="brow"><span class="lbl">Operating cash balance</span><span class="amt">$15,650,000</span></div>
     <div class="brow"><span class="lbl"><span class="op">−</span>Outstanding checks</span><span class="amt">$1,000,000</span></div>
     <div class="brow"><span class="lbl"><span class="op">+</span>Addback for held checks</span><span class="amt">$182,900</span></div>
-    <div class="brow total"><span class="lbl">Book balance</span><span class="amt">$1,644,900</span></div>
+    <div class="brow total"><span class="lbl">Book balance</span><span class="amt">$14,832,900</span></div>
   </div>
 
   <!-- ===== Rationale ===== -->
@@ -260,45 +260,46 @@
 </div>
 
 <script>
-// ---- weekly points Jan 2025 → Feb 2026 ----
-const W=56, SPLIT=43;
-const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'];
-const monthYear =['2025','2025','2025','2025','2025','2025','2025','2025','2025','2025','2025','2025','2026','2026'];
+// ---- weekly points: Jan 2025 → 8 weeks past today (week of Jun 1 2026) ----
+const MS_WEEK=7*864e5;
+const startMon=new Date(2025,0,6);                 // first Monday of Jan 2025
+const todayMon=new Date(2026,5,1);                 // current week starts Mon Jun 1 2026 (today Jun 3)
+const SPLIT=Math.round((todayMon-startMon)/MS_WEEK);  // index of current week = last actual
+const W=SPLIT+1+8;                                 // + 8 forecast weeks
+const dates=Array.from({length:W},(_,i)=>new Date(startMon.getTime()+i*MS_WEEK));
 
-const bankA=[0.0, 1.7, 0.4, -1.2, -2.3, -1.1, -0.1, 0.6, -0.3, 1.4, 2.5, 1.3, -0.4, -1.2];  // net of treasury
-const opcA =[-0.6,1.0,-0.3, -1.8, -2.8, -1.6, -0.6, 0.2, -0.9, 0.8, 1.9, 0.7, -0.9, -1.7];  // operating cash
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const labels=dates.map((d,i)=> (i===0||d.getMonth()!==dates[i-1].getMonth()) ? `${MN[d.getMonth()]} ${d.getFullYear()}` : '');
 
-const lerp=(a,b,t)=>a+(b-a)*t;
-const noise=i=>Math.sin(i*1.7)*0.30+Math.sin(i*0.7+1)*0.22+Math.sin(i*3.3)*0.15;
-function series(anchor){
-  const out=[];
-  for(let i=0;i<W;i++){
-    const m=Math.floor(i/4), f=(i%4)/4;
-    const a=anchor[m], b=anchor[Math.min(m+1,13)];
-    out.push((lerp(a,b,f)+noise(i)*(i<=SPLIT?0.55:0.10))*1e6);
-  }
-  return out;
-}
-const bankU=series(bankA), opcU=series(opcA);
-const liab=i=>(0.92+0.004*i)*1e6;                         // projected outstanding liabilities
+// bank balance: starts at $15M in Jan 2025, walks with seasonal swing + slight drift
+const bankU=[]; let b=15e6;
+for(let i=0;i<W;i++){ bankU.push(b); b += (Math.sin(i*1.3)*0.34 + Math.sin(i*0.55+2)*0.46 + 0.045)*1e6; }
+// operating cash: tracks ~$2.6M below bank (before sweeps & LOC draws)
+const opcU=bankU.map((v,i)=> v - (2.6 + 0.7*Math.sin(i*0.45+1))*1e6 + Math.sin(i*2.1)*0.30*1e6);
+const liab=i=>(0.95+0.004*i)*1e6;                  // outstanding checks
 const bookU=opcU.map((v,i)=>v-liab(i));
 
-// forecast of operating cash: back-test over past (hugs actual w/ small error) + smooth forward
+// forecast of operating cash (used for badge + forward projection)
 const fcErr=i=>(Math.sin(i*2.0)*0.10+Math.sin(i*0.6+2)*0.07)*1e6;
 const opcFcFull=opcU.map((v,i)=> i<=SPLIT ? v+fcErr(i) : v);
 
 const seg=(arr,from,to)=>arr.map((v,i)=> (i>=from&&i<=to)?v:null);
-const bankActual=seg(bankU,0,SPLIT), bankFc=seg(bankU,SPLIT,W-1);
+const bankActual=seg(bankU,0,SPLIT);               // actuals only, no forecast
 const opcActual =seg(opcU,0,SPLIT);
-const opcFc     =seg(opcFcFull,SPLIT,W-1);                 // forecast region only (no dashed historicals)
+const opcFc     =seg(opcFcFull,SPLIT,W-1);         // forecast region only (no dashed historicals)
 const bookActual=seg(bookU,0,SPLIT);
 const bookFc    =opcFcFull.map((v,i)=> i>=SPLIT ? v-liab(i) : null);
 
 function band(line,base,grow,sign){return line.map((v,i)=> (i<SPLIT||v==null)?null:(v+sign*((base+(i-SPLIT)*grow)*1e6)));}
 
-const labels=Array.from({length:W},(_,i)=> i%4===0?`${monthNames[i/4]} ${monthYear[i/4]}`:'');
-const fmtM=v=>{if(v===0)return '$0';const s=v<0?'-':'';return `$${s}${(Math.abs(v)/1e6).toFixed(Math.abs(v)%1e6===0?0:1)}M`;};
+const fmtM=v=>{if(v===0)return '$0';const s=v<0?'-':'';return `$${s}${(Math.abs(v)/1e6).toFixed(0)}M`;};
 const fmtFull=v=>'$'+Math.round(v).toLocaleString('en-US');
+
+// y-axis range from data (5M steps)
+const allY=[...bankActual,...opcActual,...opcFc,...bookActual,...bookFc,
+  ...band(opcFc,0.22,0.06,+1),...band(bookFc,0.28,0.08,-1)].filter(v=>v!=null);
+const yMin=Math.floor(Math.min(...allY)/5e6)*5e6;
+const yMax=Math.ceil(Math.max(...allY)/5e6)*5e6;
 
 // accuracy: last 8 historical weeks
 let mae=0,den=0;
@@ -311,7 +312,7 @@ document.getElementById('acc-badge').textContent=`Forecast accuracy (8 wks): ${a
 Chart.register({
   id:'decor',
   beforeDatasetsDraw(c){const{ctx,chartArea:{top,bottom},scales:{x}}=c;ctx.save();ctx.strokeStyle='#edeef1';ctx.lineWidth=1;
-    for(let i=0;i<W;i+=4){const px=x.getPixelForValue(i);ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();}ctx.restore();},
+    for(let i=0;i<W;i++){if(labels[i]){const px=x.getPixelForValue(i);ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();}}ctx.restore();},
   afterDatasetsDraw(c){const{ctx,chartArea:{top,bottom},scales:{x}}=c;const px=x.getPixelForValue(SPLIT);ctx.save();
     ctx.strokeStyle='#c9ced6';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();ctx.setLineDash([]);
     ctx.fillStyle='#9aa1ab';ctx.font='600 10px Inter, sans-serif';ctx.textAlign='left';ctx.fillText('FORECAST',px+6,top+11);ctx.restore();}
@@ -356,9 +357,8 @@ const chart=new Chart(document.getElementById('chart'),{
       x:{grid:{display:false},border:{display:false},
          ticks:{color:'#9aa1ab',font:{size:11},autoSkip:false,maxRotation:0,
            callback:(v,idx)=>{const l=labels[idx];return l?l.split(' '):'';}}},
-      y:{position:'left',min:-5.4e6,max:3.4e6,border:{display:false},grid:{color:'#edeef1'},
-         afterBuildTicks:a=>{a.ticks=[{value:2e6},{value:0},{value:-2e6},{value:-4e6}];},
-         ticks:{color:'#9aa1ab',font:{size:11.5},callback:fmtM}}
+      y:{position:'left',min:yMin,max:yMax,border:{display:false},grid:{color:'#edeef1'},
+         ticks:{color:'#9aa1ab',font:{size:11.5},stepSize:5e6,callback:fmtM}}
     }
   }
 });
