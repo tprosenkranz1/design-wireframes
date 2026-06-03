@@ -303,7 +303,12 @@ const chart=new Chart(ctx,{
       legend:{display:false},
       tooltip:{
         backgroundColor:'#1c2024',padding:11,cornerRadius:8,displayColors:true,
-        filter:item=>item.datasetIndex>=4 && item.parsed.y!==null,
+        filter:item=>{
+          if(item.datasetIndex<4 || item.parsed.y===null) return false;   // skip bands / empty
+          const inForecast = item.dataIndex>SPLIT;                        // boundary counts as actual
+          const isForecastDS = item.datasetIndex===5 || item.datasetIndex===7;
+          return inForecast ? isForecastDS : !isForecastDS;
+        },
         callbacks:{label:c=>' '+c.dataset.label+': '+fmtFull(c.parsed.y)}
       }
     },
