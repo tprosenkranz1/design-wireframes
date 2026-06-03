@@ -52,7 +52,12 @@
   .legend-item .nm{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:var(--ink);}
   .legend-item .nm .dot{width:9px;height:9px;border-radius:50%;}
   .legend-item .vl{font-size:13px;color:var(--ink-2);margin-top:3px;margin-left:18px;font-variant-numeric:tabular-nums;}
+  .legend-item .nm .dash{width:16px;border-top:2px dashed;flex:0 0 16px;height:0;}
+  .leg-sub{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px;}
+  .legend-item + .leg-sub{margin-top:6px;}
   .chart-wrap{flex:1;min-width:0;height:360px;position:relative;}
+  .chart-note{padding:6px 22px 16px;font-size:12px;color:var(--ink-2);line-height:1.5;}
+  .chart-note b{color:var(--ink);font-weight:600;}
 
   /* checks: tabs + filters */
   .pad{padding:18px 20px;}
@@ -113,6 +118,7 @@
     <div class="chart-body">
       <div class="legend-col">
         <div class="date-h">Date</div>
+        <div class="leg-sub">Actuals</div>
         <div class="legend-item">
           <div class="nm"><span class="dot" style="background:var(--bank)"></span>Bank balance</div>
           <div class="vl" id="lv-bank">—</div>
@@ -121,8 +127,21 @@
           <div class="nm"><span class="dot" style="background:var(--book)"></span>Book balance</div>
           <div class="vl" id="lv-book">—</div>
         </div>
+        <div class="leg-sub">Forecast</div>
+        <div class="legend-item">
+          <div class="nm"><span class="dash" style="border-color:var(--bank)"></span>Operating cash balance</div>
+          <div class="vl" id="lv-fbank">—</div>
+        </div>
+        <div class="legend-item">
+          <div class="nm"><span class="dash" style="border-color:var(--book)"></span>Book balance</div>
+          <div class="vl" id="lv-fbook">—</div>
+        </div>
       </div>
       <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    </div>
+    <div class="chart-note">
+      <b>Forecasted operating cash balance</b> = projected operating cash. &nbsp;
+      <b>Forecasted book balance</b> = forecasted operating cash balance − projected outstanding liabilities.
     </div>
   </div>
 
@@ -263,9 +282,9 @@ const chart=new Chart(ctx,{
     {label:'_bookL',data:band(forecast(book),0.30,0.09,-1),borderWidth:0,pointRadius:0,fill:false},
     // lines
     {...baseLine,label:'Bank balance',data:actual(bank),borderColor:'#4287f0'},
-    {...baseLine,label:'Bank balance',data:forecast(bank),borderColor:'#4287f0',borderDash:[6,4]},
+    {...baseLine,label:'Forecasted operating cash balance',data:forecast(bank),borderColor:'#4287f0',borderDash:[6,4]},
     {...baseLine,label:'Book balance',data:actual(book),borderColor:'#2b2f38'},
-    {...baseLine,label:'Book balance',data:forecast(book),borderColor:'#2b2f38',borderDash:[6,4]},
+    {...baseLine,label:'Forecasted book balance',data:forecast(book),borderColor:'#2b2f38',borderDash:[6,4]},
   ]},
   options:{
     responsive:true,maintainAspectRatio:false,
@@ -274,9 +293,11 @@ const chart=new Chart(ctx,{
     onHover:(e,els)=>{
       if(!els.length) return;
       const i=els[0].index;
-      const b=bank[i], k=book[i];
-      document.getElementById('lv-bank').textContent = b==null?'—':fmtFull(b);
-      document.getElementById('lv-book').textContent = k==null?'—':fmtFull(k);
+      const isFc = i>=SPLIT;
+      document.getElementById('lv-bank').textContent  = isFc?'—':fmtFull(bank[i]);
+      document.getElementById('lv-book').textContent  = isFc?'—':fmtFull(book[i]);
+      document.getElementById('lv-fbank').textContent = isFc?fmtFull(bank[i]):'—';
+      document.getElementById('lv-fbook').textContent = isFc?fmtFull(book[i]):'—';
     },
     plugins:{
       legend:{display:false},
