@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cru — Job Cost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --primary:#00257d; --primary-110:#002171; --primary-5:#f2f4f8;
+    --blue:#00257d; --blue-5:#f5f9ff;
+    --n100:#1d2939; --n80:#4a5461; --n50:#8e949c; --n40:#a5a9b0; --n30:#bbbfc4;
+    --n20:#d2d4d7; --n10:#e8eaeb; --n5:#f4f4f5; --n2:#fafbfb;
+    --border:#e4e7ec; --gray50:#f9fafb; --gray400:#98a2b3; --gray800:#1d2939;
+    --green:#026e41; --green-50:#80bca3; --green-bg:#e3f2ea;
+    --yellow:#b7791f; --yellow-bg:#fef3cf;
+    --red:#c3291d; --red-bg:#fbe6e4;
+    --orange:#f4926c;
+    --shadow:0 1px 5px rgba(0,0,0,0.12);
+    --shadow-lg:0 4px 16px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Lato',-apple-system,sans-serif;background:#eef0f3;color:var(--n100);font-size:14px;-webkit-font-smoothing:antialiased}
+  .app{display:flex;min-height:100vh}
+
+  /* ---- icon rail ---- */
+  .rail{width:80px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:0;flex-shrink:0}
+  .logo{margin:16px 0;width:32px;height:32px}
+  .rail-item{width:80px;height:80px;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--n100);cursor:pointer;font-size:12px;font-weight:400;line-height:16px;text-align:center;border-right:1px solid transparent}
+  .rail-item svg{width:24px;height:24px;color:var(--n80)}
+  .rail-item.active{background:var(--primary-5);border-right:1px solid var(--n20)}
+  .rail-item:hover:not(.active){background:var(--n2)}
+  .rail-spacer{flex:1}
+  .rail-account{border-top:1px solid var(--border);width:100%;display:flex;justify-content:center}
+  .rail-caret{border-top:1px solid var(--border);width:100%;height:32px;display:flex;align-items:center;justify-content:center;color:var(--n50);cursor:pointer}
+
+  /* ---- secondary nav ---- */
+  .subnav{width:300px;background:#fff;border-right:1px solid var(--border);box-shadow:var(--shadow);padding:8px;flex-shrink:0}
+  .nav-link{display:block;padding:12px 16px;border-radius:4px;color:var(--n100);font-weight:700;font-size:16px;line-height:24px;cursor:pointer;text-decoration:none}
+  .nav-link:hover{background:var(--n2)}
+  .nav-link.active{background:var(--n5);color:var(--primary-110)}
+
+  /* ---- main ---- */
+  .main{flex:1;min-width:0;overflow:auto;height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:#fff;border-bottom:1px solid var(--n10);position:sticky;top:0;z-index:10}
+  .topbar h1{font-size:24px;font-weight:700}
+  .btn{font-family:inherit;font-weight:700;font-size:14px;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid transparent}
+  .btn-outline{background:#fff;border-color:var(--blue);color:var(--blue)}
+  .btn-outline:hover{background:var(--blue-5)}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:#001b5e}
+  .btn-ghost{background:transparent;color:var(--blue);border:none;font-weight:700;cursor:pointer;font-size:14px}
+  .btn-sm{padding:6px 12px;font-size:13px}
+
+  .content{padding:22px 28px 60px;max-width:1180px}
+
+  /* filters */
+  .filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .filter-btn{display:flex;align-items:center;gap:6px;border:1px solid var(--n20);background:#fff;border-radius:8px;padding:8px 12px;font-weight:700;color:var(--n80);font-size:13px;cursor:pointer}
+  .filter-btn:hover{border-color:var(--n40)}
+  select.filter-btn{appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a5461' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+  .chip{display:inline-flex;align-items:center;gap:8px;background:var(--blue-5);color:var(--primary);border:1px solid #cfe0fb;border-radius:7px;padding:6px 10px;font-weight:700;font-size:13px}
+  .chip button{border:none;background:none;color:var(--primary);cursor:pointer;font-size:14px;line-height:1}
+  .clear{margin-left:auto;color:var(--n50);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+  /* sync banner */
+  .sync-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,#f5f9ff,#eef7f1);border:1px solid #d9e7f7;border-radius:12px;padding:13px 16px;margin:14px 0 18px}
+  .sync-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(2,110,65,.15);flex-shrink:0;animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(2,110,65,.28)}70%{box-shadow:0 0 0 8px rgba(2,110,65,0)}100%{box-shadow:0 0 0 0 rgba(2,110,65,0)}}
+  .sync-banner .txt{flex:1;font-size:13px;color:var(--n80)}
+  .sync-banner .txt b{color:var(--n100)}
+
+  /* cards */
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden}
+  .card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+  .card-head h3{font-size:18px;line-height:28px;font-weight:700}
+  .card-head .right{display:flex;align-items:center;gap:14px}
+  .card-body{padding:20px}
+
+  /* profitability hero */
+  .prof-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:0}
+  .prof-left{padding:20px 24px;border-right:1px solid var(--n10)}
+  .prof-right{padding:20px 24px;background:var(--n2)}
+  .prof-section-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--n40);font-weight:700;margin-bottom:14px}
+  .stat-row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px dashed var(--n10)}
+  .stat-row:last-child{border-bottom:none}
+  .stat-row .lbl{color:var(--n80);font-size:14px}
+  .stat-row .lbl small{display:block;color:var(--n40);font-size:11px;font-weight:400}
+  .stat-row .val{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+  .stat-row.total{border-top:2px solid var(--n20);margin-top:4px;padding-top:14px}
+  .stat-row.total .lbl{font-weight:900;color:var(--n100)}
+  .stat-row.total .val{font-size:17px}
+
+  .control{margin-bottom:16px}
+  .control label{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13px;margin-bottom:7px;color:var(--n80)}
+  input[type=range]{width:100%;accent-color:var(--primary);height:5px}
+
+  /* editable number field (Figma "$ ___" style) */
+  .field{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden;height:34px}
+  .field:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,37,125,.10)}
+  .field .affix{padding:0 8px;color:var(--gray400);font-weight:700;font-size:13px;background:var(--gray50);align-self:stretch;display:flex;align-items:center;border-right:1px solid var(--border)}
+  .field .affix.suffix{border-right:none;border-left:1px solid var(--border)}
+  .field input{border:none;outline:none;font-family:inherit;font-size:14px;font-weight:700;color:var(--n100);text-align:right;width:90px;padding:0 8px;font-variant-numeric:tabular-nums;background:transparent}
+  .field.pct input{width:62px}
+  .field.cv{height:30px}
+  .field.cv input{width:72px;color:var(--primary)}
+  /* budget field inside table */
+  td .field{height:32px}
+  td .field input{width:96px}
+  .toggle-row{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--n80);margin-top:4px}
+  .switch{position:relative;width:38px;height:22px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:var(--n20);border-radius:22px;transition:.2s;cursor:pointer}
+  .slider::before{content:"";position:absolute;height:16px;width:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked+.slider{background:var(--green)}
+  .switch input:checked+.slider::before{transform:translateX(16px)}
+
+  .profit-headline{text-align:center;padding:18px;border-radius:12px;margin-bottom:18px}
+  .profit-headline.good{background:var(--green-bg);border:1px solid #b7dcc6}
+  .profit-headline.warn{background:var(--yellow-bg);border:1px solid #f4dd9a}
+  .profit-headline.bad{background:var(--red-bg);border:1px solid #f3bfba}
+  .profit-headline .big{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1}
+  .profit-headline .sub{font-size:13px;font-weight:700;margin-top:4px}
+  .profit-headline.good .big,.profit-headline.good .sub{color:var(--green)}
+  .profit-headline.warn .big,.profit-headline.warn .sub{color:var(--yellow)}
+  .profit-headline.bad .big,.profit-headline.bad .sub{color:var(--red)}
+
+  /* table */
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:left;font-size:12px;color:var(--gray400);font-weight:700;padding:11px 14px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--gray50)}
+  thead th.num{text-align:right}
+  tbody td{padding:13px 14px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
+  tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:hover{background:var(--n2)}
+  tbody tr.new-row{animation:flash 1.6s ease}
+  @keyframes flash{0%{background:#fff7e0}40%{background:#fff7e0}100%{background:transparent}}
+  .muted{color:var(--n50)}
+  .vendor-sub{display:block;color:var(--n40);font-size:12px}
+
+  .tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+  .tag-materials{background:#eaf1fd;color:#1768e0}
+  .tag-labor{background:#ece8fb;color:#6b46c1}
+  .tag-equipment{background:#fdeee6;color:#c05621}
+  .tag-subcontractor{background:#e6f6f0;color:#047857}
+  .tag-other{background:#eef0f3;color:#4a5461}
+
+  .badge{display:inline-flex;flex-direction:column;align-items:center;border-radius:7px;padding:4px 12px;color:#fff;min-width:78px;line-height:1.15}
+  .badge b{font-size:13px}
+  .badge span{font-size:10px;opacity:.85}
+  .badge.g{background:var(--green)} .badge.y{background:var(--yellow)} .badge.r{background:var(--red)}
+
+  .src{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--n50);font-weight:700}
+  .src svg{width:13px;height:13px}
+
+  .table-toolbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--n10);flex-wrap:wrap}
+  .search{display:flex;align-items:center;gap:8px;border:1px solid var(--n20);border-radius:8px;padding:8px 12px;flex:1;min-width:200px;max-width:300px}
+  .search input{border:none;outline:none;font-family:inherit;font-size:14px;flex:1}
+  .table-foot{display:flex;align-items:center;justify-content:center;gap:18px;padding:14px;color:var(--n50);font-size:13px;font-weight:700}
+  .pager{display:flex;gap:6px}
+  .pager button{width:30px;height:30px;border:1px solid var(--n20);background:#fff;border-radius:7px;cursor:pointer;color:var(--n80)}
+
+  /* spend tracker bars */
+  .pct-wrap{display:flex;align-items:center;gap:9px;justify-content:flex-end}
+  .pct-bar{width:70px;height:7px;background:var(--n10);border-radius:6px;overflow:hidden}
+  .pct-fill{height:100%;border-radius:6px;background:var(--green-50)}
+  .pct-fill.over{background:var(--red)}
+  .var-pos{color:var(--green);font-weight:700}
+  .var-neg{color:var(--red);font-weight:700}
+
+  .chart-box{position:relative;height:280px}
+  .legend{display:flex;flex-direction:column;gap:14px}
+  .legend-item{display:flex;align-items:flex-start;gap:9px}
+  .legend-dot{width:11px;height:11px;border-radius:50%;margin-top:3px;flex-shrink:0}
+  .legend-item .li-lbl{font-weight:700;font-size:14px}
+  .legend-item .li-val{font-size:13px;color:var(--n50);font-variant-numeric:tabular-nums}
+  .breakdown-grid{display:grid;grid-template-columns:180px 1fr;gap:24px;align-items:center}
+
+  .info-pop{font-size:12px;color:var(--n50);font-weight:400;margin-top:3px}
+  .hint{font-size:12px;color:var(--n50);margin-top:10px;font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- icon rail -->
+  <nav class="rail">
+    <svg class="logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 3a13 13 0 1 0 0 26 13 13 0 0 0 9.2-3.8l-3.1-3.1A8.6 8.6 0 1 1 16 7.4c2.4 0 4.5.9 6.1 2.5l3.1-3.1A12.9 12.9 0 0 0 16 3Z" fill="#00257d"/>
+      <circle cx="16" cy="16" r="4.2" fill="#f4a83c"/>
+    </svg>
+    <div class="rail-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</div>
+    <div class="rail-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 010 3h-3a1.5 1.5 0 000 3h4"/></svg>Financing</div>
+    <div class="rail-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg>Project compliance</div>
+    <div class="rail-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h3"/></svg>Cru</div>
+    <div class="rail-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 00-5.6 5.6l-6 6 2 2 6-6a4 4 0 005.6-5.6l-2.5 2.5-2-2 2.5-2.5z"/></svg>Tools</div>
+    <div class="rail-spacer"></div>
+    <div class="rail-account"><div class="rail-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Account</div></div>
+    <div class="rail-caret"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg></div>
+  </nav>
+
+  <!-- secondary nav -->
+  <aside class="subnav">
+    <a class="nav-link">Review queue</a>
+    <a class="nav-link">Ledger</a>
+    <a class="nav-link">Cash flow</a>
+    <a class="nav-link">Transactions</a>
+    <a class="nav-link">Invoicing</a>
+    <a class="nav-link active">Job cost</a>
+    <a class="nav-link">Materials</a>
+    <a class="nav-link">Payroll</a>
+  </aside>
+
+  <!-- main -->
+  <main class="main">
+    <div class="topbar">
+      <h1>Job cost</h1>
+      <button class="btn btn-outline">Integrations</button>
+    </div>
+
+    <div class="content">
+      <!-- filters -->
+      <div class="filters">
+        <select class="filter-btn" id="projectFilter" onchange="switchProject(this.value)"></select>
+        <button class="filter-btn">Date range ▾</button>
+        <span class="chip" id="projChip"></span>
+        <span class="clear">Clear ✕</span>
+      </div>
+
+      <!-- sync banner -->
+      <div class="sync-banner">
+        <div class="sync-dot"></div>
+        <div class="txt"><b>Live from your inbox.</b> Cru reads incoming <b>bills</b> and <b>payroll</b> emails and auto-segments every dollar into Materials, Labor, Equipment, Subcontractor &amp; Other — no manual entry. Last sync <b id="lastSync">just now</b>.</div>
+        <button class="btn btn-primary btn-sm" onclick="syncInbox()">⟳ Sync inbox</button>
+      </div>
+
+      <!-- PROFITABILITY HERO -->
+      <div class="card">
+        <div class="card-head">
+          <h3>Profitability &amp; margin</h3>
+          <div class="right"><span class="src"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M5 5l7-4 7 4M5 5v14l7 4 7-4V5"/></svg>Same logic as your estimate sheet — computed continuously</span></div>
+        </div>
+        <div class="prof-grid">
+          <!-- left: cost stack -->
+          <div class="prof-left">
+            <div class="prof-section-label">Cost to date (auto-captured)</div>
+            <div class="stat-row"><div class="lbl">Materials</div><div class="val" id="pMaterials"></div></div>
+            <div class="stat-row"><div class="lbl">Labor <small>from payroll emails</small></div><div class="val" id="pLabor"></div></div>
+            <div class="stat-row"><div class="lbl">Equipment</div><div class="val" id="pEquipment"></div></div>
+            <div class="stat-row"><div class="lbl">Subcontractor</div><div class="val" id="pSub"></div></div>
+            <div class="stat-row"><div class="lbl">Other <small>permits, vig</small></div><div class="val" id="pOther"></div></div>
+            <div class="stat-row total"><div class="lbl">Total direct cost</div><div class="val" id="pDirect"></div></div>
+            <div class="stat-row"><div class="lbl">Overhead applied <small id="ohSub"></small></div><div class="val" id="pOverhead"></div></div>
+            <div class="stat-row total"><div class="lbl">Break-even price</div><div class="val" id="pBreakeven"></div></div>
+            <div class="stat-row"><div class="lbl">Contract value <small>awarded bid</small></div><div class="val" id="pContract"></div></div>
+          </div>
+          <!-- right: controls + headline -->
+          <div class="prof-right">
+            <div class="profit-headline" id="profHead">
+              <div class="big" id="profMargin"></div>
+              <div class="sub" id="profDollars"></div>
+            </div>
+            <div class="prof-section-label">Margin assumptions <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray400)">· editable</span></div>
+            <div class="control">
+              <label>Overhead ratio
+                <span class="field cv pct"><input type="number" id="ohNum" min="0" max="200" step="0.01" value="76.43" oninput="syncFromNum('oh')"><span class="affix suffix">%</span></span>
+              </label>
+              <input type="range" id="ohRange" min="0" max="120" step="0.01" value="76.43" oninput="syncFromRange('oh')">
+              <div class="info-pop">Applied as a % of total direct cost — pulled from your company default.</div>
+            </div>
+            <div class="control">
+              <label>Target profit
+                <span class="field cv pct"><input type="number" id="ptNum" min="0" max="60" step="0.5" value="10" oninput="syncFromNum('pt')"><span class="affix suffix">%</span></span>
+              </label>
+              <input type="range" id="ptRange" min="0" max="40" step="0.5" value="10" oninput="syncFromRange('pt')">
+              <div class="info-pop">The margin you bid at. We flag jobs drifting below it.</div>
+            </div>
+            <div class="control">
+              <label>Sales tax
+                <span class="field cv pct"><input type="number" id="stNum" min="0" max="15" step="0.25" value="7" oninput="syncFromNum('st')"><span class="affix suffix">%</span></span>
+              </label>
+              <input type="range" id="stRange" min="0" max="12" step="0.25" value="7" oninput="syncFromRange('st')">
+            </div>
+            <div class="control">
+              <label><span>Contract value <span style="font-weight:400;color:var(--gray400)">· awarded bid</span></span>
+                <span class="field cv"><span class="affix">$</span><input type="number" id="contractNum" min="0" step="100" oninput="setContract(this.value)"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <label class="switch"><input type="checkbox" id="taxMat" checked onchange="render()"><span class="slider"></span></label>
+              Apply tax to material
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JOB COST CHART -->
+      <div class="card">
+        <div class="card-head"><h3>Job cost</h3><button class="btn-ghost">Manage</button></div>
+        <div class="card-body"><div class="chart-box"><canvas id="costChart"></canvas></div></div>
+      </div>
+
+      <!-- BILLS -->
+      <div class="card">
+        <div class="card-head">
+          <h3>Bills <span class="muted" style="font-weight:400;font-size:13px" id="billCount"></span></h3>
+          <div class="right"><button class="btn-ghost" onclick="syncInbox()">Add</button><button class="btn-ghost">Manage</button></div>
+        </div>
+        <div class="table-toolbar">
+          <div class="search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e949c" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+            <input id="billSearch" placeholder="Search vendor or number" oninput="renderBills()">
+          </div>
+          <select class="filter-btn" id="catFilter" onchange="renderBills()">
+            <option value="">All categories</option>
+            <option>Materials</option><option>Labor</option><option>Equipment</option><option>Subcontractor</option><option>Other</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Number</th><th>Vendor</th><th>Category</th><th>Source</th><th class="num">Amount</th><th>Bill date</th><th>Paid date</th><th>Aging status</th>
+            </tr></thead>
+            <tbody id="billRows"></tbody>
+          </table>
+        </div>
+        <div class="table-foot"><span id="billFoot"></span><div class="pager"><button>‹</button><button>›</button></div></div>
+      </div>
+
+      <!-- JOB SPEND TRACKER -->
+      <div class="card">
+        <div class="card-head"><h3>Job spend tracker</h3><button class="btn-ghost">Manage</button></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Category</th><th class="num">Budget (estimate)</th><th class="num">Cost to date</th><th class="num">Variance</th><th class="num">% Complete</th>
+            </tr></thead>
+            <tbody id="trackerRows"></tbody>
+          </table>
+        </div>
+        <div class="card-body" style="padding-top:0"><div class="hint">Budget = the estimate Kevin priced. Cost to date = bills + payroll Cru captured automatically. Variance flags where the job is running hot before it eats the margin.</div></div>
+      </div>
+
+      <!-- COST DRIVER BREAKDOWN -->
+      <div class="card">
+        <div class="card-head"><h3>Cost driver breakdown</h3><button class="btn-ghost">Manage</button></div>
+        <div class="card-body">
+          <div class="breakdown-grid">
+            <div class="legend" id="driverLegend"></div>
+            <div class="chart-box"><canvas id="driverChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const CAT_ORDER = ["Materials","Labor","Equipment","Subcontractor","Other"];
+
+// Three KCL Plumbing projects. "14851 13th Lane N" is the one from Kevin's sheet.
+const PROJECTS = {
+  p1: {
+    name: "14851 13th Lane N",
+    sub: "KCL Plumbing · Residential rough-in + final",
+    contract: 6854.31,
+    months: ["Mar 2026","Apr 2026","May 2026","Jun 2026"],
+    budget: { Materials:1444.50, Labor:2052.00, Equipment:185.00, Subcontractor:0, Other:315.00 },
+    bills: [
+      {num:"INV-3021", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:321.00, billDate:"03/14/2026", paid:"03/20/2026", src:"email", age:-2, aging:46},
+      {num:"INV-3044", vendor:"Copper & Brass Wholesale", cat:"Materials", amt:909.50, billDate:"03/28/2026", paid:"04/04/2026", src:"email", age:-2, aging:44},
+      {num:"HD-88102", vendor:"Home Depot Pro", cat:"Materials", amt:214.00, billDate:"04/09/2026", paid:"", src:"email", age:12, aging:33},
+      {num:"PR-04A", vendor:"Payroll · Plumber (24 hrs)", cat:"Labor", amt:912.00, billDate:"04/12/2026", paid:"04/12/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-04B", vendor:"Payroll · Helper (24 hrs)", cat:"Labor", amt:960.00, billDate:"04/12/2026", paid:"04/12/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-05A", vendor:"Payroll · Extra work T&M (3 hrs)", cat:"Labor", amt:180.00, billDate:"04/26/2026", paid:"04/26/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-05B", vendor:"Payroll · Helper overtime (8 hrs)", cat:"Labor", amt:336.00, billDate:"05/02/2026", paid:"05/02/2026", src:"payroll", age:-2, aging:0},
+      {num:"RNT-771", vendor:"United Rentals · trencher", cat:"Equipment", amt:185.00, billDate:"03/30/2026", paid:"", src:"email", age:9, aging:31},
+      {num:"CITY-2210", vendor:"City of Bellevue · permit", cat:"Other", amt:265.00, billDate:"03/12/2026", paid:"03/12/2026", src:"email", age:-2, aging:50},
+    ],
+    nextBill: {num:"INV-3098", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:128.75, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1, label:"final fittings"}
+  },
+  p2: {
+    name: "Maple Court Renovation",
+    sub: "KCL Plumbing · Multi-unit repipe",
+    contract: 41200.00,
+    months: ["Feb 2026","Mar 2026","Apr 2026","May 2026","Jun 2026"],
+    budget: { Materials:9850.00, Labor:14200.00, Equipment:1100.00, Subcontractor:2800.00, Other:950.00 },
+    bills: [
+      {num:"INV-2890", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:4210.55, billDate:"02/18/2026", paid:"02/25/2026", src:"email", age:-2, aging:62},
+      {num:"INV-2955", vendor:"PEX Direct", cat:"Materials", amt:3180.00, billDate:"03/22/2026", paid:"03/29/2026", src:"email", age:-2, aging:51},
+      {num:"INV-3010", vendor:"Copper & Brass Wholesale", cat:"Materials", amt:2640.00, billDate:"04/15/2026", paid:"", src:"email", age:22, aging:30},
+      {num:"PR-M02", vendor:"Payroll · Crew (160 hrs)", cat:"Labor", amt:6080.00, billDate:"03/15/2026", paid:"03/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-M04", vendor:"Payroll · Crew (172 hrs)", cat:"Labor", amt:6536.00, billDate:"04/15/2026", paid:"04/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-M05", vendor:"Payroll · OT + extras", cat:"Labor", amt:2480.00, billDate:"05/01/2026", paid:"05/01/2026", src:"payroll", age:-2, aging:0},
+      {num:"SUB-440", vendor:"Apex Drain Specialists", cat:"Subcontractor", amt:2800.00, billDate:"04/20/2026", paid:"", src:"email", age:13, aging:28},
+      {num:"RNT-802", vendor:"United Rentals · lift", cat:"Equipment", amt:1240.00, billDate:"03/30/2026", paid:"04/06/2026", src:"email", age:-2, aging:45},
+      {num:"CITY-3301", vendor:"City permits + inspection", cat:"Other", amt:920.00, billDate:"02/20/2026", paid:"02/20/2026", src:"email", age:-2, aging:60},
+    ],
+    nextBill: {num:"INV-3120", vendor:"PEX Direct", cat:"Materials", amt:845.00, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1, label:"restock"}
+  },
+  p3: {
+    name: "Riverside Plaza TI",
+    sub: "KCL Plumbing · Commercial tenant improvement",
+    contract: 88500.00,
+    months: ["Jan 2026","Feb 2026","Mar 2026","Apr 2026","May 2026","Jun 2026"],
+    budget: { Materials:21500.00, Labor:31000.00, Equipment:3400.00, Subcontractor:9500.00, Other:2200.00 },
+    bills: [
+      {num:"INV-2701", vendor:"Ferguson Plumbing Supply", cat:"Materials", amt:8420.00, billDate:"01/22/2026", paid:"01/29/2026", src:"email", age:-2, aging:90},
+      {num:"INV-2840", vendor:"Carrier Commercial", cat:"Materials", amt:7650.00, billDate:"02/28/2026", paid:"03/06/2026", src:"email", age:-2, aging:70},
+      {num:"INV-2999", vendor:"Copper & Brass Wholesale", cat:"Materials", amt:6120.00, billDate:"04/10/2026", paid:"", src:"email", age:48, aging:30},
+      {num:"PR-R01", vendor:"Payroll · Crew (320 hrs)", cat:"Labor", amt:12480.00, billDate:"02/15/2026", paid:"02/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-R03", vendor:"Payroll · Crew (340 hrs)", cat:"Labor", amt:13260.00, billDate:"04/15/2026", paid:"04/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"PR-R05", vendor:"Payroll · OT surge", cat:"Labor", amt:6800.00, billDate:"05/15/2026", paid:"05/15/2026", src:"payroll", age:-2, aging:0},
+      {num:"SUB-610", vendor:"Apex Fire Protection", cat:"Subcontractor", amt:9500.00, billDate:"03/25/2026", paid:"04/01/2026", src:"email", age:-2, aging:55},
+      {num:"RNT-915", vendor:"Sunbelt Rentals · scissor lift", cat:"Equipment", amt:3400.00, billDate:"02/10/2026", paid:"02/17/2026", src:"email", age:-2, aging:78},
+      {num:"CITY-4400", vendor:"City permits + backflow test", cat:"Other", amt:2200.00, billDate:"01/18/2026", paid:"01/18/2026", src:"email", age:-2, aging:92},
+    ],
+    nextBill: {num:"INV-3140", vendor:"Carrier Commercial", cat:"Materials", amt:1980.00, billDate:"06/01/2026", paid:"", src:"email", age:30, aging:1, label:"punch-list parts"}
+  }
+};
+
+let currentKey = "p1";
+let costChart, driverChart;
+
+/* ---------------- HELPERS ---------------- */
+const $ = id => document.getElementById(id);
+const money = n => "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money0 = n => "$"+Math.round(n).toLocaleString("en-US");
+const TAG = c => `<span class="tag tag-${c.toLowerCase()}">${c}</span>`;
+
+function actualsByCat(p){
+  const a={Materials:0,Labor:0,Equipment:0,Subcontractor:0,Other:0};
+  p.bills.forEach(b=>a[b.cat]+=b.amt);
+  return a;
+}
+
+/* ---------------- PROJECT SWITCH ---------------- */
+function initProjectFilter(){
+  const sel=$("projectFilter");
+  sel.innerHTML=Object.entries(PROJECTS).map(([k,p])=>`<option value="${k}">${p.name}</option>`).join("");
+}
+function switchProject(k){ currentKey=k; $("contractNum").value=PROJECTS[k].contract.toFixed(2); render(); buildCharts(); }
+
+/* keep slider + number field in sync */
+function syncFromNum(key){ const v=$(key+"Num").value; const r=$(key+"Range"); if(v!=="") r.value=Math.min(Math.max(v,r.min),r.max); render(); }
+function syncFromRange(key){ $(key+"Num").value=$(key+"Range").value; render(); }
+function setContract(v){ PROJECTS[currentKey].contract=parseFloat(v)||0; render(); }
+function setBudget(cat,v){ PROJECTS[currentKey].budget[cat]=parseFloat(v)||0; render(); }
+
+/* ---------------- RENDER ---------------- */
+function render(){
+  const p=PROJECTS[currentKey];
+  const a=actualsByCat(p);
+  const oh=(parseFloat($("ohNum").value)||0)/100;
+  const pt=(parseFloat($("ptNum").value)||0)/100;
+  const st=(parseFloat($("stNum").value)||0)/100;
+  const taxMat=$("taxMat").checked;
+
+  $("ohSub").textContent=(oh*100).toFixed(2)+"% of direct cost";
+
+  // chip + filter
+  $("projChip").innerHTML=`${p.name} <button onclick="void 0">✕</button>`;
+
+  // cost stack (apply sales tax to materials if enabled)
+  const matWithTax = taxMat ? a.Materials*(1+st) : a.Materials;
+  const direct = matWithTax + a.Labor + a.Equipment + a.Subcontractor + a.Other;
+  const overhead = direct*oh;
+  const breakeven = direct + overhead;
+  const contract = p.contract;
+  const profit = contract - breakeven;
+  const margin = profit/contract;
+
+  $("pMaterials").textContent=money(matWithTax);
+  $("pLabor").textContent=money(a.Labor);
+  $("pEquipment").textContent=money(a.Equipment);
+  $("pSub").textContent=money(a.Subcontractor);
+  $("pOther").textContent=money(a.Other);
+  $("pDirect").textContent=money(direct);
+  $("pOverhead").textContent=money(overhead);
+  $("pBreakeven").textContent=money(breakeven);
+  $("pContract").textContent=money(contract);
+
+  // headline
+  const head=$("profHead");
+  head.className="profit-headline "+(margin>=pt?"good":margin>=0?"warn":"bad");
+  $("profMargin").textContent=(margin*100).toFixed(1)+"% margin";
+  const vsTarget = margin>=pt ? "on target" : margin>=0 ? `below ${ (pt*100).toFixed(0) }% target` : "underwater";
+  $("profDollars").textContent=`${profit>=0?"+":"−"}${money(Math.abs(profit))} projected profit · ${vsTarget}`;
+
+  renderBills();
+  renderTracker(p,a);
+  renderDriverLegend(p);
+}
+
+/* ---------------- BILLS ---------------- */
+function renderBills(){
+  const p=PROJECTS[currentKey];
+  const q=($("billSearch").value||"").toLowerCase();
+  const cat=$("catFilter").value;
+  const rows=p.bills.filter(b=>
+    (!cat||b.cat===cat) &&
+    (!q || b.vendor.toLowerCase().includes(q) || b.num.toLowerCase().includes(q))
+  );
+  $("billRows").innerHTML=rows.map(b=>{
+    const cls=b.age<0?"g":b.age<=20?"y":"r";
+    const ageTxt=(b.age>0?"+":"")+b.age+" days";
+    const srcIcon = b.src==="payroll"
+      ? `<span class="src"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Payroll</span>`
+      : `<span class="src"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email</span>`;
+    return `<tr ${b._new?'class="new-row"':''}>
+      <td><b>${b.num}</b></td>
+      <td>${b.vendor}</td>
+      <td>${TAG(b.cat)}</td>
+      <td>${srcIcon}</td>
+      <td class="num"><b>${money(b.amt)}</b></td>
+      <td class="muted">${b.billDate}</td>
+      <td class="muted">${b.paid||"—"}</td>
+      <td><span class="badge ${cls}"><b>${ageTxt}</b><span>${b.aging} days avg</span></span></td>
+    </tr>`;
+  }).join("");
+  $("billCount").textContent=`· ${p.bills.length} captured`;
+  $("billFoot").textContent=`Showing ${rows.length} of ${p.bills.length}`;
+}
+
+/* ---------------- TRACKER ---------------- */
+function renderTracker(p,a){
+  let tBudget=0,tActual=0;
+  const rows=CAT_ORDER.map(c=>{
+    const bud=p.budget[c], act=a[c];
+    tBudget+=bud; tActual+=act;
+    const pct = bud>0 ? act/bud : (act>0?1:0);
+    const over = pct>1;
+    const variance = bud-act; // positive = under budget (good)
+    const varCls = variance>=0?"var-pos":"var-neg";
+    const varTxt = (variance>=0?"+":"−")+money(Math.abs(variance));
+    return `<tr>
+      <td>${TAG(c)}</td>
+      <td class="num"><span class="field"><span class="affix">$</span><input type="number" min="0" step="10" value="${bud.toFixed(2)}" onchange="setBudget('${c}',this.value)"></span></td>
+      <td class="num"><b>${money(act)}</b></td>
+      <td class="num"><span class="${varCls}">${varTxt}</span></td>
+      <td class="num"><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill ${over?'over':''}" style="width:${Math.min(pct*100,100)}%"></div></div>${Math.round(pct*100)}%</div></td>
+    </tr>`;
+  }).join("");
+  const tVar=tBudget-tActual, tVarCls=tVar>=0?"var-pos":"var-neg";
+  const totalRow=`<tr style="font-weight:900;background:var(--n2)">
+      <td>Total</td>
+      <td class="num">${money(tBudget)}</td>
+      <td class="num">${money(tActual)}</td>
+      <td class="num"><span class="${tVarCls}">${(tVar>=0?"+":"−")+money(Math.abs(tVar))}</span></td>
+      <td class="num">${Math.round((tActual/tBudget)*100)}%</td>
+    </tr>`;
+  $("trackerRows").innerHTML=rows+totalRow;
+}
+
+/* ---------------- CHARTS ---------------- */
+function monthlySpend(p){
+  // distribute each bill into its month bucket by billDate month
+  const idx={}; p.months.forEach((m,i)=>idx[m.slice(0,3)+" "+m.slice(-4)]=i);
+  const totals=p.months.map(()=>0);
+  const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  p.bills.forEach(b=>{
+    const mm=parseInt(b.billDate.slice(0,2))-1, yy=b.billDate.slice(-4);
+    const key=M[mm]+" "+yy;
+    if(key in idx) totals[idx[key]]+=b.amt;
+  });
+  return totals;
+}
+function driverSeries(p){
+  // cumulative by category across months
+  const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const idx={}; p.months.forEach((m,i)=>idx[m]=i);
+  const series={}; CAT_ORDER.forEach(c=>series[c]=p.months.map(()=>0));
+  p.bills.forEach(b=>{
+    const mm=parseInt(b.billDate.slice(0,2))-1, yy=b.billDate.slice(-4);
+    const key=M[mm]+" "+yy;
+    if(key in idx) series[b.cat][idx[key]]+=b.amt;
+  });
+  // make cumulative
+  CAT_ORDER.forEach(c=>{ for(let i=1;i<series[c].length;i++) series[c][i]+=series[c][i-1]; });
+  return series;
+}
+const CAT_COLORS={Materials:"#1768e0",Labor:"#6b46c1",Equipment:"#f4926c",Subcontractor:"#80bca3",Other:"#8e949c"};
+
+function buildCharts(){
+  const p=PROJECTS[currentKey];
+  if(costChart) costChart.destroy();
+  if(driverChart) driverChart.destroy();
+
+  costChart=new Chart($("costChart"),{
+    type:"bar",
+    data:{labels:p.months,datasets:[{data:monthlySpend(p),backgroundColor:"#80bca3",borderRadius:4,maxBarThickness:46}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>" "+money0(c.parsed.y)+" billed"}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>"$"+(v/1000)+"K"},grid:{color:"#eef0f3"}},x:{grid:{display:false}}}}
+  });
+
+  const s=driverSeries(p);
+  driverChart=new Chart($("driverChart"),{
+    type:"line",
+    data:{labels:p.months,datasets:CAT_ORDER.map(c=>({label:c,data:s[c],borderColor:CAT_COLORS[c],backgroundColor:CAT_COLORS[c],tension:.35,borderWidth:2,pointRadius:2}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>" "+c.dataset.label+": "+money0(c.parsed.y)}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>"$"+(v/1000)+"K"},grid:{color:"#eef0f3"}},x:{grid:{display:false}}}}
+  });
+}
+function renderDriverLegend(p){
+  const a=actualsByCat(p);
+  $("driverLegend").innerHTML=CAT_ORDER.map(c=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${CAT_COLORS[c]}"></div>
+      <div><div class="li-lbl">${c}</div><div class="li-val">${money(a[c])} to date</div></div>
+    </div>`).join("");
+}
+
+/* ---------------- SYNC SIMULATION ---------------- */
+let synced=false;
+function syncInbox(){
+  const p=PROJECTS[currentKey];
+  if(!p._synced && p.nextBill){
+    const nb={...p.nextBill,_new:true};
+    p.bills.unshift(nb);
+    p._synced=true;
+  }
+  $("lastSync").textContent="just now";
+  render(); buildCharts();
+  // flash banner feedback
+  const btnTime=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  setTimeout(()=>{$("lastSync").textContent=btnTime;},1800);
+}
+
+/* ---------------- INIT ---------------- */
+initProjectFilter();
+$("contractNum").value=PROJECTS[currentKey].contract.toFixed(2);
+render();
+buildCharts();
+</script>
+</body>
+</html>
