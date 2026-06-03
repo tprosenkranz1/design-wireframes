@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cru · Cash Forecast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --page:#ffffff;
+    --card:#ffffff;
+    --bar:#fafbfc;
+    --border:#e7e9ee;
+    --border-soft:#eef0f3;
+    --ink:#1c2024;          /* near-black titles & cell text */
+    --ink-2:#5a626c;
+    --ink-3:#9aa1ab;        /* axis / placeholder */
+    --navy:#283a8f;         /* column headers */
+    --link:#2456d6;         /* Date range / Manage links */
+    --bank:#4287f0;
+    --book:#2b2f38;
+    --grid:#edeef1;
+    --hover:#f5f6f8;
+    --tabbg:#eef0f3;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--page);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px;-webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:1040px;margin:0 auto;padding:26px 24px 72px;}
+
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:22px;}
+  .nav-tab{padding:9px 14px;font-size:13.5px;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .nav-tab.active{color:var(--ink);font-weight:600;border-bottom-color:var(--ink);}
+
+  /* card shell */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px;}
+  .card-bar{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;background:var(--bar);border-bottom:1px solid var(--border-soft);}
+  .card-bar h2{font-size:16px;font-weight:700;margin:0;color:var(--ink);letter-spacing:-.01em;}
+  .bar-actions{display:flex;gap:26px;}
+  .bar-actions a{font-size:14px;font-weight:600;color:var(--link);text-decoration:none;cursor:pointer;}
+
+  /* chart body */
+  .chart-body{display:flex;padding:20px 22px 14px;}
+  .legend-col{width:150px;flex:0 0 150px;padding-top:4px;}
+  .legend-col .date-h{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:20px;}
+  .legend-item{margin-bottom:18px;}
+  .legend-item .nm{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:var(--ink);}
+  .legend-item .nm .dot{width:9px;height:9px;border-radius:50%;}
+  .legend-item .vl{font-size:13px;color:var(--ink-2);margin-top:3px;margin-left:18px;font-variant-numeric:tabular-nums;}
+  .chart-wrap{flex:1;min-width:0;height:360px;position:relative;}
+
+  /* checks: tabs + filters */
+  .pad{padding:18px 20px;}
+  .seg{display:inline-flex;background:var(--tabbg);border-radius:9px;padding:3px;gap:2px;margin-bottom:16px;}
+  .seg button{border:0;background:transparent;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink-3);padding:7px 16px;border-radius:7px;cursor:pointer;}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(16,24,40,.08);}
+  .filters{display:grid;grid-template-columns:1fr 220px 220px;gap:12px;}
+  .field{display:flex;align-items:center;gap:9px;border:1px solid #d9dde3;border-radius:9px;padding:0 13px;height:46px;color:var(--ink-3);}
+  .field input{border:0;outline:0;font:inherit;font-size:14px;color:var(--ink);background:transparent;width:100%;}
+  .field input::placeholder{color:var(--ink-3);}
+  .field svg{flex:0 0 18px;color:var(--ink-3);}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;}
+  thead th{font-size:13px;font-weight:700;color:var(--navy);text-align:left;padding:13px 20px;background:var(--bar);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);}
+  thead th.num{text-align:right;}
+  tbody td{padding:18px 20px;border-bottom:1px solid var(--border-soft);font-size:14.5px;color:var(--ink);}
+  tbody td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  tbody td.dim{color:var(--ink-2);font-variant-numeric:tabular-nums;}
+  tbody tr:hover{background:var(--hover);}
+  tbody tr:last-child td{border-bottom:0;}
+  .kebab{width:30px;text-align:center;}
+  .kebab .dots{display:inline-flex;flex-direction:column;gap:2.5px;opacity:0;cursor:pointer;}
+  tbody tr:hover .kebab .dots{opacity:1;}
+  .kebab .dots span{width:3.5px;height:3.5px;border-radius:50%;background:var(--ink-2);}
+  .col-num{width:90px;} .col-date{width:130px;} .col-amt{width:160px;}
+
+  /* book balance bridge (same chrome) */
+  .brow{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--border-soft);font-size:14px;}
+  .brow .lbl{color:var(--ink-2);display:flex;align-items:center;gap:10px;}
+  .brow .op{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;border-radius:5px;background:#eef0f3;color:var(--ink-3);font-size:12px;font-weight:700;}
+  .brow .amt{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink);}
+  .brow.total{border-bottom:0;background:var(--bar);}
+  .brow.total .lbl{color:var(--ink);font-weight:700;}
+  .brow.total .amt{font-size:16px;font-weight:700;}
+
+  .foot{font-size:12px;color:var(--ink-3);text-align:center;margin-top:8px;}
+  @media(max-width:820px){.chart-body{flex-direction:column}.legend-col{width:auto;display:flex;gap:28px;margin-bottom:8px}.filters{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="tabs">
+    <div class="nav-tab">Overview</div>
+    <div class="nav-tab">Transactions</div>
+    <div class="nav-tab active">Cash Forecast</div>
+    <div class="nav-tab">Accounts Payable</div>
+    <div class="nav-tab">Reports</div>
+  </div>
+
+  <!-- ===== Cash position ===== -->
+  <div class="card">
+    <div class="card-bar">
+      <h2>Cash position</h2>
+      <div class="bar-actions"><a>Date range</a><a>Manage</a></div>
+    </div>
+    <div class="chart-body">
+      <div class="legend-col">
+        <div class="date-h">Date</div>
+        <div class="legend-item">
+          <div class="nm"><span class="dot" style="background:var(--bank)"></span>Bank balance</div>
+          <div class="vl" id="lv-bank">—</div>
+        </div>
+        <div class="legend-item">
+          <div class="nm"><span class="dot" style="background:var(--book)"></span>Book balance</div>
+          <div class="vl" id="lv-book">—</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ===== Checks ===== -->
+  <div class="card">
+    <div class="card-bar">
+      <h2>Checks</h2>
+      <div class="bar-actions"><a>Manage</a></div>
+    </div>
+    <div class="pad">
+      <div class="seg">
+        <button class="on">Outstanding</button>
+        <button>Transacted</button>
+      </div>
+      <div class="filters">
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input placeholder="Search number or payee">
+        </div>
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/></svg>
+          <input placeholder="Start date">
+        </div>
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/></svg>
+          <input placeholder="End date">
+        </div>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th class="col-date">Check date</th>
+          <th class="col-num">Number</th>
+          <th>Payee</th>
+          <th class="num col-amt">Check amount</th>
+          <th class="kebab"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="dim">11/17/25</td><td class="dim">8440</td><td>AMF LOC 325</td><td class="num">$544.67</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/17/25</td><td class="dim">8441</td><td>IBEW LU 325 JOINT TRUST FUND</td><td class="num">$232.66</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/17/25</td><td class="dim">8442</td><td>IBEW PAC</td><td class="num">$80.00</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/17/25</td><td class="dim">8443</td><td>LMCC 325</td><td class="num">$149.52</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/17/25</td><td class="dim">8444</td><td>LOCAL 325 FUNDS</td><td class="num">$26,512.28</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/17/25</td><td class="dim">8445</td><td>N.E.B.F. LOC 325</td><td class="num">$1,105.46</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/17/25</td><td class="dim">8446</td><td>IBEW LU 325 PENSION</td><td class="num">$18,744.10</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/14/25</td><td class="dim">8439</td><td>GRAYBAR ELECTRIC CO</td><td class="num">$27,650.00</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+        <tr><td class="dim">11/14/25</td><td class="dim">8438</td><td>CON EDISON</td><td class="num">$9,840.12</td><td class="kebab"><span class="dots"><span></span><span></span><span></span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== Book balance breakdown ===== -->
+  <div class="card">
+    <div class="card-bar">
+      <h2>Book balance</h2>
+      <div class="bar-actions"><a>Manage</a></div>
+    </div>
+    <div class="brow"><span class="lbl">Gross cash balance</span><span class="amt">$2,462,000</span></div>
+    <div class="brow"><span class="lbl"><span class="op">−</span>Inter-company transfers</span><span class="amt">$84,000</span></div>
+    <div class="brow"><span class="lbl"><span class="op">−</span>Outstanding checks</span><span class="amt">$88,761</span></div>
+    <div class="brow"><span class="lbl"><span class="op">−</span>Upcoming credit-card payments</span><span class="amt">$62,400</span></div>
+    <div class="brow"><span class="lbl"><span class="op">+</span>Addback for held checks</span><span class="amt">$0</span></div>
+    <div class="brow total"><span class="lbl">Book balance</span><span class="amt">$2,226,839</span></div>
+  </div>
+
+  <div class="foot">Prototype · mock data for review · Cru Cash Forecast tab</div>
+</div>
+
+<script>
+// ---- data generation: weekly points Jan 2025 → Feb 2026 ----
+const W = 56, SPLIT = 43;                 // forecast starts mid-Nov 2025
+const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'];
+const monthYear  = ['2025','2025','2025','2025','2025','2025','2025','2025','2025','2025','2025','2025','2026','2026'];
+
+const bankA = [0.0, 1.7, 0.4, -1.2, -2.3, -1.1, -0.1, 0.6, -0.3, 1.4, 2.5, 1.3, -0.4, -1.2];
+const bookA = [-2.4,-0.7,-1.7,-3.5, -4.8, -3.6, -2.5,-1.7,-2.6,-0.4, 1.0,-0.6, -2.6, -3.7];
+
+const lerp=(a,b,t)=>a+(b-a)*t;
+const noise=i=>Math.sin(i*1.7)*0.30+Math.sin(i*0.7+1)*0.22+Math.sin(i*3.3)*0.15;
+function series(anchor){
+  const out=[];
+  for(let i=0;i<W;i++){
+    const m=Math.floor(i/4), f=(i%4)/4;
+    const a=anchor[m], b=anchor[Math.min(m+1,13)];
+    const nz=noise(i)*(i<=SPLIT?0.55:0.10);
+    out.push((lerp(a,b,f)+nz)*1e6);
+  }
+  return out;
+}
+const bank=series(bankA), book=series(bookA);
+
+const actual  =arr=>arr.map((v,i)=>i<=SPLIT?v:null);
+const forecast=arr=>arr.map((v,i)=>i>=SPLIT?v:null);
+function band(arr,base,grow,sign){
+  return arr.map((v,i)=> i<SPLIT?null:(v + sign*((base+(i-SPLIT)*grow)*1e6)));
+}
+
+const labels = Array.from({length:W},(_,i)=> i%4===0 ? `${monthNames[i/4]} ${monthYear[i/4]}` : '');
+
+const fmtM = v => { if(v===0) return '$0'; const s=v<0?'-':''; return `$${s}${(Math.abs(v)/1e6).toFixed(Math.abs(v)%1e6===0?0:1)}M`; };
+const fmtFull = v => '$'+Math.round(v).toLocaleString('en-US');
+
+// vertical month gridlines + forecast divider
+const decor = {
+  id:'decor',
+  beforeDatasetsDraw(chart){
+    const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
+    ctx.save();
+    ctx.strokeStyle='#edeef1';ctx.lineWidth=1;
+    for(let i=0;i<W;i+=4){const px=x.getPixelForValue(i);ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();}
+    ctx.restore();
+  },
+  afterDatasetsDraw(chart){
+    const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
+    const px=x.getPixelForValue(SPLIT);
+    ctx.save();
+    ctx.strokeStyle='#c9ced6';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(px,top);ctx.lineTo(px,bottom);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#9aa1ab';ctx.font='600 10px Inter, sans-serif';ctx.textAlign='left';
+    ctx.fillText('FORECAST',px+6,top+11);
+    ctx.restore();
+  }
+};
+Chart.register(decor);
+
+const baseLine={tension:0.12,pointRadius:0,pointHoverRadius:4,borderWidth:2,spanGaps:false};
+const ctx=document.getElementById('chart');
+const chart=new Chart(ctx,{
+  type:'line',
+  data:{labels,datasets:[
+    // confidence bands (drawn first, behind lines)
+    {label:'_bankU',data:band(forecast(bank),0.25,0.07,+1),borderWidth:0,pointRadius:0,fill:'+1',backgroundColor:'rgba(66,135,240,0.13)'},
+    {label:'_bankL',data:band(forecast(bank),0.25,0.07,-1),borderWidth:0,pointRadius:0,fill:false},
+    {label:'_bookU',data:band(forecast(book),0.30,0.09,+1),borderWidth:0,pointRadius:0,fill:'+1',backgroundColor:'rgba(120,128,138,0.16)'},
+    {label:'_bookL',data:band(forecast(book),0.30,0.09,-1),borderWidth:0,pointRadius:0,fill:false},
+    // lines
+    {...baseLine,label:'Bank balance',data:actual(bank),borderColor:'#4287f0'},
+    {...baseLine,label:'Bank balance',data:forecast(bank),borderColor:'#4287f0',borderDash:[6,4]},
+    {...baseLine,label:'Book balance',data:actual(book),borderColor:'#2b2f38'},
+    {...baseLine,label:'Book balance',data:forecast(book),borderColor:'#2b2f38',borderDash:[6,4]},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    layout:{padding:{top:8,right:8}},
+    interaction:{mode:'index',intersect:false},
+    onHover:(e,els)=>{
+      if(!els.length) return;
+      const i=els[0].index;
+      const b=bank[i], k=book[i];
+      document.getElementById('lv-bank').textContent = b==null?'—':fmtFull(b);
+      document.getElementById('lv-book').textContent = k==null?'—':fmtFull(k);
+    },
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#1c2024',padding:11,cornerRadius:8,displayColors:true,
+        filter:item=>item.datasetIndex>=4 && item.parsed.y!==null,
+        callbacks:{label:c=>' '+c.dataset.label+': '+fmtFull(c.parsed.y)}
+      }
+    },
+    scales:{
+      x:{grid:{display:false},border:{display:false},
+         ticks:{color:'#9aa1ab',font:{size:11},autoSkip:false,maxRotation:0,
+           callback:function(val,idx){const l=labels[idx];return l? l.split(' '):'';}}},
+      y:{position:'left',min:-5.4e6,max:3.2e6,border:{display:false},
+         grid:{color:'#edeef1'},
+         afterBuildTicks:a=>{a.ticks=[{value:2e6},{value:0},{value:-2e6},{value:-4e6}];},
+         ticks:{color:'#9aa1ab',font:{size:11.5},callback:fmtM}}
+    }
+  }
+});
+</script>
+</body>
+</html>
