@@ -136,11 +136,11 @@
         <div class="date-h">Date</div>
         <div class="leg-sub">Actuals</div>
         <div class="legend-item">
-          <div class="nm"><span class="dot" style="background:var(--bank)"></span>Bank balance<br>(net of treasury)</div>
+          <div class="nm"><span class="dot" style="background:var(--bank)"></span>Bank balance<br>(net of sweeps &amp; LOC draws)</div>
           <div class="vl" id="lv-bank">—</div>
         </div>
         <div class="legend-item">
-          <div class="nm"><span class="dot" style="background:var(--opc)"></span>Operating cash</div>
+          <div class="nm"><span class="dot" style="background:var(--opc)"></span>Operating cash<br>(before sweeps &amp; LOC draws)</div>
           <div class="vl" id="lv-opc">—</div>
         </div>
         <div class="leg-sub">Forecast</div>
@@ -156,9 +156,9 @@
       <div class="chart-wrap"><canvas id="chart"></canvas></div>
     </div>
     <div class="chart-note">
-      <b>Two cuts, per Abbas:</b> bank balance is net of all treasury movements (incl. LLC sweeps); operating cash is the business yield before treasury actions — the line the model forecasts.
-      Over the historical weeks, the <b>dashed teal back-test</b> is what the model would have predicted; the gap to the solid teal actual is the forecast error.
-      <b>Forecasted book balance</b> = forecasted operating cash − projected outstanding liabilities.
+      <b>Two cuts:</b> bank balance is the actual bank balance after treasury actions (sweeps, LOC draws); operating cash is what the business generates before sweeps &amp; LOC draws — the line the model forecasts.
+      Forecast accuracy (badge above) tracks the model against actuals over the trailing weeks.
+      <b>Forecasted book balance</b> = forecasted operating cash − outstanding checks (checks cut but not yet cleared the bank).
     </div>
   </div>
 
@@ -188,6 +188,7 @@
     </div>
 
     <div class="wk-wrap">
+      <div style="font-size:12px;color:var(--ink-3);margin-bottom:10px;">Refreshes daily as checks clear and new ones are cut · current week updates through Friday.</div>
       <table class="wk">
         <thead>
           <tr><th>Week of</th><th>Start outstanding</th><th>New cut</th><th>Cleared / released</th><th>End outstanding</th></tr>
@@ -243,16 +244,14 @@
     </div>
     <div class="brow"><span class="lbl">Operating cash balance</span><span class="amt">$2,462,000</span></div>
     <div class="brow"><span class="lbl"><span class="op">−</span>Outstanding checks</span><span class="amt">$1,000,000</span></div>
-    <div class="brow"><span class="lbl"><span class="op">−</span>Upcoming credit-card payments</span><span class="amt">$62,400</span></div>
-    <div class="brow"><span class="lbl"><span class="op">−</span>Other projected liabilities</span><span class="amt">$110,761</span></div>
     <div class="brow"><span class="lbl"><span class="op">+</span>Addback for held checks</span><span class="amt">$182,900</span></div>
-    <div class="brow total"><span class="lbl">Book balance</span><span class="amt">$1,471,739</span></div>
+    <div class="brow total"><span class="lbl">Book balance</span><span class="amt">$1,644,900</span></div>
   </div>
 
   <!-- ===== Rationale ===== -->
   <div class="why">
     <h3>BUILT AROUND ABBAS'S ASKS — Cru Weekly, Jun 3</h3>
-    <div class="row"><div class="q">"...show both separately... net of everything... and just the operating cash impact... so I can compare how accurate the forecast is."</div><div class="a">Two labeled cuts on the chart (bank balance net of treasury vs operating cash) plus a back-test overlay and an accuracy badge for continuous forecast-vs-actual comparison.</div></div>
+    <div class="row"><div class="q">"...show both separately... net of everything... and just the operating cash impact... so I can compare how accurate the forecast is."</div><div class="a">Two labeled cuts on the chart (bank balance after sweeps &amp; LOC draws vs operating cash before them) plus an accuracy badge for continuous forecast-vs-actual comparison.</div></div>
     <div class="row"><div class="q">"I don't necessarily need details on these checks. I just need like a number... beginning of the week to the end of the week."</div><div class="a">Checks lead with a weekly aggregate (start / new / cleared / end), not a register. The line-item detail is tucked into a drill-down.</div></div>
     <div class="row"><div class="q">"...anticipate what major checks might come out next week and prepare for it... we're holding certain checks and certain checks we can't hold."</div><div class="a">"Projected to clear this week" tile is the cash-out number to plan releases against; held-in-house is shown alongside since EJ combines the two.</div></div>
   </div>
@@ -291,7 +290,7 @@ const opcFcFull=opcU.map((v,i)=> i<=SPLIT ? v+fcErr(i) : v);
 const seg=(arr,from,to)=>arr.map((v,i)=> (i>=from&&i<=to)?v:null);
 const bankActual=seg(bankU,0,SPLIT), bankFc=seg(bankU,SPLIT,W-1);
 const opcActual =seg(opcU,0,SPLIT);
-const opcFc     =opcFcFull.slice();                        // full timeline
+const opcFc     =seg(opcFcFull,SPLIT,W-1);                 // forecast region only (no dashed historicals)
 const bookActual=seg(bookU,0,SPLIT);
 const bookFc    =opcFcFull.map((v,i)=> i>=SPLIT ? v-liab(i) : null);
 
@@ -328,8 +327,7 @@ const chart=new Chart(document.getElementById('chart'),{
     {label:'_bookU',data:band(bookFc,0.28,0.08,+1),borderWidth:0,pointRadius:0,fill:'+1',backgroundColor:'rgba(43,47,56,0.10)'},
     {label:'_bookL',data:band(bookFc,0.28,0.08,-1),borderWidth:0,pointRadius:0,fill:false},
     // lines (idx 4+)
-    {...L,label:'Bank balance (net of treasury)',data:bankActual,borderColor:'#4287f0'},
-    {...L,label:'Bank balance (forecast)',data:bankFc,borderColor:'#4287f0',borderDash:[6,4],borderWidth:1.5},
+    {...L,label:'Bank balance (net of sweeps & LOC draws)',data:bankActual,borderColor:'#4287f0'},
     {...L,label:'Operating cash (actual)',data:opcActual,borderColor:'#12a594',borderWidth:2.4},
     {...L,label:'Operating cash (forecast / back-test)',data:opcFc,borderColor:'#12a594',borderDash:[6,4]},
     {...L,label:'Book balance (actual)',data:bookActual,borderColor:'#2b2f38'},
@@ -340,9 +338,9 @@ const chart=new Chart(document.getElementById('chart'),{
     interaction:{mode:'index',intersect:false},
     onHover:(e,els)=>{
       if(!els.length)return;const i=els[0].index;const fc=i>SPLIT;
-      document.getElementById('lv-bank').textContent = bankU[i]==null?'—':fmtFull(bankU[i]);
+      document.getElementById('lv-bank').textContent = i<=SPLIT?fmtFull(bankU[i]):'—';
       document.getElementById('lv-opc').textContent  = fc?'—':fmtFull(opcU[i]);
-      document.getElementById('lv-fopc').textContent = fmtFull(opcFcFull[i]);
+      document.getElementById('lv-fopc').textContent = i>=SPLIT?fmtFull(opcFcFull[i]):'—';
       document.getElementById('lv-fbook').textContent= fc?fmtFull(opcFcFull[i]-liab(i)):'—';
     },
     plugins:{
@@ -350,7 +348,7 @@ const chart=new Chart(document.getElementById('chart'),{
       tooltip:{backgroundColor:'#1c2024',padding:11,cornerRadius:8,
         filter:item=>{const di=item.datasetIndex;
           if(di<4||item.parsed.y===null)return false;
-          if((di===5||di===9)&&item.dataIndex===SPLIT)return false;  // dedupe bank/book boundary
+          if(di===8&&item.dataIndex===SPLIT)return false;  // dedupe book balance boundary
           return true;},
         callbacks:{label:c=>' '+c.dataset.label+': '+fmtFull(c.parsed.y)}}
     },
